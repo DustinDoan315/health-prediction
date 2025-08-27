@@ -1,5 +1,10 @@
-import { LoginRequest, RegisterRequest, User, apiService } from '../../services/api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  apiService,
+  LoginRequest,
+  RegisterRequest,
+  User
+} from '../../services/api';
 
 interface AuthState {
   user: User | null;

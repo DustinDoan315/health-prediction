@@ -1,14 +1,33 @@
+import {
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
+} from '@/constants/Colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { loadUser } from '@/store/slices/authSlice';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+    Dimensions,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
+} from 'react-native';
+
+
 
 const { width, height } = Dimensions.get('window');
 
 export default function WelcomeScreen() {
   const dispatch = useAppDispatch();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -23,13 +42,14 @@ export default function WelcomeScreen() {
   }, [isAuthenticated]);
 
   const handleGetStarted = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push('/auth');
   };
 
   if (isLoading) {
     return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
+      <View style={[styles.loadingContainer, { backgroundColor: colors.background }]}>
+        <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading...</Text>
       </View>
     );
   }
@@ -37,13 +57,13 @@ export default function WelcomeScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={[colors.gradientStart, colors.gradientEnd]}
         style={styles.background}
       >
         <View style={styles.content}>
           {/* Illustration */}
           <View style={styles.illustrationContainer}>
-            <View style={styles.illustration}>
+            <View style={[styles.illustration, { backgroundColor: 'rgba(255, 255, 255, 0.2)' }]}>
               <Text style={styles.illustrationEmoji}>👩‍⚕️</Text>
             </View>
           </View>
@@ -57,8 +77,11 @@ export default function WelcomeScreen() {
           </Text>
 
           {/* Get Started Button */}
-          <TouchableOpacity style={styles.button} onPress={handleGetStarted}>
-            <Text style={styles.buttonText}>Start</Text>
+          <TouchableOpacity 
+            style={[styles.button, { backgroundColor: colors.surface }]} 
+            onPress={handleGetStarted}
+          >
+            <Text style={[styles.buttonText, { color: colors.primary }]}>Get Started</Text>
           </TouchableOpacity>
         </View>
       </LinearGradient>
@@ -77,25 +100,23 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: Spacing.xl,
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f8f9fa',
   },
   loadingText: {
-    fontSize: 18,
-    color: '#666',
+    ...Typography.body,
+    marginTop: Spacing.sm,
   },
   illustrationContainer: {
-    marginBottom: 60,
+    marginBottom: Spacing.xxl,
   },
   illustration: {
     width: 200,
     height: 200,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 100,
     justifyContent: 'center',
     alignItems: 'center',
@@ -104,36 +125,28 @@ const styles = StyleSheet.create({
     fontSize: 80,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    ...Typography.pageTitle,
     color: '#fff',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
     textAlign: 'center',
   },
   subtitle: {
-    fontSize: 16,
+    ...Typography.body,
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 60,
+    lineHeight: Typography.body.lineHeight,
+    marginBottom: Spacing.xxl,
+    maxWidth: 320,
   },
   button: {
-    backgroundColor: '#fff',
-    paddingHorizontal: 80,
-    paddingVertical: 16,
-    borderRadius: 30,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    paddingHorizontal: Spacing.xxl,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    ...Elevation.modal,
+    minWidth: 200,
   },
   buttonText: {
-    color: '#667eea',
-    fontSize: 18,
+    ...Typography.sectionTitle,
     fontWeight: '600',
     textAlign: 'center',
   },

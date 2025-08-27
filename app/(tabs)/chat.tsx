@@ -1,21 +1,36 @@
-import { AIChatResponse, apiService } from '@/services/api';
 import {
-    Animated,
-    Dimensions,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from 'react-native';
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-import { router } from 'expo-router';
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+} from '@/constants/Colors';
 import { useAppSelector } from '@/hooks/redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { AIChatResponse, apiService } from '@/services/api';
+import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState
+} from 'react';
+import {
+  Animated,
+  Dimensions,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+} from 'react-native';
+
+
 
 interface ChatMessage {
   id: string;
@@ -29,6 +44,8 @@ const { height: screenHeight } = Dimensions.get('window');
 
 export default function ChatScreen() {
   const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -72,6 +89,8 @@ export default function ChatScreen() {
 
   const sendMessage = useCallback(async () => {
     if (!inputText.trim() || isLoading) return;
+
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
     const currentMessage = inputText.trim();
     const userMessage: ChatMessage = {
@@ -137,12 +156,13 @@ export default function ChatScreen() {
     if (item.isTyping) {
       return (
         <View style={[styles.messageContainer, styles.aiMessage]}>
-          <View style={[styles.messageBubble, styles.aiBubble]}>
+          <View style={[styles.messageBubble, styles.aiBubble, { backgroundColor: colors.surface }]}>
             <View style={styles.typingIndicator}>
               <Animated.View
                 style={[
                   styles.typingDot,
                   {
+                    backgroundColor: colors.textSecondary,
                     opacity: typingAnimation.interpolate({
                       inputRange: [0, 0.5, 1],
                       outputRange: [0.3, 1, 0.3],
@@ -154,6 +174,7 @@ export default function ChatScreen() {
                 style={[
                   styles.typingDot,
                   {
+                    backgroundColor: colors.textSecondary,
                     opacity: typingAnimation.interpolate({
                       inputRange: [0, 0.3, 0.8, 1],
                       outputRange: [0.3, 0.3, 1, 0.3],
@@ -165,6 +186,7 @@ export default function ChatScreen() {
                 style={[
                   styles.typingDot,
                   {
+                    backgroundColor: colors.textSecondary,
                     opacity: typingAnimation.interpolate({
                       inputRange: [0, 0.6, 1],
                       outputRange: [0.3, 0.3, 1],
@@ -185,24 +207,24 @@ export default function ChatScreen() {
       ]}>
         <View style={[
           styles.messageBubble,
-          item.isUser ? styles.userBubble : styles.aiBubble
+          item.isUser ? [styles.userBubble, { backgroundColor: colors.primary }] : [styles.aiBubble, { backgroundColor: colors.surface }]
         ]}>
           <Text style={[
             styles.messageText,
-            item.isUser ? styles.userText : styles.aiText
+            item.isUser ? [styles.userText, { color: colors.surface }] : [styles.aiText, { color: colors.text }]
           ]}>
             {item.text}
           </Text>
           <Text style={[
             styles.timestamp,
-            item.isUser ? styles.userTimestamp : styles.aiTimestamp
+            item.isUser ? [styles.userTimestamp, { color: 'rgba(255, 255, 255, 0.7)' }] : [styles.aiTimestamp, { color: colors.textSecondary }]
           ]}>
             {item.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
           </Text>
         </View>
       </View>
     );
-  }, [typingAnimation]);
+  }, [typingAnimation, colors]);
 
   const quickQuestions = [
     "What are healthy BMI ranges?",
@@ -214,6 +236,7 @@ export default function ChatScreen() {
   ];
 
   const handleQuickQuestion = useCallback((question: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setInputText(question);
   }, []);
 
@@ -222,12 +245,12 @@ export default function ChatScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Health Chat</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.background }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>AI Health Assistant</Text>
         <View style={styles.statusContainer}>
-          <View style={styles.statusDot} />
-          <Text style={styles.statusText}>AI Online</Text>
+          <View style={[styles.statusDot, { backgroundColor: colors.healthGood }]} />
+          <Text style={[styles.statusText, { color: colors.healthGood }]}>Online</Text>
         </View>
       </View>
 
@@ -260,31 +283,35 @@ export default function ChatScreen() {
         />
 
         {messages.length <= 1 && !isLoading && (
-          <View style={styles.quickQuestionsContainer}>
-            <Text style={styles.quickQuestionsTitle}>Quick Questions:</Text>
+          <View style={[styles.quickQuestionsContainer, { backgroundColor: colors.surface, borderTopColor: colors.background }]}>
+            <Text style={[styles.quickQuestionsTitle, { color: colors.text }]}>Quick Questions:</Text>
             <View style={styles.quickQuestionsGrid}>
               {quickQuestions.map((question, index) => (
                 <TouchableOpacity
                   key={`quick-${index}`}
-                  style={styles.quickQuestionButton}
+                  style={[styles.quickQuestionButton, { backgroundColor: colors.background }]}
                   onPress={() => handleQuickQuestion(question)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.quickQuestionText}>{question}</Text>
+                  <Text style={[styles.quickQuestionText, { color: colors.primary }]}>{question}</Text>
                 </TouchableOpacity>
               ))}
             </View>
           </View>
         )}
 
-        <View style={styles.inputContainer}>
+        <View style={[styles.inputContainer, { backgroundColor: colors.surface, borderTopColor: colors.background }]}>
           <View style={styles.inputWrapper}>
             <TextInput
-              style={styles.textInput}
+              style={[styles.textInput, { 
+                borderColor: colors.background, 
+                backgroundColor: colors.background,
+                color: colors.text 
+              }]}
               value={inputText}
               onChangeText={setInputText}
               placeholder="Ask me about your health..."
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.textSecondary}
               multiline
               maxLength={1000}
               editable={!isLoading}
@@ -292,12 +319,16 @@ export default function ChatScreen() {
               blurOnSubmit={false}
             />
             <TouchableOpacity
-              style={[styles.sendButton, (!inputText.trim() || isLoading) && styles.sendButtonDisabled]}
+              style={[
+                styles.sendButton, 
+                { backgroundColor: colors.primary },
+                (!inputText.trim() || isLoading) && [styles.sendButtonDisabled, { backgroundColor: colors.textSecondary }]
+              ]}
               onPress={sendMessage}
               disabled={!inputText.trim() || isLoading}
               activeOpacity={0.7}
             >
-              <Text style={styles.sendButtonText}>→</Text>
+              <Text style={[styles.sendButtonText, { color: colors.surface }]}>→</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -309,24 +340,20 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
     paddingBottom: Platform.OS === 'ios' ? 90 : 65,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 15,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    backgroundColor: '#fff',
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    ...Typography.sectionTitle,
+    fontWeight: '600',
   },
   statusContainer: {
     flexDirection: 'row',
@@ -336,28 +363,25 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#4CAF50',
-    marginRight: 6,
+    marginRight: Spacing.xs,
   },
   statusText: {
-    fontSize: 14,
-    color: '#4CAF50',
+    ...Typography.meta,
     fontWeight: '500',
   },
   chatContainer: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   messagesList: {
     flex: 1,
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.lg,
   },
   messagesContent: {
-    paddingVertical: 15,
+    paddingVertical: Spacing.md,
     flexGrow: 1,
   },
   messageContainer: {
-    marginBottom: 15,
+    marginBottom: Spacing.md,
   },
   userMessage: {
     alignItems: 'flex-end',
@@ -367,59 +391,46 @@ const styles = StyleSheet.create({
   },
   messageBubble: {
     maxWidth: '80%',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 18,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.lg,
   },
   userBubble: {
-    backgroundColor: '#667eea',
-    borderBottomRightRadius: 4,
+    borderBottomRightRadius: BorderRadius.sm,
   },
   aiBubble: {
-    backgroundColor: '#fff',
-    borderBottomLeftRadius: 4,
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderBottomLeftRadius: BorderRadius.sm,
+    ...Elevation.card,
   },
   messageText: {
-    fontSize: 16,
-    lineHeight: 22,
+    ...Typography.body,
+    lineHeight: Typography.body.lineHeight,
   },
   userText: {
-    color: '#fff',
+    // Color set dynamically
   },
   aiText: {
-    color: '#333',
+    // Color set dynamically
   },
   timestamp: {
-    fontSize: 12,
-    marginTop: 5,
+    ...Typography.caption,
+    marginTop: Spacing.xs,
   },
   userTimestamp: {
-    color: 'rgba(255, 255, 255, 0.7)',
     textAlign: 'right',
   },
   aiTimestamp: {
-    color: '#999',
+    // Color set dynamically
   },
   quickQuestionsContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
   },
   quickQuestionsTitle: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 12,
+    marginBottom: Spacing.sm,
   },
   quickQuestionsGrid: {
     flexDirection: 'row',
@@ -427,17 +438,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   quickQuestionButton: {
-    backgroundColor: '#e3f2fd',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderRadius: 20,
-    marginBottom: 8,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.xl,
+    marginBottom: Spacing.sm,
     minWidth: '48%',
     alignItems: 'center',
   },
   quickQuestionText: {
-    fontSize: 13,
-    color: '#1976d2',
+    ...Typography.meta,
     fontWeight: '500',
     textAlign: 'center',
   },
@@ -445,22 +454,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
   },
   typingDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#999',
     marginHorizontal: 3,
   },
   inputContainer: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    paddingBottom: Platform.OS === 'ios' ? 35 : 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    paddingBottom: Platform.OS === 'ios' ? 40 : 20,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
   },
   inputWrapper: {
     flexDirection: 'row',
@@ -469,40 +475,27 @@ const styles = StyleSheet.create({
   textInput: {
     flex: 1,
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 25,
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    fontSize: 16,
+    borderRadius: BorderRadius.xl,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    ...Typography.body,
     maxHeight: 120,
-    marginRight: 12,
-    backgroundColor: '#f8f9fa',
+    marginRight: Spacing.md,
     textAlignVertical: 'center',
   },
   sendButton: {
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: '#667eea',
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 2,
+    ...Elevation.card,
   },
   sendButtonDisabled: {
-    backgroundColor: '#ccc',
-    elevation: 0,
-    shadowOpacity: 0,
+    ...Elevation.card,
   },
   sendButtonText: {
     fontSize: 20,
-    color: '#fff',
     fontWeight: 'bold',
   },
 });

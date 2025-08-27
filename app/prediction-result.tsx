@@ -1,3 +1,20 @@
+import { ConfidenceBadge } from '@/components/ConfidenceBadge';
+import {
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
+} from '@/constants/Colors';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { HealthPrediction } from '@/services/api';
+import { fetchPredictionById } from '@/store/slices/healthSlice';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useEffect, useRef } from 'react';
+
 import {
     Dimensions,
     SafeAreaView,
@@ -7,19 +24,15 @@ import {
     TouchableOpacity,
     View,
 } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useEffect, useRef } from 'react';
 
-import { HealthPrediction } from '@/services/api';
-import { LinearGradient } from 'expo-linear-gradient';
-import { fetchPredictionById } from '@/store/slices/healthSlice';
 
 const { width } = Dimensions.get('window');
 
 export default function PredictionResultScreen() {
   const { predictionId } = useLocalSearchParams();
   const dispatch = useAppDispatch();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const { currentPrediction, isLoading } = useAppSelector((state) => state.health);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const hasLoadedPrediction = useRef(false);
@@ -46,12 +59,18 @@ export default function PredictionResultScreen() {
     }
   }, [dispatch, predictionId, isAuthenticated, currentPrediction]);
 
-  const getRiskColor = (riskLevel: string) => {
+  const getRiskLevel = (riskScore: number) => {
+    if (riskScore < 0.3) return 'low';
+    if (riskScore < 0.7) return 'medium';
+    return 'high';
+  };
+
+  const getRiskColor = (riskLevel: string): [string, string] => {
     switch (riskLevel) {
-      case 'low': return ['#4CAF50', '#66BB6A'];
-      case 'medium': return ['#FF9800', '#FFB74D'];
-      case 'high': return ['#F44336', '#EF5350'];
-      default: return ['#9E9E9E', '#BDBDBD'];
+      case 'low': return [colors.healthGood, colors.healthGood];
+      case 'medium': return [colors.healthWatch, colors.healthWatch];
+      case 'high': return [colors.healthAttention, colors.healthAttention];
+      default: return [colors.healthNeutral, colors.healthNeutral];
     }
   };
 
@@ -72,10 +91,12 @@ export default function PredictionResultScreen() {
   };
 
   const handleNewPrediction = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push('/health-prediction');
   };
 
   const handleBackToHome = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push('/(tabs)');
   };
 
@@ -85,27 +106,29 @@ export default function PredictionResultScreen() {
 
   if (isLoading || !currentPrediction) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
-          <Text style={styles.loadingText}>Loading results...</Text>
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading results...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   const prediction = currentPrediction as HealthPrediction;
-  const riskColors = getRiskColor(prediction.risk_level);
+  const riskLevel = getRiskLevel(prediction.risk_score);
+  const riskColors = getRiskColor(riskLevel);
+  const confidence = Math.round((1 - prediction.risk_score) * 100);
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.background }]}>
         <TouchableOpacity 
-          style={styles.backButton}
+          style={[styles.backButton, { backgroundColor: colors.background }]}
           onPress={() => router.back()}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Text style={[styles.backButtonText, { color: colors.text }]}>←</Text>
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Health Report</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Health Report</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -116,93 +139,111 @@ export default function PredictionResultScreen() {
             colors={riskColors}
             style={styles.riskGradient}
           >
-            <Text style={styles.riskIcon}>{getRiskIcon(prediction.risk_level)}</Text>
-            <Text style={styles.riskLevel}>{prediction.risk_level.toUpperCase()} RISK</Text>
-            <Text style={styles.riskScore}>{(prediction.risk_score * 100).toFixed(0)}%</Text>
-            <Text style={styles.riskSubtitle}>Health Risk Score</Text>
+            <Text style={styles.riskIcon}>{getRiskIcon(riskLevel)}</Text>
+            <Text style={[styles.riskLevel, { color: colors.surface }]}>
+              {riskLevel.toUpperCase()} RISK
+            </Text>
+            <Text style={[styles.riskScore, { color: colors.surface }]}>
+              {(prediction.risk_score * 100).toFixed(0)}%
+            </Text>
+            <Text style={[styles.riskSubtitle, { color: colors.surface }]}>
+              Health Risk Score
+            </Text>
           </LinearGradient>
+        </View>
+
+        {/* Confidence Badge */}
+        <View style={styles.confidenceContainer}>
+          <ConfidenceBadge
+            confidence={confidence}
+            riskLevel={riskLevel}
+            showDetails={true}
+          />
         </View>
 
         {/* Health Metrics */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Your Health Metrics</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Health Metrics</Text>
           <View style={styles.metricsGrid}>
-            <View style={styles.metricCard}>
-              <Text style={styles.metricValue}>{prediction.bmi.toFixed(1)}</Text>
-              <Text style={styles.metricLabel}>BMI</Text>
-              <Text style={styles.metricCategory}>{getBMICategory(prediction.bmi)}</Text>
+            <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.bmi.toFixed(1)}</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>BMI</Text>
+              <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>{getBMICategory(prediction.bmi)}</Text>
             </View>
-            <View style={styles.metricCard}>
-              <Text style={styles.metricValue}>{prediction.age}</Text>
-              <Text style={styles.metricLabel}>Age</Text>
-              <Text style={styles.metricCategory}>years</Text>
+            <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.age}</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Age</Text>
+              <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>years</Text>
             </View>
-            <View style={styles.metricCard}>
-              <Text style={styles.metricValue}>{prediction.exercise_hours_per_week}</Text>
-              <Text style={styles.metricLabel}>Exercise</Text>
-              <Text style={styles.metricCategory}>hrs/week</Text>
+            <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
+              <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.exercise_hours_per_week}</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Exercise</Text>
+              <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>hrs/week</Text>
             </View>
           </View>
 
           {(prediction.systolic_bp || prediction.diastolic_bp || prediction.cholesterol || prediction.glucose) && (
             <View style={styles.metricsGrid}>
               {prediction.systolic_bp && (
-                <View style={styles.metricCard}>
-                  <Text style={styles.metricValue}>{prediction.systolic_bp}/{prediction.diastolic_bp}</Text>
-                  <Text style={styles.metricLabel}>Blood Pressure</Text>
-                  <Text style={styles.metricCategory}>mmHg</Text>
+                <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
+                  <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.systolic_bp}/{prediction.diastolic_bp}</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Blood Pressure</Text>
+                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>mmHg</Text>
                 </View>
               )}
               {prediction.cholesterol && (
-                <View style={styles.metricCard}>
-                  <Text style={styles.metricValue}>{prediction.cholesterol}</Text>
-                  <Text style={styles.metricLabel}>Cholesterol</Text>
-                  <Text style={styles.metricCategory}>mg/dL</Text>
+                <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
+                  <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.cholesterol}</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Cholesterol</Text>
+                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>mg/dL</Text>
                 </View>
               )}
               {prediction.glucose && (
-                <View style={styles.metricCard}>
-                  <Text style={styles.metricValue}>{prediction.glucose}</Text>
-                  <Text style={styles.metricLabel}>Glucose</Text>
-                  <Text style={styles.metricCategory}>mg/dL</Text>
+                <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
+                  <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.glucose}</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Glucose</Text>
+                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>mg/dL</Text>
                 </View>
               )}
             </View>
           )}
 
-          <View style={styles.additionalInfo}>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Smoking Status:</Text>
-              <Text style={[styles.infoValue, prediction.smoking ? styles.riskText : styles.safeText]}>
+          <View style={[styles.additionalInfo, { backgroundColor: colors.surface }]}>
+            <View style={[styles.infoRow, { borderBottomColor: colors.background }]}>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Smoking Status:</Text>
+              <Text style={[
+                styles.infoValue, 
+                prediction.smoking ? { color: colors.healthAttention } : { color: colors.healthGood }
+              ]}>
                 {prediction.smoking ? 'Yes' : 'No'}
               </Text>
             </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Height:</Text>
-              <Text style={styles.infoValue}>{prediction.height_cm} cm</Text>
+            <View style={[styles.infoRow, { borderBottomColor: colors.background }]}>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Height:</Text>
+              <Text style={[styles.infoValue, { color: colors.text }]}>{prediction.height_cm} cm</Text>
             </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Weight:</Text>
-              <Text style={styles.infoValue}>{prediction.weight_kg} kg</Text>
+            <View style={[styles.infoRow, { borderBottomColor: colors.background }]}>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Weight:</Text>
+              <Text style={[styles.infoValue, { color: colors.text }]}>{prediction.weight_kg} kg</Text>
             </View>
           </View>
         </View>
 
         {/* Recommendations */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Personalized Recommendations</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Personalized Recommendations</Text>
           {prediction.recommendations && prediction.recommendations.length > 0 ? (
             prediction.recommendations.map((recommendation, index) => (
-              <View key={index} style={styles.recommendationCard}>
-                <View style={styles.recommendationIcon}>
-                  <Text style={styles.recommendationEmoji}>💡</Text>
+              <View key={index} style={[styles.recommendationCard, { backgroundColor: colors.surface }]}>
+                <View style={[styles.recommendationIcon, { backgroundColor: colors.primary }]}>
+                  <Text style={[styles.recommendationEmoji, { color: colors.surface }]}>💡</Text>
                 </View>
-                <Text style={styles.recommendationText}>{recommendation}</Text>
+                <Text style={[styles.recommendationText, { color: colors.text }]}>{recommendation}</Text>
               </View>
             ))
           ) : (
-            <View style={styles.noRecommendations}>
-              <Text style={styles.noRecommendationsText}>
+            <View style={[styles.noRecommendations, { backgroundColor: colors.healthGood }]}>
+              <Text style={[styles.noRecommendationsText, { color: colors.surface }]}>
                 Great job! Keep maintaining your current healthy lifestyle.
               </Text>
             </View>
@@ -211,9 +252,9 @@ export default function PredictionResultScreen() {
 
         {/* AI Badge */}
         {prediction.ai_powered && (
-          <View style={styles.aiBadge}>
-            <Text style={styles.aiText}>🤖 AI-Powered Analysis</Text>
-            <Text style={styles.aiSubtext}>
+          <View style={[styles.aiBadge, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.aiText, { color: colors.surface }]}>🤖 AI-Powered Analysis</Text>
+            <Text style={[styles.aiSubtext, { color: colors.surface }]}>
               This prediction was generated using advanced AI algorithms
             </Text>
           </View>
@@ -221,7 +262,7 @@ export default function PredictionResultScreen() {
 
         {/* Timestamp */}
         <View style={styles.timestampContainer}>
-          <Text style={styles.timestampText}>
+          <Text style={[styles.timestampText, { color: colors.textSecondary }]}>
             Generated on {new Date(prediction.created_at).toLocaleDateString()} at{' '}
             {new Date(prediction.created_at).toLocaleTimeString()}
           </Text>
@@ -229,16 +270,19 @@ export default function PredictionResultScreen() {
       </ScrollView>
 
       {/* Action Buttons */}
-      <View style={styles.footer}>
-        <TouchableOpacity style={styles.secondaryButton} onPress={handleNewPrediction}>
-          <Text style={styles.secondaryButtonText}>New Assessment</Text>
+      <View style={[styles.footer, { backgroundColor: colors.surface, borderTopColor: colors.background }]}>
+        <TouchableOpacity 
+          style={[styles.secondaryButton, { borderColor: colors.primary }]} 
+          onPress={handleNewPrediction}
+        >
+          <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>New Assessment</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.primaryButton} onPress={handleBackToHome}>
           <LinearGradient
-            colors={['#667eea', '#764ba2']}
+            colors={[colors.gradientStart, colors.gradientEnd]}
             style={styles.primaryGradient}
           >
-            <Text style={styles.primaryButtonText}>Back to Home</Text>
+            <Text style={[styles.primaryButtonText, { color: colors.surface }]}>Back to Home</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -249,38 +293,33 @@ export default function PredictionResultScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButtonText: {
     fontSize: 18,
-    color: '#333',
+    fontWeight: '600',
   },
   headerTitle: {
-    fontSize: 18,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#333',
   },
   placeholder: {
-    width: 40,
+    width: 44,
   },
   loadingContainer: {
     flex: 1,
@@ -288,232 +327,184 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    fontSize: 18,
-    color: '#666',
+    ...Typography.body,
   },
   scrollView: {
     flex: 1,
   },
   riskCard: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    borderRadius: 20,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.lg,
+    borderRadius: BorderRadius.xl,
     overflow: 'hidden',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+    ...Elevation.modal,
   },
   riskGradient: {
-    paddingVertical: 30,
+    paddingVertical: Spacing.xl,
     alignItems: 'center',
   },
   riskIcon: {
     fontSize: 40,
-    marginBottom: 10,
+    marginBottom: Spacing.sm,
   },
   riskLevel: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 5,
+    ...Typography.sectionTitle,
+    fontWeight: '700',
+    marginBottom: Spacing.xs,
   },
   riskScore: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 5,
+    ...Typography.pageTitle,
+    fontWeight: '700',
+    marginBottom: Spacing.xs,
   },
   riskSubtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
+    ...Typography.body,
+  },
+  confidenceContainer: {
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.md,
   },
   section: {
-    marginTop: 25,
-    marginHorizontal: 20,
+    marginTop: Spacing.lg,
+    marginHorizontal: Spacing.lg,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 15,
+    ...Typography.sectionTitle,
+    fontWeight: '600',
+    marginBottom: Spacing.md,
   },
   metricsGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 15,
+    marginBottom: Spacing.md,
   },
   metricCard: {
     flex: 1,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
     marginHorizontal: 4,
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    ...Elevation.card,
   },
   metricValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#667eea',
-    marginBottom: 5,
+    ...Typography.sectionTitle,
+    fontWeight: '700',
+    marginBottom: Spacing.xs,
   },
   metricLabel: {
-    fontSize: 12,
-    color: '#666',
+    ...Typography.caption,
     marginBottom: 2,
   },
   metricCategory: {
+    ...Typography.caption,
     fontSize: 10,
-    color: '#999',
   },
   additionalInfo: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
-    marginTop: 10,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginTop: Spacing.sm,
+    ...Elevation.card,
   },
   infoRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: 8,
+    paddingVertical: Spacing.sm,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   infoLabel: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.meta,
   },
   infoValue: {
-    fontSize: 14,
+    ...Typography.meta,
     fontWeight: '500',
-    color: '#333',
-  },
-  riskText: {
-    color: '#F44336',
-  },
-  safeText: {
-    color: '#4CAF50',
   },
   recommendationCard: {
     flexDirection: 'row',
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 10,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm,
+    ...Elevation.card,
   },
   recommendationIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#e3f2fd',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: Spacing.md,
   },
   recommendationEmoji: {
     fontSize: 20,
   },
   recommendationText: {
     flex: 1,
-    fontSize: 14,
-    color: '#333',
-    lineHeight: 20,
+    ...Typography.meta,
+    lineHeight: Typography.meta.lineHeight,
   },
   noRecommendations: {
-    backgroundColor: '#e8f5e8',
-    borderRadius: 12,
-    padding: 20,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.lg,
     alignItems: 'center',
   },
   noRecommendationsText: {
-    fontSize: 16,
-    color: '#4CAF50',
+    ...Typography.body,
     textAlign: 'center',
   },
   aiBadge: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    backgroundColor: '#e3f2fd',
-    borderRadius: 12,
-    padding: 15,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
     alignItems: 'center',
   },
   aiText: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#1976d2',
-    marginBottom: 5,
+    marginBottom: Spacing.xs,
   },
   aiSubtext: {
-    fontSize: 12,
-    color: '#1976d2',
+    ...Typography.caption,
     textAlign: 'center',
   },
   timestampContainer: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 30,
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.lg,
+    marginBottom: Spacing.xl,
     alignItems: 'center',
   },
   timestampText: {
-    fontSize: 12,
-    color: '#999',
+    ...Typography.caption,
   },
   footer: {
     flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
   },
   secondaryButton: {
     flex: 1,
-    paddingVertical: 14,
-    marginRight: 10,
-    borderRadius: 25,
+    paddingVertical: Spacing.md,
+    marginRight: Spacing.sm,
+    borderRadius: BorderRadius.xl,
     borderWidth: 1,
-    borderColor: '#667eea',
     alignItems: 'center',
   },
   secondaryButtonText: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#667eea',
   },
   primaryButton: {
     flex: 1,
-    marginLeft: 10,
-    borderRadius: 25,
+    marginLeft: Spacing.sm,
+    borderRadius: BorderRadius.xl,
     overflow: 'hidden',
   },
   primaryGradient: {
-    paddingVertical: 14,
+    paddingVertical: Spacing.md,
     alignItems: 'center',
   },
   primaryButtonText: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#fff',
   },
 });

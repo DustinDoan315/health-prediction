@@ -1,5 +1,10 @@
-import { HealthPrediction, HealthPredictionRequest, HealthStats, apiService } from '../../services/api';
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
+import {
+  apiService,
+  HealthPrediction,
+  HealthPredictionRequest,
+  HealthStats
+} from '../../services/api';
 
 const initialState: HealthState = {
   predictions: [],

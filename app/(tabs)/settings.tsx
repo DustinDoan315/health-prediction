@@ -1,21 +1,33 @@
 import {
-  Alert,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
+} from '@/constants/Colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { logoutUser } from '@/store/slices/authSlice';
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
 
+import {
+    Alert,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+
+
 export default function SettingsScreen() {
   const dispatch = useAppDispatch();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -25,6 +37,7 @@ export default function SettingsScreen() {
   }, [isAuthenticated]);
 
   const handleLogout = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     Alert.alert(
       'Logout',
       'Are you sure you want to logout?',
@@ -40,6 +53,11 @@ export default function SettingsScreen() {
         },
       ]
     );
+  };
+
+  const handleSettingPress = (onPress: () => void) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
   };
 
   const settingsOptions = [
@@ -107,29 +125,29 @@ export default function SettingsScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>Settings</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
         </View>
 
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          <View style={styles.profileCard}>
-            <View style={styles.profilePic}>
-              <Text style={styles.profileEmoji}>👩‍⚕️</Text>
+          <View style={[styles.profileCard, { backgroundColor: colors.surface }]}>
+            <View style={[styles.profilePic, { backgroundColor: colors.primary }]}>
+              <Text style={[styles.profileEmoji, { color: colors.surface }]}>👩‍⚕️</Text>
             </View>
             <View style={styles.profileInfo}>
-              <Text style={styles.profileName}>{user?.full_name || 'Julia Mario'}</Text>
-              <Text style={styles.profileEmail}>{user?.email || 'julia@example.com'}</Text>
-              <Text style={styles.profileStatus}>Administrator</Text>
+              <Text style={[styles.profileName, { color: colors.text }]}>{user?.full_name || 'User'}</Text>
+              <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user?.email || 'user@example.com'}</Text>
+              <Text style={[styles.profileStatus, { color: colors.primary }]}>Member</Text>
             </View>
             <TouchableOpacity 
-              style={styles.editButton}
+              style={[styles.editButton, { backgroundColor: colors.background }]}
               onPress={() => router.push('/profile' as any)}
             >
-              <Text style={styles.editIcon}>✏️</Text>
+              <Text style={[styles.editIcon, { color: colors.textSecondary }]}>✏️</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -137,21 +155,21 @@ export default function SettingsScreen() {
         {/* Settings Options */}
         {settingsOptions.map((section, sectionIndex) => (
           <View key={sectionIndex} style={styles.section}>
-            <Text style={styles.sectionTitle}>{section.title}</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
             {section.items.map((item, itemIndex) => (
               <TouchableOpacity
                 key={itemIndex}
-                style={styles.settingItem}
-                onPress={item.onPress}
+                style={[styles.settingItem, { backgroundColor: colors.surface }]}
+                onPress={() => handleSettingPress(item.onPress)}
               >
-                <View style={styles.settingIcon}>
+                <View style={[styles.settingIcon, { backgroundColor: colors.background }]}>
                   <Text style={styles.settingEmoji}>{item.icon}</Text>
                 </View>
                 <View style={styles.settingContent}>
-                  <Text style={styles.settingTitle}>{item.title}</Text>
-                  <Text style={styles.settingSubtitle}>{item.subtitle}</Text>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>{item.title}</Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{item.subtitle}</Text>
                 </View>
-                <Text style={styles.settingArrow}>›</Text>
+                <Text style={[styles.settingArrow, { color: colors.textSecondary }]}>›</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -159,22 +177,25 @@ export default function SettingsScreen() {
 
         {/* Logout Button */}
         <View style={styles.section}>
-          <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
-            <View style={styles.settingIcon}>
-              <Text style={styles.settingEmoji}>🚪</Text>
+          <TouchableOpacity 
+            style={[styles.logoutButton, { backgroundColor: colors.surface, borderColor: colors.error }]} 
+            onPress={handleLogout}
+          >
+            <View style={[styles.settingIcon, { backgroundColor: colors.error }]}>
+              <Text style={[styles.settingEmoji, { color: colors.surface }]}>🚪</Text>
             </View>
             <View style={styles.settingContent}>
-              <Text style={[styles.settingTitle, styles.logoutText]}>Logout</Text>
-              <Text style={styles.settingSubtitle}>Sign out of your account</Text>
+              <Text style={[styles.settingTitle, { color: colors.error }]}>Logout</Text>
+              <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>Sign out of your account</Text>
             </View>
-            <Text style={styles.settingArrow}>›</Text>
+            <Text style={[styles.settingArrow, { color: colors.error }]}>›</Text>
           </TouchableOpacity>
         </View>
 
         {/* App Info */}
         <View style={styles.footer}>
-          <Text style={styles.footerText}>Health Prediction App</Text>
-          <Text style={styles.footerText}>Version 1.0.0</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Health Prediction App</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Version 1.0.0</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -184,49 +205,38 @@ export default function SettingsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   scrollView: {
     flex: 1,
     paddingBottom: Platform.OS === 'ios' ? 100 : 80,
   },
   header: {
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 15,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    ...Typography.pageTitle,
+    fontWeight: '600',
   },
   profileSection: {
-    paddingHorizontal: 20,
-    marginBottom: 20,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
   },
   profileCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    ...Elevation.card,
   },
   profilePic: {
     width: 60,
     height: 60,
     borderRadius: 30,
-    backgroundColor: '#e3f2fd',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: Spacing.md,
   },
   profileEmoji: {
     fontSize: 30,
@@ -235,26 +245,22 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileName: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    ...Typography.sectionTitle,
+    fontWeight: '600',
     marginBottom: 4,
   },
   profileEmail: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.meta,
     marginBottom: 2,
   },
   profileStatus: {
-    fontSize: 12,
-    color: '#667eea',
+    ...Typography.caption,
     fontWeight: '500',
   },
   editButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -262,33 +268,31 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   section: {
-    marginBottom: 25,
+    marginBottom: Spacing.lg,
   },
   sectionTitle: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 10,
-    marginHorizontal: 20,
+    marginBottom: Spacing.sm,
+    marginHorizontal: Spacing.lg,
   },
   settingItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    marginHorizontal: 20,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    marginHorizontal: Spacing.lg,
     marginBottom: 2,
-    borderRadius: 12,
+    borderRadius: BorderRadius.md,
+    ...Elevation.card,
   },
   settingIcon: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#f8f9fa',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: Spacing.md,
   },
   settingEmoji: {
     fontSize: 18,
@@ -297,42 +301,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   settingTitle: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '500',
-    color: '#333',
     marginBottom: 2,
   },
   settingSubtitle: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.meta,
   },
   settingArrow: {
     fontSize: 18,
-    color: '#ccc',
     fontWeight: '300',
   },
   logoutButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    marginHorizontal: 20,
-    borderRadius: 12,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    marginHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.md,
     borderWidth: 1,
-    borderColor: '#ffebee',
-  },
-  logoutText: {
-    color: '#f44336',
+    ...Elevation.card,
   },
   footer: {
     alignItems: 'center',
-    paddingVertical: 30,
-    paddingBottom: 50,
+    paddingVertical: Spacing.xl,
+    paddingBottom: Spacing.xl,
   },
   footerText: {
-    fontSize: 14,
-    color: '#999',
+    ...Typography.meta,
     marginBottom: 4,
   },
 });

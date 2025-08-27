@@ -1,31 +1,49 @@
-import {
-    FlatList,
-    Platform,
-    RefreshControl,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { memo, useCallback, useEffect, useState } from 'react';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-
 import { AnimatedCard } from '@/components/AnimatedCard';
-import { HealthPrediction } from '@/services/api';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+} from '@/constants/Colors';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { HealthPrediction } from '@/services/api';
 import { fetchPredictions } from '@/store/slices/healthSlice';
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useState
+} from 'react';
 
-const PredictionItem = memo(({ item, onPress }: { item: HealthPrediction; onPress: (prediction: HealthPrediction) => void }) => {
+import {
+  FlatList,
+  Platform,
+  RefreshControl,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
+
+const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: HealthPrediction; onPress: (prediction: HealthPrediction) => void }) {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+
   const getRiskColor = useCallback((riskLevel: string) => {
     switch (riskLevel) {
-      case 'low': return '#4CAF50';
-      case 'medium': return '#FF9800';
-      case 'high': return '#F44336';
-      default: return '#9E9E9E';
+      case 'low': return colors.healthGood;
+      case 'medium': return colors.healthWatch;
+      case 'high': return colors.healthAttention;
+      default: return colors.healthNeutral;
     }
-  }, []);
+  }, [colors]);
 
   const getRiskIcon = useCallback((riskLevel: string) => {
     switch (riskLevel) {
@@ -36,46 +54,51 @@ const PredictionItem = memo(({ item, onPress }: { item: HealthPrediction; onPres
     }
   }, []);
 
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress(item);
+  };
+
   return (
     <AnimatedCard 
-      style={styles.predictionCard}
-      onPress={() => onPress(item)}
+      style={[styles.predictionCard, { backgroundColor: colors.surface }] as any}
+      onPress={handlePress}
     >
-      <View style={styles.cardHeader}>
+      <View style={[styles.cardHeader, { borderBottomColor: colors.background }]}>
         <View style={styles.dateContainer}>
-          <Text style={styles.dateText}>
+          <Text style={[styles.dateText, { color: colors.text }]}>
             {new Date(item.created_at).toLocaleDateString()}
           </Text>
-          <Text style={styles.timeText}>
+          <Text style={[styles.timeText, { color: colors.textSecondary }]}>
             {new Date(item.created_at).toLocaleTimeString()}
           </Text>
         </View>
         <View style={[styles.riskBadge, { backgroundColor: getRiskColor(item.risk_level) }]}>
           <Text style={styles.riskIcon}>{getRiskIcon(item.risk_level)}</Text>
-          <Text style={styles.riskText}>{item.risk_level.toUpperCase()}</Text>
+          <Text style={[styles.riskText, { color: colors.surface }]}>{item.risk_level.toUpperCase()}</Text>
         </View>
       </View>
 
       <View style={styles.cardContent}>
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>BMI</Text>
-            <Text style={styles.statValue}>{item.bmi.toFixed(1)}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>BMI</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{item.bmi.toFixed(1)}</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Risk Score</Text>
-            <Text style={styles.statValue}>{(item.risk_score * 100).toFixed(0)}%</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Risk Score</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{(item.risk_score * 100).toFixed(0)}%</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={styles.statLabel}>Age</Text>
-            <Text style={styles.statValue}>{item.age}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Age</Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>{item.age}</Text>
           </View>
         </View>
 
         {item.recommendations && item.recommendations.length > 0 && (
           <View style={styles.recommendationsContainer}>
-            <Text style={styles.recommendationsTitle}>Top Recommendation:</Text>
-            <Text style={styles.recommendationText} numberOfLines={2}>
+            <Text style={[styles.recommendationsTitle, { color: colors.text }]}>Top Recommendation:</Text>
+            <Text style={[styles.recommendationText, { color: colors.textSecondary }]} numberOfLines={2}>
               {item.recommendations[0]}
             </Text>
           </View>
@@ -83,10 +106,10 @@ const PredictionItem = memo(({ item, onPress }: { item: HealthPrediction; onPres
       </View>
 
       <View style={styles.cardFooter}>
-        <Text style={styles.viewDetailsText}>Tap to view details →</Text>
+        <Text style={[styles.viewDetailsText, { color: colors.primary }]}>Tap to view details →</Text>
         {item.ai_powered && (
-          <View style={styles.aiTag}>
-            <Text style={styles.aiTagText}>AI</Text>
+          <View style={[styles.aiTag, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.aiTagText, { color: colors.surface }]}>AI</Text>
           </View>
         )}
       </View>
@@ -96,6 +119,8 @@ const PredictionItem = memo(({ item, onPress }: { item: HealthPrediction; onPres
 
 export default function MedicalHistoryScreen() {
   const dispatch = useAppDispatch();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const { predictions, isLoading, predictionsLoaded } = useAppSelector((state) => state.health);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [refreshing, setRefreshing] = useState(false);
@@ -125,6 +150,11 @@ export default function MedicalHistoryScreen() {
     });
   }, []);
 
+  const handleAddPrediction = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push('/health-prediction');
+  }, []);
+
   const renderPredictionItem = useCallback(({ item }: { item: HealthPrediction }) => (
     <PredictionItem item={item} onPress={handlePredictionPress} />
   ), [handlePredictionPress]);
@@ -134,15 +164,15 @@ export default function MedicalHistoryScreen() {
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyEmoji}>📊</Text>
-      <Text style={styles.emptyTitle}>You don't have any records</Text>
-      <Text style={styles.emptySubtitle}>
-        Click the plus button to add your first health prediction
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>No health records yet</Text>
+      <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
+        Start tracking your health by creating your first assessment
       </Text>
       <TouchableOpacity 
-        style={styles.emptyButton}
-        onPress={() => router.push('/health-prediction')}
+        style={[styles.emptyButton, { backgroundColor: colors.primary }]}
+        onPress={handleAddPrediction}
       >
-        <Text style={styles.emptyButtonText}>Create Prediction</Text>
+        <Text style={[styles.emptyButtonText, { color: colors.surface }]}>Create Assessment</Text>
       </TouchableOpacity>
     </View>
   );
@@ -152,21 +182,21 @@ export default function MedicalHistoryScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Medical History</Text>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.header, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>Health History</Text>
         <TouchableOpacity 
-          style={styles.addButton}
-          onPress={() => router.push('/health-prediction')}
+          style={[styles.addButton, { backgroundColor: colors.primary }]}
+          onPress={handleAddPrediction}
         >
-          <Text style={styles.addButtonText}>+</Text>
+          <Text style={[styles.addButtonText, { color: colors.surface }]}>+</Text>
         </TouchableOpacity>
       </View>
 
       {isLoading && predictions.length === 0 ? (
         <View style={styles.loadingContainer}>
           <LoadingSpinner size={40} />
-          <Text style={styles.loadingText}>Loading your health history...</Text>
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading your health history...</Text>
         </View>
       ) : (
         <FlatList
@@ -181,8 +211,8 @@ export default function MedicalHistoryScreen() {
             <RefreshControl
               refreshing={refreshing}
               onRefresh={onRefresh}
-              colors={['#667eea']}
-              tintColor="#667eea"
+              colors={[colors.primary]}
+              tintColor={colors.primary}
             />
           }
           ListEmptyComponent={renderEmptyState}
@@ -205,82 +235,69 @@ export default function MedicalHistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
     paddingBottom: Platform.OS === 'ios' ? 90 : 65,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 15,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    ...Typography.pageTitle,
+    fontWeight: '600',
   },
   addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#667eea',
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   addButtonText: {
     fontSize: 24,
-    color: '#fff',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   listContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: Spacing.lg,
   },
   emptyListContainer: {
     flex: 1,
     justifyContent: 'center',
   },
   predictionCard: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    marginBottom: 15,
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
+    borderRadius: BorderRadius.lg,
+    marginBottom: Spacing.md,
+    ...Elevation.card,
   },
   cardHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    padding: 15,
+    padding: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
   },
   dateContainer: {
     flex: 1,
   },
   dateText: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#333',
   },
   timeText: {
-    fontSize: 14,
-    color: '#666',
+    ...Typography.meta,
     marginTop: 2,
   },
   riskBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.md,
   },
   riskIcon: {
     fontSize: 12,
@@ -289,109 +306,97 @@ const styles = StyleSheet.create({
   riskText: {
     fontSize: 12,
     fontWeight: '600',
-    color: '#fff',
   },
   cardContent: {
-    padding: 15,
+    padding: Spacing.md,
   },
   statsRow: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    marginBottom: 15,
+    marginBottom: Spacing.md,
   },
   statItem: {
     alignItems: 'center',
   },
   statLabel: {
-    fontSize: 12,
-    color: '#666',
+    ...Typography.caption,
     marginBottom: 4,
   },
   statValue: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
+    ...Typography.sectionTitle,
+    fontWeight: '700',
   },
   recommendationsContainer: {
-    marginTop: 10,
+    marginTop: Spacing.sm,
   },
   recommendationsTitle: {
-    fontSize: 14,
+    ...Typography.meta,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 5,
+    marginBottom: Spacing.xs,
   },
   recommendationText: {
-    fontSize: 14,
-    color: '#666',
-    lineHeight: 20,
+    ...Typography.meta,
+    lineHeight: Typography.meta.lineHeight,
   },
   cardFooter: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 15,
-    paddingBottom: 15,
+    paddingHorizontal: Spacing.md,
+    paddingBottom: Spacing.md,
   },
   viewDetailsText: {
-    fontSize: 14,
-    color: '#667eea',
+    ...Typography.meta,
     fontWeight: '500',
   },
   aiTag: {
-    backgroundColor: '#e3f2fd',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.sm,
   },
   aiTagText: {
-    fontSize: 12,
-    color: '#1976d2',
+    ...Typography.caption,
     fontWeight: '600',
   },
   emptyContainer: {
     alignItems: 'center',
-    paddingHorizontal: 40,
+    paddingHorizontal: Spacing.xl,
   },
   emptyEmoji: {
     fontSize: 80,
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   emptyTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    ...Typography.sectionTitle,
+    fontWeight: '600',
+    marginBottom: Spacing.sm,
     textAlign: 'center',
   },
   emptySubtitle: {
-    fontSize: 16,
-    color: '#666',
+    ...Typography.body,
     textAlign: 'center',
-    lineHeight: 24,
-    marginBottom: 30,
+    lineHeight: Typography.body.lineHeight,
+    marginBottom: Spacing.xl,
   },
   emptyButton: {
-    backgroundColor: '#667eea',
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 25,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    ...Elevation.modal,
   },
   emptyButtonText: {
-    color: '#fff',
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
   },
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 50,
+    paddingVertical: Spacing.xl,
   },
   loadingText: {
-    marginTop: 15,
-    fontSize: 16,
-    color: '#666',
+    marginTop: Spacing.md,
+    ...Typography.body,
     textAlign: 'center',
   },
 });

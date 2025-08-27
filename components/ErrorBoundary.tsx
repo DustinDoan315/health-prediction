@@ -1,5 +1,19 @@
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+} from '@/constants/Colors';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { Component, ReactNode } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+} from 'react-native';
+
 
 interface Props {
   children: ReactNode;
@@ -30,21 +44,41 @@ export class ErrorBoundary extends Component<Props, State> {
 
   render() {
     if (this.state.hasError) {
-      return (
-        <View style={styles.container}>
-          <Text style={styles.title}>Oops! Something went wrong</Text>
-          <Text style={styles.message}>
-            We're sorry for the inconvenience. Please try again.
-          </Text>
-          <TouchableOpacity style={styles.retryButton} onPress={this.handleRetry}>
-            <Text style={styles.retryText}>Try Again</Text>
-          </TouchableOpacity>
-        </View>
-      );
+      return <ErrorFallback onRetry={this.handleRetry} />;
     }
 
     return this.props.children;
   }
+}
+
+interface ErrorFallbackProps {
+  onRetry: () => void;
+}
+
+function ErrorFallback({ onRetry }: ErrorFallbackProps) {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
+
+  return (
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <View style={[styles.card, { backgroundColor: colors.surface }]}>
+        <Text style={[styles.title, { color: colors.text }]}>
+          Something went wrong
+        </Text>
+        <Text style={[styles.message, { color: colors.textSecondary }]}>
+          We&apos;re sorry for the inconvenience. Your data is safe and secure. Please try again.
+        </Text>
+        <TouchableOpacity 
+          style={[styles.retryButton, { backgroundColor: colors.primary }]} 
+          onPress={onRetry}
+        >
+          <Text style={[styles.retryText, { color: colors.surface }]}>
+            Try Again
+          </Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -52,32 +86,36 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: '#f8f9fa',
+    padding: Spacing.lg,
+  },
+  card: {
+    padding: Spacing.xl,
+    borderRadius: BorderRadius.lg,
+    alignItems: 'center',
+    maxWidth: 320,
+    width: '100%',
+    ...Elevation.card,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 10,
+    ...Typography.sectionTitle,
+    marginBottom: Spacing.sm,
     textAlign: 'center',
   },
   message: {
-    fontSize: 16,
-    color: '#666',
+    ...Typography.body,
     textAlign: 'center',
-    marginBottom: 30,
-    lineHeight: 24,
+    marginBottom: Spacing.xl,
+    lineHeight: Typography.body.lineHeight,
   },
   retryButton: {
-    backgroundColor: '#667eea',
-    paddingHorizontal: 30,
-    paddingVertical: 12,
-    borderRadius: 25,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    minWidth: 120,
   },
   retryText: {
-    color: '#fff',
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '600',
+    textAlign: 'center',
   },
 });

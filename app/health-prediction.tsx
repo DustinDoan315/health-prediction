@@ -1,24 +1,36 @@
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { clearCurrentPrediction, createPrediction, createSimplePrediction } from '@/store/slices/healthSlice';
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+} from '@/constants/Colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useEffect, useRef, useState } from 'react';
-
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { clearCurrentPrediction, createPrediction, createSimplePrediction } from '@/store/slices/healthSlice';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { useEffect, useRef, useState } from 'react';
+
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
 
 export default function HealthPredictionScreen() {
   const dispatch = useAppDispatch();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const { isLoading, currentPrediction } = useAppSelector((state) => state.health);
   const { isAuthenticated } = useAppSelector((state) => state.auth);
   
@@ -60,6 +72,11 @@ export default function HealthPredictionScreen() {
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
+  const handleModeToggle = (advanced: boolean) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setIsAdvanced(advanced);
   };
 
   const validateForm = () => {
@@ -137,6 +154,8 @@ export default function HealthPredictionScreen() {
   const handleSubmit = async () => {
     if (!validateForm()) return;
 
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
     const baseData = {
       age: parseInt(formData.age),
       height_cm: parseFloat(formData.height_cm),
@@ -162,11 +181,15 @@ export default function HealthPredictionScreen() {
   const renderBasicForm = () => (
     <>
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Age *</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Age *</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { 
+            borderColor: colors.background, 
+            backgroundColor: colors.background,
+            color: colors.text 
+          }]}
           placeholder="Enter your age"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textSecondary}
           value={formData.age}
           onChangeText={(value) => handleInputChange('age', value)}
           keyboardType="numeric"
@@ -174,24 +197,32 @@ export default function HealthPredictionScreen() {
       </View>
 
       <View style={styles.inputRow}>
-        <View style={[styles.inputGroup, { flex: 1, marginRight: 10 }]}>
-          <Text style={styles.label}>Height (cm) *</Text>
+        <View style={[styles.inputGroup, { flex: 1, marginRight: Spacing.sm }]}>
+          <Text style={[styles.label, { color: colors.text }]}>Height (cm) *</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { 
+              borderColor: colors.background, 
+              backgroundColor: colors.background,
+              color: colors.text 
+            }]}
             placeholder="170"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.textSecondary}
             value={formData.height_cm}
             onChangeText={(value) => handleInputChange('height_cm', value)}
             keyboardType="decimal-pad"
           />
         </View>
 
-        <View style={[styles.inputGroup, { flex: 1, marginLeft: 10 }]}>
-          <Text style={styles.label}>Weight (kg) *</Text>
+        <View style={[styles.inputGroup, { flex: 1, marginLeft: Spacing.sm }]}>
+          <Text style={[styles.label, { color: colors.text }]}>Weight (kg) *</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, { 
+              borderColor: colors.background, 
+              backgroundColor: colors.background,
+              color: colors.text 
+            }]}
             placeholder="70"
-            placeholderTextColor="#999"
+            placeholderTextColor={colors.textSecondary}
             value={formData.weight_kg}
             onChangeText={(value) => handleInputChange('weight_kg', value)}
             keyboardType="decimal-pad"
@@ -200,33 +231,52 @@ export default function HealthPredictionScreen() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={styles.label}>Exercise (hours/week)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Exercise (hours/week)</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { 
+            borderColor: colors.background, 
+            backgroundColor: colors.background,
+            color: colors.text 
+          }]}
           placeholder="3.5"
-          placeholderTextColor="#999"
+          placeholderTextColor={colors.textSecondary}
           value={formData.exercise_hours_per_week}
           onChangeText={(value) => handleInputChange('exercise_hours_per_week', value)}
           keyboardType="decimal-pad"
         />
+        <Text style={[styles.helperText, { color: colors.textSecondary }]}>
+          Typical range: 0-10 hours per week
+        </Text>
       </View>
 
       <View style={styles.switchContainer}>
-        <Text style={styles.label}>Do you smoke?</Text>
-        <View style={styles.switchRow}>
+        <Text style={[styles.label, { color: colors.text }]}>Do you smoke?</Text>
+        <View style={[styles.switchRow, { backgroundColor: colors.background }]}>
           <TouchableOpacity
-            style={[styles.switchOption, !formData.smoking && styles.switchOptionActive]}
+            style={[
+              styles.switchOption, 
+              { backgroundColor: !formData.smoking ? colors.primary : 'transparent' }
+            ]}
             onPress={() => handleInputChange('smoking', false)}
           >
-            <Text style={[styles.switchText, !formData.smoking && styles.switchTextActive]}>
+            <Text style={[
+              styles.switchText, 
+              { color: !formData.smoking ? colors.surface : colors.textSecondary }
+            ]}>
               No
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.switchOption, formData.smoking && styles.switchOptionActive]}
+            style={[
+              styles.switchOption, 
+              { backgroundColor: formData.smoking ? colors.primary : 'transparent' }
+            ]}
             onPress={() => handleInputChange('smoking', true)}
           >
-            <Text style={[styles.switchText, formData.smoking && styles.switchTextActive]}>
+            <Text style={[
+              styles.switchText, 
+              { color: formData.smoking ? colors.surface : colors.textSecondary }
+            ]}>
               Yes
             </Text>
           </TouchableOpacity>
@@ -240,57 +290,85 @@ export default function HealthPredictionScreen() {
       {renderBasicForm()}
       
       <View style={styles.advancedSection}>
-        <Text style={styles.sectionTitle}>Advanced Metrics (Optional)</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>Advanced Metrics (Optional)</Text>
         
         <View style={styles.inputRow}>
-          <View style={[styles.inputGroup, { flex: 1, marginRight: 10 }]}>
-            <Text style={styles.label}>Systolic BP</Text>
+          <View style={[styles.inputGroup, { flex: 1, marginRight: Spacing.sm }]}>
+            <Text style={[styles.label, { color: colors.text }]}>Systolic BP</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { 
+                borderColor: colors.background, 
+                backgroundColor: colors.background,
+                color: colors.text 
+              }]}
               placeholder="120"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.textSecondary}
               value={formData.systolic_bp}
               onChangeText={(value) => handleInputChange('systolic_bp', value)}
               keyboardType="numeric"
             />
+            <Text style={[styles.helperText, { color: colors.textSecondary }]}>
+              Normal: 90-120 mmHg
+            </Text>
           </View>
 
-          <View style={[styles.inputGroup, { flex: 1, marginLeft: 10 }]}>
-            <Text style={styles.label}>Diastolic BP</Text>
+          <View style={[styles.inputGroup, { flex: 1, marginLeft: Spacing.sm }]}>
+            <Text style={[styles.label, { color: colors.text }]}>Diastolic BP</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { 
+                borderColor: colors.background, 
+                backgroundColor: colors.background,
+                color: colors.text 
+              }]}
               placeholder="80"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.textSecondary}
               value={formData.diastolic_bp}
               onChangeText={(value) => handleInputChange('diastolic_bp', value)}
               keyboardType="numeric"
             />
+            <Text style={[styles.helperText, { color: colors.textSecondary }]}>
+              Normal: 60-80 mmHg
+            </Text>
           </View>
         </View>
 
         <View style={styles.inputRow}>
-          <View style={[styles.inputGroup, { flex: 1, marginRight: 10 }]}>
-            <Text style={styles.label}>Cholesterol</Text>
+          <View style={[styles.inputGroup, { flex: 1, marginRight: Spacing.sm }]}>
+            <Text style={[styles.label, { color: colors.text }]}>Cholesterol</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { 
+                borderColor: colors.background, 
+                backgroundColor: colors.background,
+                color: colors.text 
+              }]}
               placeholder="190"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.textSecondary}
               value={formData.cholesterol}
               onChangeText={(value) => handleInputChange('cholesterol', value)}
               keyboardType="numeric"
             />
+            <Text style={[styles.helperText, { color: colors.textSecondary }]}>
+              Normal: &lt; 200 mg/dL
+            </Text>
           </View>
 
-          <View style={[styles.inputGroup, { flex: 1, marginLeft: 10 }]}>
-            <Text style={styles.label}>Glucose</Text>
+          <View style={[styles.inputGroup, { flex: 1, marginLeft: Spacing.sm }]}>
+            <Text style={[styles.label, { color: colors.text }]}>Glucose</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, { 
+                borderColor: colors.background, 
+                backgroundColor: colors.background,
+                color: colors.text 
+              }]}
               placeholder="95"
-              placeholderTextColor="#999"
+              placeholderTextColor={colors.textSecondary}
               value={formData.glucose}
               onChangeText={(value) => handleInputChange('glucose', value)}
               keyboardType="numeric"
             />
+            <Text style={[styles.helperText, { color: colors.textSecondary }]}>
+              Normal: 70-100 mg/dL
+            </Text>
           </View>
         </View>
       </View>
@@ -302,66 +380,78 @@ export default function HealthPredictionScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <KeyboardAvoidingView 
         style={styles.keyboardView}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       >
-        <View style={styles.header}>
+        <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.background }]}>
           <TouchableOpacity 
-            style={styles.backButton}
+            style={[styles.backButton, { backgroundColor: colors.background }]}
             onPress={() => router.back()}
           >
-            <Text style={styles.backButtonText}>←</Text>
+            <Text style={[styles.backButtonText, { color: colors.text }]}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Health Prediction</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>Health Assessment</Text>
           <View style={styles.placeholder} />
         </View>
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.content}>
-            <Text style={styles.title}>Let's assess your health</Text>
-            <Text style={styles.subtitle}>
+            <Text style={[styles.title, { color: colors.text }]}>Let's assess your health</Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               Fill in your information to get personalized health insights
             </Text>
 
-            <View style={styles.modeSelector}>
+            <View style={[styles.modeSelector, { backgroundColor: colors.background }]}>
               <TouchableOpacity
-                style={[styles.modeButton, !isAdvanced && styles.modeButtonActive]}
-                onPress={() => setIsAdvanced(false)}
+                style={[
+                  styles.modeButton, 
+                  { backgroundColor: !isAdvanced ? colors.surface : 'transparent' }
+                ]}
+                onPress={() => handleModeToggle(false)}
               >
-                <Text style={[styles.modeText, !isAdvanced && styles.modeTextActive]}>
+                <Text style={[
+                  styles.modeText, 
+                  { color: !isAdvanced ? colors.primary : colors.textSecondary }
+                ]}>
                   Quick Assessment
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.modeButton, isAdvanced && styles.modeButtonActive]}
-                onPress={() => setIsAdvanced(true)}
+                style={[
+                  styles.modeButton, 
+                  { backgroundColor: isAdvanced ? colors.surface : 'transparent' }
+                ]}
+                onPress={() => handleModeToggle(true)}
               >
-                <Text style={[styles.modeText, isAdvanced && styles.modeTextActive]}>
+                <Text style={[
+                  styles.modeText, 
+                  { color: isAdvanced ? colors.primary : colors.textSecondary }
+                ]}>
                   Detailed Analysis
                 </Text>
               </TouchableOpacity>
             </View>
 
-            <View style={styles.form}>
+            <View style={[styles.form, { backgroundColor: colors.surface }]}>
               {isAdvanced ? renderAdvancedForm() : renderBasicForm()}
             </View>
           </View>
         </ScrollView>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { backgroundColor: colors.surface, borderTopColor: colors.background }]}>
           <TouchableOpacity 
             style={[styles.submitButton, isLoading && styles.submitButtonDisabled]}
             onPress={handleSubmit}
             disabled={isLoading}
           >
             <LinearGradient
-              colors={['#667eea', '#764ba2']}
+              colors={[colors.gradientStart, colors.gradientEnd]}
               style={styles.submitGradient}
             >
-              <Text style={styles.submitText}>
-                {isLoading ? 'Analyzing...' : 'Get Health Prediction'}
+              <Text style={[styles.submitText, { color: colors.surface }]}>
+                {isLoading ? 'Analyzing...' : 'See my risk & plan'}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
@@ -374,7 +464,6 @@ export default function HealthPredictionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   keyboardView: {
     flex: 1,
@@ -383,179 +472,139 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f0f0f0',
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButtonText: {
     fontSize: 18,
-    color: '#333',
+    fontWeight: '600',
   },
   headerTitle: {
-    fontSize: 18,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#333',
   },
   placeholder: {
-    width: 40,
+    width: 44,
   },
   scrollView: {
     flex: 1,
   },
   content: {
-    paddingHorizontal: 20,
-    paddingVertical: 20,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.lg,
   },
   title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    ...Typography.pageTitle,
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
+    ...Typography.body,
     textAlign: 'center',
-    marginBottom: 30,
-    lineHeight: 22,
+    marginBottom: Spacing.xl,
+    lineHeight: Typography.body.lineHeight,
   },
   modeSelector: {
     flexDirection: 'row',
-    backgroundColor: '#e0e0e0',
-    borderRadius: 25,
+    borderRadius: BorderRadius.xl,
     padding: 4,
-    marginBottom: 30,
+    marginBottom: Spacing.xl,
   },
   modeButton: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 20,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.lg,
     alignItems: 'center',
-  },
-  modeButtonActive: {
-    backgroundColor: '#fff',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    ...Elevation.card,
   },
   modeText: {
-    fontSize: 14,
+    ...Typography.meta,
     fontWeight: '500',
-    color: '#666',
-  },
-  modeTextActive: {
-    color: '#667eea',
   },
   form: {
-    backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.lg,
+    ...Elevation.card,
   },
   inputGroup: {
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   inputRow: {
     flexDirection: 'row',
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   label: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '500',
-    color: '#333',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
-    backgroundColor: '#f8f9fa',
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    ...Typography.body,
+  },
+  helperText: {
+    ...Typography.caption,
+    marginTop: Spacing.xs,
+    fontStyle: 'italic',
   },
   switchContainer: {
-    marginBottom: 20,
+    marginBottom: Spacing.lg,
   },
   switchRow: {
     flexDirection: 'row',
-    backgroundColor: '#f0f0f0',
-    borderRadius: 12,
+    borderRadius: BorderRadius.md,
     padding: 4,
   },
   switchOption: {
     flex: 1,
-    paddingVertical: 12,
-    borderRadius: 8,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.sm,
     alignItems: 'center',
   },
-  switchOptionActive: {
-    backgroundColor: '#667eea',
-  },
   switchText: {
-    fontSize: 16,
+    ...Typography.body,
     fontWeight: '500',
-    color: '#666',
-  },
-  switchTextActive: {
-    color: '#fff',
   },
   advancedSection: {
-    marginTop: 10,
+    marginTop: Spacing.sm,
   },
   sectionTitle: {
-    fontSize: 18,
+    ...Typography.sectionTitle,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 15,
+    marginBottom: Spacing.md,
     textAlign: 'center',
   },
   footer: {
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    backgroundColor: '#fff',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
     borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
   },
   submitButton: {
-    borderRadius: 25,
+    borderRadius: BorderRadius.xl,
     overflow: 'hidden',
+    ...Elevation.modal,
   },
   submitButtonDisabled: {
     opacity: 0.7,
   },
   submitGradient: {
-    paddingVertical: 16,
+    paddingVertical: Spacing.md,
     alignItems: 'center',
   },
   submitText: {
-    fontSize: 18,
+    ...Typography.sectionTitle,
     fontWeight: '600',
-    color: '#fff',
   },
 });

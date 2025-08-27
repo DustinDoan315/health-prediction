@@ -1,26 +1,39 @@
-import {
-    Platform,
-    RefreshControl,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-import { fetchHealthStats, fetchPredictions } from '@/store/slices/healthSlice';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useCallback, useEffect } from 'react';
-
-import { AnimatedCard } from '@/components/AnimatedCard';
-import { LinearGradient } from 'expo-linear-gradient';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { MetricCard } from '@/components/MetricCard';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+} from '@/constants/Colors';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { fetchHealthStats, fetchPredictions } from '@/store/slices/healthSlice';
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
+
+import {
+  Platform,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
 
 export default function HomeScreen() {
   const dispatch = useAppDispatch();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const { user, isAuthenticated, isLoading: authLoading } = useAppSelector((state) => state.auth);
   const { stats, isLoading: healthLoading, statsLoaded, predictionsLoaded } = useAppSelector((state) => state.health);
+  
+  const [mood, setMood] = useState<'great' | 'good' | 'okay' | 'bad' | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -42,15 +55,23 @@ export default function HomeScreen() {
   }, [dispatch, isAuthenticated, user, predictionsLoaded]);
 
   const handleCreatePrediction = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     router.push('/health-prediction');
   }, []);
 
   const handleViewHistory = useCallback(() => {
-    router.push('/(tabs)/medical-history');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push('/profile');
   }, []);
 
   const handleChat = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push('/(tabs)/chat');
+  }, []);
+
+  const handleMoodSelect = useCallback((selectedMood: typeof mood) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setMood(selectedMood);
   }, []);
 
   const onRefresh = useCallback(async () => {
@@ -66,17 +87,17 @@ export default function HomeScreen() {
 
   if (authLoading) {
     return (
-      <SafeAreaView style={styles.container}>
+      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
         <View style={styles.loadingContainer}>
           <LoadingSpinner size={40} />
-          <Text style={styles.loadingText}>Loading...</Text>
+          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading...</Text>
         </View>
       </SafeAreaView>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView 
         style={styles.scrollView} 
         showsVerticalScrollIndicator={false}
@@ -84,98 +105,157 @@ export default function HomeScreen() {
           <RefreshControl
             refreshing={healthLoading}
             onRefresh={onRefresh}
-            colors={['#667eea']}
-            tintColor="#667eea"
+            colors={[colors.primary]}
+            tintColor={colors.primary}
           />
         }
       >
-        {/* Header */}
+        {/* Header with Search */}
         <View style={styles.header}>
           <View>
-            <Text style={styles.greeting}>Hi {user?.full_name?.split(' ')[0] || 'Julia'}!</Text>
-            <Text style={styles.subtitle}>How are you feeling today?</Text>
+            <Text style={[styles.greeting, { color: colors.text }]}>
+              Hi {user?.full_name?.split(' ')[0] || 'there'}!
+            </Text>
+            <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
+              How are you feeling today?
+            </Text>
           </View>
-          <TouchableOpacity 
-            style={styles.profilePic}
-            onPress={() => router.push('/profile')}
-          >
-            <Text style={styles.profileEmoji}>👨‍⚕️</Text>
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity 
+              style={[styles.searchButton, { backgroundColor: colors.surface }]}
+              onPress={() => {/* TODO: Implement search */}}
+            >
+              <Text style={[styles.searchIcon, { color: colors.textSecondary }]}>🔍</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.profilePic, { backgroundColor: colors.primary }]}
+              onPress={() => router.push('/profile')}
+            >
+              <Text style={[styles.profileEmoji, { color: colors.surface }]}>👤</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* Quick Stats */}
+        {/* Today's Mood Check-in */}
+        <View style={styles.moodContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Today</Text>
+          <View style={[styles.moodCard, { backgroundColor: colors.surface }]}>
+            <Text style={[styles.moodQuestion, { color: colors.text }]}>
+              How are you feeling today?
+            </Text>
+            <View style={styles.moodOptions}>
+              {[
+                { value: 'great', emoji: '😊', label: 'Great' },
+                { value: 'good', emoji: '🙂', label: 'Good' },
+                { value: 'okay', emoji: '😐', label: 'Okay' },
+                { value: 'bad', emoji: '😔', label: 'Bad' },
+              ].map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.moodOption,
+                    { backgroundColor: mood === option.value ? colors.primary : colors.background },
+                    mood === option.value && styles.moodOptionSelected,
+                  ]}
+                  onPress={() => handleMoodSelect(option.value as typeof mood)}
+                >
+                  <Text style={styles.moodEmoji}>{option.emoji}</Text>
+                  <Text style={[
+                    styles.moodLabel,
+                    { color: mood === option.value ? colors.surface : colors.textSecondary }
+                  ]}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </View>
+
+        {/* Quick Action Tiles */}
+        <View style={styles.actionsContainer}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
+          
+          <View style={styles.actionTiles}>
+            <TouchableOpacity 
+              style={[styles.actionTile, { backgroundColor: colors.surface }]}
+              onPress={handleViewHistory}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: colors.primary }]}>
+                <Text style={[styles.actionEmoji, { color: colors.surface }]}>📋</Text>
+              </View>
+              <Text style={[styles.actionTitle, { color: colors.text }]}>Medical History</Text>
+              <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
+                View your health records
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.actionTile, { backgroundColor: colors.surface }]}
+              onPress={handleChat}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: colors.secondary }]}>
+                <Text style={[styles.actionEmoji, { color: colors.surface }]}>💬</Text>
+              </View>
+              <Text style={[styles.actionTitle, { color: colors.text }]}>AI Assistant</Text>
+              <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
+                Get health advice
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity 
+              style={[styles.actionTile, { backgroundColor: colors.surface }]}
+              onPress={handleCreatePrediction}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: colors.success }]}>
+                <Text style={[styles.actionEmoji, { color: colors.surface }]}>🔍</Text>
+              </View>
+              <Text style={[styles.actionTitle, { color: colors.text }]}>New Prediction</Text>
+              <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
+                2-min checkup
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Health Metrics Overview */}
         {stats && (
-          <View style={styles.statsContainer}>
-            <Text style={styles.sectionTitle}>Your Health Overview</Text>
-            <View style={styles.statsGrid}>
-              <AnimatedCard style={styles.statCard} delay={100}>
-                <Text style={styles.statNumber}>{stats.total_predictions}</Text>
-                <Text style={styles.statLabel}>Predictions</Text>
-              </AnimatedCard>
-              <AnimatedCard style={styles.statCard} delay={200}>
-                <Text style={styles.statNumber}>{stats.average_risk_score.toFixed(1)}</Text>
-                <Text style={styles.statLabel}>Avg Risk</Text>
-              </AnimatedCard>
-              <AnimatedCard style={styles.statCard} delay={300}>
-                <Text style={styles.statNumber}>{stats.risk_distribution.low}</Text>
-                <Text style={styles.statLabel}>Low Risk</Text>
-              </AnimatedCard>
+          <View style={styles.metricsContainer}>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Insights</Text>
+            <View style={styles.metricsGrid}>
+              <MetricCard
+                title="Total Predictions"
+                value={stats.total_predictions}
+                status="neutral"
+                icon="📊"
+              />
+              <MetricCard
+                title="Average Risk"
+                value={stats.average_risk_score.toFixed(1)}
+                unit=""
+                status={stats.average_risk_score < 3 ? 'good' : stats.average_risk_score < 7 ? 'watch' : 'attention'}
+                icon="⚠️"
+              />
+              <MetricCard
+                title="Low Risk Count"
+                value={stats.risk_distribution.low}
+                status="good"
+                icon="✅"
+              />
             </View>
           </View>
         )}
 
-        {/* Action Cards */}
-        <View style={styles.actionsContainer}>
-          <AnimatedCard style={styles.actionCard} onPress={handleViewHistory} delay={400}>
-            <LinearGradient
-              colors={['#667eea', '#764ba2']}
-              style={styles.actionGradient}
-            >
-              <View style={styles.actionIcon}>
-                <Text style={styles.actionEmoji}>📋</Text>
-              </View>
-              <Text style={styles.actionTitle}>Medical History</Text>
-              <Text style={styles.actionSubtitle}>View your health records</Text>
-            </LinearGradient>
-          </AnimatedCard>
-
-          <AnimatedCard style={styles.actionCard} onPress={handleChat} delay={500}>
-            <LinearGradient
-              colors={['#f093fb', '#f5576c']}
-              style={styles.actionGradient}
-            >
-              <View style={styles.actionIcon}>
-                <Text style={styles.actionEmoji}>💬</Text>
-              </View>
-              <Text style={styles.actionTitle}>Online Chat</Text>
-              <Text style={styles.actionSubtitle}>Get AI health advice</Text>
-            </LinearGradient>
-          </AnimatedCard>
-
-          <AnimatedCard style={styles.actionCard} onPress={handleCreatePrediction} delay={600}>
-            <LinearGradient
-              colors={['#4facfe', '#00f2fe']}
-              style={styles.actionGradient}
-            >
-              <View style={styles.actionIcon}>
-                <Text style={styles.actionEmoji}>🔍</Text>
-              </View>
-              <Text style={styles.actionTitle}>Health Check</Text>
-              <Text style={styles.actionSubtitle}>Create new prediction</Text>
-            </LinearGradient>
-          </AnimatedCard>
-        </View>
-
-        {/* Create Prediction Button */}
-        <AnimatedCard style={styles.createButton} onPress={handleCreatePrediction} delay={700}>
-          <LinearGradient
-            colors={['#667eea', '#764ba2']}
-            style={styles.createButtonGradient}
-          >
-            <Text style={styles.createButtonText}>New Health Prediction</Text>
-            <Text style={styles.createButtonIcon}>+</Text>
-          </LinearGradient>
-        </AnimatedCard>
+        {/* Primary CTA */}
+        <TouchableOpacity 
+          style={[styles.primaryCTA, { backgroundColor: colors.primary }]}
+          onPress={handleCreatePrediction}
+        >
+          <Text style={[styles.primaryCTAText, { color: colors.surface }]}>
+            See my risk & plan
+          </Text>
+          <Text style={[styles.primaryCTAArrow, { color: colors.surface }]}>→</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );
@@ -184,7 +264,6 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   scrollView: {
     flex: 1,
@@ -196,147 +275,150 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#666',
+    marginTop: Spacing.sm,
+    ...Typography.body,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
   },
   greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
+    ...Typography.pageTitle,
+    marginBottom: Spacing.xs,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginTop: 4,
+    ...Typography.body,
+  },
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  searchButton: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Elevation.card,
+  },
+  searchIcon: {
+    fontSize: 20,
   },
   profilePic: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: '#e3f2fd',
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
   },
   profileEmoji: {
-    fontSize: 24,
+    fontSize: 20,
   },
-  statsContainer: {
-    paddingHorizontal: 20,
-    marginTop: 20,
+  moodContainer: {
+    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.lg,
   },
   sectionTitle: {
-    fontSize: 18,
+    ...Typography.sectionTitle,
+    marginBottom: Spacing.md,
+  },
+  moodCard: {
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    ...Elevation.card,
+  },
+  moodQuestion: {
+    ...Typography.body,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 15,
+    marginBottom: Spacing.md,
+    textAlign: 'center',
   },
-  statsGrid: {
+  moodOptions: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
-  statCard: {
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 15,
+  moodOption: {
     alignItems: 'center',
-    flex: 1,
-    marginHorizontal: 5,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.22,
-    shadowRadius: 2.22,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    minWidth: 70,
   },
-  statNumber: {
+  moodOptionSelected: {
+    ...Elevation.card,
+  },
+  moodEmoji: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#667eea',
+    marginBottom: Spacing.xs,
   },
-  statLabel: {
-    fontSize: 12,
-    color: '#666',
-    marginTop: 4,
+  moodLabel: {
+    ...Typography.caption,
+    fontWeight: '500',
   },
   actionsContainer: {
-    paddingHorizontal: 20,
-    marginTop: 30,
+    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.xl,
   },
-  actionCard: {
-    marginBottom: 15,
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 3,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
+  actionTiles: {
+    gap: Spacing.md,
   },
-  actionGradient: {
-    padding: 20,
+  actionTile: {
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
     flexDirection: 'row',
     alignItems: 'center',
+    ...Elevation.card,
   },
   actionIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 15,
+    marginRight: Spacing.md,
   },
   actionEmoji: {
     fontSize: 24,
   },
   actionTitle: {
-    fontSize: 18,
+    ...Typography.body,
     fontWeight: '600',
-    color: '#fff',
+    marginBottom: Spacing.xs,
     flex: 1,
   },
   actionSubtitle: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    marginTop: 2,
+    ...Typography.meta,
   },
-  createButton: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    marginBottom: 30,
-    borderRadius: 16,
-    overflow: 'hidden',
+  metricsContainer: {
+    paddingHorizontal: Spacing.lg,
+    marginTop: Spacing.xl,
   },
-  createButtonGradient: {
+  metricsGrid: {
+    gap: Spacing.md,
+  },
+  primaryCTA: {
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.xl,
+    marginBottom: Spacing.xl,
+    paddingVertical: Spacing.lg,
+    paddingHorizontal: Spacing.xl,
+    borderRadius: BorderRadius.xl,
     flexDirection: 'row',
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 18,
-    paddingHorizontal: 20,
+    justifyContent: 'center',
+    ...Elevation.modal,
   },
-  createButtonText: {
-    fontSize: 18,
+  primaryCTAText: {
+    ...Typography.sectionTitle,
     fontWeight: '600',
-    color: '#fff',
-    marginRight: 10,
+    marginRight: Spacing.sm,
   },
-  createButtonIcon: {
+  primaryCTAArrow: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontWeight: '600',
   },
 });

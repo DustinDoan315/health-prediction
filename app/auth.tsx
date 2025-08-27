@@ -1,8 +1,18 @@
+import {
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
+} from '@/constants/Colors';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
+import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useEffect, useState } from 'react';
+
 import {
     Alert,
     KeyboardAvoidingView,
@@ -15,6 +25,7 @@ import {
     View,
 } from 'react-native';
 
+
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
@@ -25,6 +36,8 @@ export default function AuthScreen() {
   });
 
   const dispatch = useAppDispatch();
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -45,6 +58,8 @@ export default function AuthScreen() {
   };
 
   const handleSubmit = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
     if (isLogin) {
       if (!formData.username || !formData.password) {
         Alert.alert('Error', 'Please fill in all required fields');
@@ -69,6 +84,7 @@ export default function AuthScreen() {
   };
 
   const toggleMode = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setIsLogin(!isLogin);
     setFormData({
       username: '',
@@ -84,7 +100,7 @@ export default function AuthScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <LinearGradient
-        colors={['#667eea', '#764ba2']}
+        colors={[colors.gradientStart, colors.gradientEnd]}
         style={styles.background}
       >
         <ScrollView contentContainerStyle={styles.scrollContent}>
@@ -99,12 +115,15 @@ export default function AuthScreen() {
               }
             </Text>
 
-            <View style={styles.formContainer}>
+            <View style={[styles.formContainer, { backgroundColor: 'rgba(255, 255, 255, 0.1)' }]}>
               <View style={styles.inputContainer}>
+                <Text style={[styles.inputLabel, { color: colors.surface }]}>
+                  {isLogin ? 'Username' : 'Username *'}
+                </Text>
                 <TextInput
-                  style={styles.input}
-                  placeholder="Username"
-                  placeholderTextColor="#999"
+                  style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
+                  placeholder="Enter your username"
+                  placeholderTextColor={colors.textSecondary}
                   value={formData.username}
                   onChangeText={(value) => handleInputChange('username', value)}
                   autoCapitalize="none"
@@ -114,20 +133,26 @@ export default function AuthScreen() {
               {!isLogin && (
                 <>
                   <View style={styles.inputContainer}>
+                    <Text style={[styles.inputLabel, { color: colors.surface }]}>
+                      Full Name *
+                    </Text>
                     <TextInput
-                      style={styles.input}
-                      placeholder="Full Name"
-                      placeholderTextColor="#999"
+                      style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
+                      placeholder="Enter your full name"
+                      placeholderTextColor={colors.textSecondary}
                       value={formData.full_name}
                       onChangeText={(value) => handleInputChange('full_name', value)}
                     />
                   </View>
 
                   <View style={styles.inputContainer}>
+                    <Text style={[styles.inputLabel, { color: colors.surface }]}>
+                      Email *
+                    </Text>
                     <TextInput
-                      style={styles.input}
-                      placeholder="Email"
-                      placeholderTextColor="#999"
+                      style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
+                      placeholder="Enter your email"
+                      placeholderTextColor={colors.textSecondary}
                       value={formData.email}
                       onChangeText={(value) => handleInputChange('email', value)}
                       keyboardType="email-address"
@@ -138,23 +163,35 @@ export default function AuthScreen() {
               )}
 
               <View style={styles.inputContainer}>
+                <Text style={[styles.inputLabel, { color: colors.surface }]}>
+                  Password *
+                </Text>
                 <TextInput
-                  style={styles.input}
-                  placeholder="Password"
-                  placeholderTextColor="#999"
+                  style={[styles.input, { backgroundColor: colors.surface, color: colors.text }]}
+                  placeholder="Enter your password"
+                  placeholderTextColor={colors.textSecondary}
                   value={formData.password}
                   onChangeText={(value) => handleInputChange('password', value)}
                   secureTextEntry
                   autoCapitalize="none"
                 />
+                {!isLogin && (
+                  <Text style={[styles.helperText, { color: colors.surface }]}>
+                    Password must be at least 8 characters long
+                  </Text>
+                )}
               </View>
 
               <TouchableOpacity 
-                style={[styles.button, isLoading && styles.buttonDisabled]} 
+                style={[
+                  styles.button, 
+                  { backgroundColor: colors.surface },
+                  isLoading && styles.buttonDisabled
+                ]} 
                 onPress={handleSubmit}
                 disabled={isLoading}
               >
-                <Text style={styles.buttonText}>
+                <Text style={[styles.buttonText, { color: colors.primary }]}>
                   {isLoading 
                     ? 'Loading...' 
                     : isLogin 
@@ -165,7 +202,7 @@ export default function AuthScreen() {
               </TouchableOpacity>
 
               <TouchableOpacity style={styles.switchButton} onPress={toggleMode}>
-                <Text style={styles.switchText}>
+                <Text style={[styles.switchText, { color: colors.surface }]}>
                   {isLogin 
                     ? "Don't have an account? Sign up" 
                     : 'Already have an account? Sign in'
@@ -193,52 +230,61 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 30,
-    paddingVertical: 50,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
   },
   title: {
-    fontSize: 32,
-    fontWeight: 'bold',
+    ...Typography.pageTitle,
     color: '#fff',
     textAlign: 'center',
-    marginBottom: 10,
+    marginBottom: Spacing.sm,
   },
   subtitle: {
-    fontSize: 16,
+    ...Typography.body,
     color: 'rgba(255, 255, 255, 0.9)',
     textAlign: 'center',
-    marginBottom: 40,
+    marginBottom: Spacing.xl,
+    lineHeight: Typography.body.lineHeight,
+    maxWidth: 320,
+    alignSelf: 'center',
   },
   formContainer: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 20,
-    padding: 30,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.xl,
     backdropFilter: 'blur(10px)',
   },
   inputContainer: {
-    marginBottom: 20,
+    marginBottom: Spacing.md,
+  },
+  inputLabel: {
+    ...Typography.body,
+    fontWeight: '600',
+    marginBottom: Spacing.xs,
   },
   input: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingHorizontal: 15,
-    paddingVertical: 15,
-    fontSize: 16,
-    color: '#333',
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
+    ...Typography.body,
+    ...Elevation.card,
+  },
+  helperText: {
+    ...Typography.caption,
+    marginTop: Spacing.xs,
+    fontStyle: 'italic',
   },
   button: {
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingVertical: 15,
-    marginTop: 10,
-    marginBottom: 20,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.md,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.lg,
+    ...Elevation.modal,
   },
   buttonDisabled: {
     opacity: 0.7,
   },
   buttonText: {
-    color: '#667eea',
-    fontSize: 18,
+    ...Typography.sectionTitle,
     fontWeight: '600',
     textAlign: 'center',
   },
@@ -246,8 +292,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   switchText: {
-    color: '#fff',
-    fontSize: 16,
+    ...Typography.body,
     textDecorationLine: 'underline',
   },
 });

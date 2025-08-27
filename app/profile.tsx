@@ -1,105 +1,123 @@
+import { DataSourceRow } from '@/components/DataSourceRow';
 import {
-    Alert,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
-} from 'react-native';
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+} from '@/constants/Colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useCallback, useEffect, useState } from 'react';
-
-import { AnimatedCard } from '@/components/AnimatedCard';
-import { LinearGradient } from 'expo-linear-gradient';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { logoutUser } from '@/store/slices/authSlice';
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
+import { useState } from 'react';
+
+import {
+  Alert,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+
 
 export default function ProfileScreen() {
+  const colorScheme = useColorScheme();
+  const colors = Colors[colorScheme ?? 'light'];
   const dispatch = useAppDispatch();
-  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
-  const { stats, predictions } = useAppSelector((state) => state.health);
+  const { user } = useAppSelector((state) => state.auth);
   
-  const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    full_name: user?.full_name || '',
-    email: user?.email || '',
-    username: user?.username || '',
-  });
+  const [dataSources, setDataSources] = useState([
+    {
+      id: 'apple-health',
+      name: 'Apple Health',
+      description: 'Sync health data from your iPhone',
+      icon: '🍎',
+      isConnected: true,
+      lastSync: '2 hours ago',
+      dataTypes: ['Steps', 'Heart Rate', 'Sleep', 'Blood Pressure'],
+    },
+    {
+      id: 'google-fit',
+      name: 'Google Fit',
+      description: 'Connect your Android health data',
+      icon: '🤖',
+      isConnected: false,
+      dataTypes: ['Steps', 'Heart Rate', 'Sleep'],
+    },
+    {
+      id: 'manual',
+      name: 'Manual Entry',
+      description: 'Enter health data manually',
+      icon: '✏️',
+      isConnected: true,
+      lastSync: '1 day ago',
+      dataTypes: ['Blood Pressure', 'Weight', 'Medications'],
+    },
+  ]);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/welcome');
-    }
-  }, [isAuthenticated]);
-
-  useEffect(() => {
-    if (user) {
-      setProfileData({
-        full_name: user.full_name,
-        email: user.email,
-        username: user.username,
-      });
-    }
-  }, [user]);
-
-  const handleEdit = useCallback(() => {
-    setIsEditing(true);
-  }, []);
-
-  const handleSave = useCallback(() => {
-    // TODO: Implement profile update API call
-    Alert.alert('Success', 'Profile updated successfully!');
-    setIsEditing(false);
-  }, [profileData]);
-
-  const handleCancel = useCallback(() => {
-    if (user) {
-      setProfileData({
-        full_name: user.full_name,
-        email: user.email,
-        username: user.username,
-      });
-    }
-    setIsEditing(false);
-  }, [user]);
-
-  const handleInputChange = useCallback((field: string, value: string) => {
-    setProfileData(prev => ({ ...prev, [field]: value }));
-  }, []);
-
-  const getHealthSummary = () => {
-    if (!stats) return null;
-    
-    const latestPrediction = predictions[0];
-    const riskLevel = latestPrediction?.risk_level || 'unknown';
-    
-    return {
-      totalPredictions: stats.total_predictions,
-      averageRisk: stats.average_risk_score,
-      latestRisk: riskLevel,
-      riskDistribution: stats.risk_distribution,
-    };
+  const handleLogout = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    Alert.alert(
+      'Logout',
+      'Are you sure you want to logout?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Logout', style: 'destructive', onPress: () => dispatch(logoutUser()) },
+      ]
+    );
   };
 
-  const getRiskColor = (riskLevel: string) => {
-    switch (riskLevel) {
-      case 'low': return '#4CAF50';
-      case 'medium': return '#FF9800';
-      case 'high': return '#F44336';
-      default: return '#9E9E9E';
-    }
+  const handleExportData = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    Alert.alert(
+      'Export Data',
+      'Your health data will be exported as a JSON file. This may take a few moments.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Export', onPress: () => {
+          // TODO: Implement data export
+          Alert.alert('Success', 'Data exported successfully!');
+        }},
+      ]
+    );
   };
 
-  const healthSummary = getHealthSummary();
+  const handleDeleteAccount = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    Alert.alert(
+      'Delete Account',
+      'This action cannot be undone. All your data will be permanently deleted.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Delete', style: 'destructive', onPress: () => {
+          // TODO: Implement account deletion
+          Alert.alert('Account Deleted', 'Your account has been deleted.');
+        }},
+      ]
+    );
+  };
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  const handleDataSourceToggle = (id: string, enabled: boolean) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setDataSources(prev => 
+      prev.map(source => 
+        source.id === id ? { ...source, isConnected: enabled } : source
+      )
+    );
+  };
+
+  const handleDataSourcePress = (id: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // TODO: Navigate to data source details
+    Alert.alert('Data Source', `Details for ${id}`);
+  };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
@@ -107,217 +125,172 @@ export default function ProfileScreen() {
             style={styles.backButton}
             onPress={() => router.back()}
           >
-            <Text style={styles.backButtonText}>←</Text>
+            <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>My Profile</Text>
-          <TouchableOpacity 
-            style={styles.editButton}
-            onPress={isEditing ? handleSave : handleEdit}
-          >
-            <Text style={styles.editButtonText}>
-              {isEditing ? 'Save' : 'Edit'}
-            </Text>
-          </TouchableOpacity>
+          <Text style={[styles.title, { color: colors.text }]}>Profile</Text>
+          <View style={styles.headerSpacer} />
         </View>
 
-        {/* Profile Picture Section */}
-        <AnimatedCard style={styles.profilePictureSection} delay={100}>
-          <View style={styles.profilePictureContainer}>
-            <View style={styles.profilePicture}>
-              <Text style={styles.profileEmoji}>👨‍⚕️</Text>
-            </View>
-            <TouchableOpacity style={styles.changePictureButton}>
-              <Text style={styles.changePictureText}>📷</Text>
+        {/* User Info */}
+        <View style={[styles.userCard, { backgroundColor: colors.surface }]}>
+          <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.avatarText, { color: colors.surface }]}>
+              {user?.full_name?.charAt(0) || 'U'}
+            </Text>
+          </View>
+          <View style={styles.userInfo}>
+            <Text style={[styles.userName, { color: colors.text }]}>
+              {user?.full_name || 'User'}
+            </Text>
+            <Text style={[styles.userEmail, { color: colors.textSecondary }]}>
+              {user?.email || 'user@example.com'}
+            </Text>
+          </View>
+        </View>
+
+        {/* Account Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Account</Text>
+          <View style={styles.sectionContent}>
+            <TouchableOpacity 
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={() => {/* TODO: Edit profile */}}
+            >
+              <Text style={[styles.menuIcon, { color: colors.primary }]}>👤</Text>
+              <Text style={[styles.menuText, { color: colors.text }]}>Edit Profile</Text>
+              <Text style={[styles.menuArrow, { color: colors.textSecondary }]}>→</Text>
             </TouchableOpacity>
-          </View>
-          <Text style={styles.memberSince}>
-            Member since {new Date(user?.created_at || '').getFullYear()}
-          </Text>
-        </AnimatedCard>
-
-        {/* Profile Information */}
-        <AnimatedCard style={styles.profileInfo} delay={200}>
-          <Text style={styles.sectionTitle}>Personal Information</Text>
-          
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Full Name</Text>
-            <TextInput
-              style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profileData.full_name}
-              onChangeText={(value) => handleInputChange('full_name', value)}
-              editable={isEditing}
-              placeholder="Enter your full name"
-              placeholderTextColor="#999"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Email</Text>
-            <TextInput
-              style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profileData.email}
-              onChangeText={(value) => handleInputChange('email', value)}
-              editable={isEditing}
-              placeholder="Enter your email"
-              placeholderTextColor="#999"
-              keyboardType="email-address"
-              autoCapitalize="none"
-            />
-          </View>
-
-          <View style={styles.inputGroup}>
-            <Text style={styles.inputLabel}>Username</Text>
-            <TextInput
-              style={[styles.input, !isEditing && styles.inputDisabled]}
-              value={profileData.username}
-              onChangeText={(value) => handleInputChange('username', value)}
-              editable={isEditing}
-              placeholder="Enter your username"
-              placeholderTextColor="#999"
-              autoCapitalize="none"
-            />
-          </View>
-
-          {isEditing && (
-            <View style={styles.editActions}>
-              <TouchableOpacity style={styles.cancelButton} onPress={handleCancel}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-                <LinearGradient
-                  colors={['#667eea', '#764ba2']}
-                  style={styles.saveButtonGradient}
-                >
-                  <Text style={styles.saveButtonText}>Save Changes</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          )}
-        </AnimatedCard>
-
-        {/* Health Summary */}
-        {healthSummary && (
-          <AnimatedCard style={styles.healthSummary} delay={300}>
-            <Text style={styles.sectionTitle}>Health Summary</Text>
             
-            <View style={styles.healthStatsGrid}>
-              <View style={styles.healthStatCard}>
-                <Text style={styles.healthStatNumber}>{healthSummary.totalPredictions}</Text>
-                <Text style={styles.healthStatLabel}>Total Assessments</Text>
-              </View>
-              
-              <View style={styles.healthStatCard}>
-                <Text style={styles.healthStatNumber}>
-                  {(healthSummary.averageRisk * 100).toFixed(0)}%
-                </Text>
-                <Text style={styles.healthStatLabel}>Average Risk</Text>
-              </View>
-              
-              <View style={styles.healthStatCard}>
-                <View style={[
-                  styles.riskIndicator, 
-                  { backgroundColor: getRiskColor(healthSummary.latestRisk) }
-                ]} />
-                <Text style={styles.healthStatLabel}>Latest Risk</Text>
-                <Text style={[
-                  styles.riskLevelText,
-                  { color: getRiskColor(healthSummary.latestRisk) }
-                ]}>
-                  {healthSummary.latestRisk.toUpperCase()}
-                </Text>
-              </View>
-            </View>
-
             <TouchableOpacity 
-              style={styles.viewHistoryButton}
-              onPress={() => router.push('/(tabs)/medical-history')}
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={() => {/* TODO: Change password */}}
             >
-              <Text style={styles.viewHistoryText}>View Full History →</Text>
-            </TouchableOpacity>
-          </AnimatedCard>
-        )}
-
-        {/* Account Actions */}
-        <AnimatedCard style={styles.accountActions} delay={400}>
-          <Text style={styles.sectionTitle}>Account Actions</Text>
-          
-          <TouchableOpacity style={styles.actionButton}>
-            <View style={styles.actionIcon}>
-              <Text style={styles.actionEmoji}>🔐</Text>
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Change Password</Text>
-              <Text style={styles.actionSubtitle}>Update your account password</Text>
-            </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <View style={styles.actionIcon}>
-              <Text style={styles.actionEmoji}>📊</Text>
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Export Data</Text>
-              <Text style={styles.actionSubtitle}>Download your health data</Text>
-            </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <View style={styles.actionIcon}>
-              <Text style={styles.actionEmoji}>🔔</Text>
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Notifications</Text>
-              <Text style={styles.actionSubtitle}>Manage notification preferences</Text>
-            </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity style={styles.actionButton}>
-            <View style={styles.actionIcon}>
-              <Text style={styles.actionEmoji}>🔒</Text>
-            </View>
-            <View style={styles.actionContent}>
-              <Text style={styles.actionTitle}>Privacy Settings</Text>
-              <Text style={styles.actionSubtitle}>Control your data privacy</Text>
-            </View>
-            <Text style={styles.actionArrow}>›</Text>
-          </TouchableOpacity>
-        </AnimatedCard>
-
-        {/* Quick Actions */}
-        <AnimatedCard style={styles.quickActions} delay={500}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
-          
-          <View style={styles.quickActionsGrid}>
-            <TouchableOpacity 
-              style={styles.quickActionButton}
-              onPress={() => router.push('/health-prediction')}
-            >
-              <LinearGradient
-                colors={['#4facfe', '#00f2fe']}
-                style={styles.quickActionGradient}
-              >
-                <Text style={styles.quickActionEmoji}>🔍</Text>
-                <Text style={styles.quickActionText}>New Assessment</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity 
-              style={styles.quickActionButton}
-              onPress={() => router.push('/(tabs)/chat')}
-            >
-              <LinearGradient
-                colors={['#f093fb', '#f5576c']}
-                style={styles.quickActionGradient}
-              >
-                <Text style={styles.quickActionEmoji}>💬</Text>
-                <Text style={styles.quickActionText}>AI Chat</Text>
-              </LinearGradient>
+              <Text style={[styles.menuIcon, { color: colors.primary }]}>🔒</Text>
+              <Text style={[styles.menuText, { color: colors.text }]}>Change Password</Text>
+              <Text style={[styles.menuArrow, { color: colors.textSecondary }]}>→</Text>
             </TouchableOpacity>
           </View>
-        </AnimatedCard>
+        </View>
+
+        {/* Data & Privacy Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Data & Privacy</Text>
+          <View style={styles.sectionContent}>
+            <TouchableOpacity 
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={handleExportData}
+            >
+              <Text style={[styles.menuIcon, { color: colors.primary }]}>📤</Text>
+              <Text style={[styles.menuText, { color: colors.text }]}>Export Health Data</Text>
+              <Text style={[styles.menuArrow, { color: colors.textSecondary }]}>→</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={() => {/* TODO: Privacy settings */}}
+            >
+              <Text style={[styles.menuIcon, { color: colors.primary }]}>🛡️</Text>
+              <Text style={[styles.menuText, { color: colors.text }]}>Privacy Settings</Text>
+              <Text style={[styles.menuArrow, { color: colors.textSecondary }]}>→</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Data Sources Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Data Sources</Text>
+          <Text style={[styles.sectionDescription, { color: colors.textSecondary }]}>
+            Manage your health data connections
+          </Text>
+          <View style={styles.sectionContent}>
+            {dataSources.map((source) => (
+              <DataSourceRow
+                key={source.id}
+                name={source.name}
+                description={source.description}
+                icon={source.icon}
+                isConnected={source.isConnected}
+                lastSync={source.lastSync}
+                dataTypes={source.dataTypes}
+                onToggle={(enabled) => handleDataSourceToggle(source.id, enabled)}
+                onPress={() => handleDataSourcePress(source.id)}
+              />
+            ))}
+          </View>
+        </View>
+
+        {/* Notifications Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>Notifications</Text>
+          <View style={styles.sectionContent}>
+            <TouchableOpacity 
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={() => {/* TODO: Notification settings */}}
+            >
+              <Text style={[styles.menuIcon, { color: colors.primary }]}>🔔</Text>
+              <Text style={[styles.menuText, { color: colors.text }]}>Notification Preferences</Text>
+              <Text style={[styles.menuArrow, { color: colors.textSecondary }]}>→</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* About Section */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>About</Text>
+          <View style={styles.sectionContent}>
+            <TouchableOpacity 
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={() => {/* TODO: App info */}}
+            >
+              <Text style={[styles.menuIcon, { color: colors.primary }]}>ℹ️</Text>
+              <Text style={[styles.menuText, { color: colors.text }]}>App Version</Text>
+              <Text style={[styles.menuVersion, { color: colors.textSecondary }]}>1.0.0</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={() => {/* TODO: Terms of service */}}
+            >
+              <Text style={[styles.menuIcon, { color: colors.primary }]}>📄</Text>
+              <Text style={[styles.menuText, { color: colors.text }]}>Terms of Service</Text>
+              <Text style={[styles.menuArrow, { color: colors.textSecondary }]}>→</Text>
+            </TouchableOpacity>
+            
+            <TouchableOpacity 
+              style={[styles.menuItem, { backgroundColor: colors.surface }]}
+              onPress={() => {/* TODO: Privacy policy */}}
+            >
+              <Text style={[styles.menuIcon, { color: colors.primary }]}>📋</Text>
+              <Text style={[styles.menuText, { color: colors.text }]}>Privacy Policy</Text>
+              <Text style={[styles.menuArrow, { color: colors.textSecondary }]}>→</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Danger Zone */}
+        <View style={styles.section}>
+          <Text style={[styles.sectionTitle, { color: colors.error }]}>Danger Zone</Text>
+          <View style={styles.sectionContent}>
+            <TouchableOpacity 
+              style={[styles.dangerItem, { backgroundColor: colors.surface, borderColor: colors.error }]}
+              onPress={handleDeleteAccount}
+            >
+              <Text style={[styles.dangerIcon, { color: colors.error }]}>🗑️</Text>
+              <Text style={[styles.dangerText, { color: colors.error }]}>Delete Account</Text>
+              <Text style={[styles.menuArrow, { color: colors.error }]}>→</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Logout Button */}
+        <TouchableOpacity 
+          style={[styles.logoutButton, { backgroundColor: colors.surface, borderColor: colors.textSecondary }]}
+          onPress={handleLogout}
+        >
+          <Text style={[styles.logoutText, { color: colors.textSecondary }]}>Logout</Text>
+        </TouchableOpacity>
+
+        <View style={styles.bottomSpacer} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -326,327 +299,147 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f8f9fa',
   },
   scrollView: {
     flex: 1,
-    paddingBottom: Platform.OS === 'ios' ? 100 : 80,
   },
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 15,
+    paddingHorizontal: Spacing.lg,
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
   },
   backButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#fff',
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
     justifyContent: 'center',
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
   },
-  backButtonText: {
-    fontSize: 18,
-    color: '#333',
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-  },
-  editButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    backgroundColor: '#667eea',
-    borderRadius: 20,
-  },
-  editButtonText: {
-    color: '#fff',
-    fontSize: 14,
+  backIcon: {
+    fontSize: 24,
     fontWeight: '600',
   },
-  profilePictureSection: {
+  title: {
+    ...Typography.pageTitle,
+    flex: 1,
+    textAlign: 'center',
+    marginLeft: -44, // Center the title
+  },
+  headerSpacer: {
+    width: 44,
+  },
+  userCard: {
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.lg,
+    padding: Spacing.lg,
+    borderRadius: BorderRadius.lg,
+    flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#fff',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
-    paddingVertical: 30,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    ...Elevation.card,
   },
-  profilePictureContainer: {
-    position: 'relative',
-    marginBottom: 15,
-  },
-  profilePicture: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: '#e3f2fd',
+  avatar: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: Spacing.md,
   },
-  profileEmoji: {
-    fontSize: 40,
+  avatarText: {
+    ...Typography.pageTitle,
+    fontWeight: '700',
   },
-  changePictureButton: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#667eea',
-    justifyContent: 'center',
-    alignItems: 'center',
+  userInfo: {
+    flex: 1,
   },
-  changePictureText: {
-    fontSize: 16,
+  userName: {
+    ...Typography.sectionTitle,
+    fontWeight: '600',
+    marginBottom: Spacing.xs,
   },
-  memberSince: {
-    fontSize: 14,
-    color: '#666',
-    fontStyle: 'italic',
+  userEmail: {
+    ...Typography.meta,
   },
-  profileInfo: {
-    backgroundColor: '#fff',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
-    padding: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+  section: {
+    marginBottom: Spacing.xl,
   },
   sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-  },
-  inputGroup: {
-    marginBottom: 20,
-  },
-  inputLabel: {
-    fontSize: 14,
+    ...Typography.sectionTitle,
     fontWeight: '600',
-    color: '#333',
-    marginBottom: 8,
+    marginBottom: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
-    borderRadius: 12,
-    paddingHorizontal: 15,
-    paddingVertical: 12,
-    fontSize: 16,
-    color: '#333',
-    backgroundColor: '#fff',
+  sectionDescription: {
+    ...Typography.meta,
+    marginBottom: Spacing.md,
+    paddingHorizontal: Spacing.lg,
   },
-  inputDisabled: {
-    backgroundColor: '#f8f9fa',
-    color: '#666',
+  sectionContent: {
+    paddingHorizontal: Spacing.lg,
   },
-  editActions: {
+  menuItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
-  },
-  cancelButton: {
-    flex: 1,
-    paddingVertical: 12,
-    marginRight: 10,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#e0e0e0',
     alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+    ...Elevation.card,
   },
-  cancelButtonText: {
-    fontSize: 16,
-    color: '#666',
-    fontWeight: '500',
-  },
-  saveButton: {
-    flex: 1,
-    marginLeft: 10,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  saveButtonGradient: {
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  saveButtonText: {
-    fontSize: 16,
-    color: '#fff',
-    fontWeight: '600',
-  },
-  healthSummary: {
-    backgroundColor: '#fff',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
-    padding: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  healthStatsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-  },
-  healthStatCard: {
-    flex: 1,
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  healthStatNumber: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#667eea',
-    marginBottom: 5,
-  },
-  healthStatLabel: {
-    fontSize: 12,
-    color: '#666',
-    textAlign: 'center',
-  },
-  riskIndicator: {
+  menuIcon: {
+    fontSize: 20,
+    marginRight: Spacing.md,
     width: 24,
-    height: 24,
-    borderRadius: 12,
-    marginBottom: 5,
-  },
-  riskLevelText: {
-    fontSize: 12,
-    fontWeight: 'bold',
     textAlign: 'center',
   },
-  viewHistoryButton: {
-    alignItems: 'center',
-    paddingVertical: 10,
-  },
-  viewHistoryText: {
-    fontSize: 14,
-    color: '#667eea',
+  menuText: {
+    ...Typography.body,
     fontWeight: '500',
-  },
-  accountActions: {
-    backgroundColor: '#fff',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
-    padding: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  actionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  actionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#f8f9fa',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 15,
-  },
-  actionEmoji: {
-    fontSize: 18,
-  },
-  actionContent: {
     flex: 1,
   },
-  actionTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#333',
-    marginBottom: 2,
-  },
-  actionSubtitle: {
-    fontSize: 14,
-    color: '#666',
-  },
-  actionArrow: {
+  menuArrow: {
     fontSize: 18,
-    color: '#ccc',
-  },
-  quickActions: {
-    backgroundColor: '#fff',
-    marginHorizontal: 20,
-    marginBottom: 20,
-    borderRadius: 16,
-    padding: 20,
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 1,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-  },
-  quickActionsGrid: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  quickActionButton: {
-    flex: 1,
-    marginHorizontal: 5,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  quickActionGradient: {
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  quickActionEmoji: {
-    fontSize: 24,
-    marginBottom: 5,
-  },
-  quickActionText: {
-    fontSize: 14,
-    color: '#fff',
     fontWeight: '600',
+  },
+  menuVersion: {
+    ...Typography.meta,
+    fontWeight: '500',
+  },
+  dangerItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    marginBottom: Spacing.sm,
+    borderWidth: 1,
+    ...Elevation.card,
+  },
+  dangerIcon: {
+    fontSize: 20,
+    marginRight: Spacing.md,
+    width: 24,
+    textAlign: 'center',
+  },
+  dangerText: {
+    ...Typography.body,
+    fontWeight: '500',
+    flex: 1,
+  },
+  logoutButton: {
+    marginHorizontal: Spacing.lg,
+    marginTop: Spacing.lg,
+    padding: Spacing.md,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    alignItems: 'center',
+    ...Elevation.card,
+  },
+  logoutText: {
+    ...Typography.body,
+    fontWeight: '600',
+  },
+  bottomSpacer: {
+    height: Spacing.xl,
   },
 });

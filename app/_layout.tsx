@@ -1,14 +1,14 @@
-import 'react-native-reanimated';
-
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-
 import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { Provider } from 'react-redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { store } from '@/store/store';
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { store } from '@/store/store';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { useFonts } from 'expo-font';
+import 'react-native-reanimated';
+import { Provider } from 'react-redux';
+
+
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -17,7 +17,6 @@ export default function RootLayout() {
   });
 
   if (!loaded) {
-    // Async font loading only occurs in development.
     return null;
   }
 
