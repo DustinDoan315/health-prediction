@@ -1,9 +1,9 @@
 import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
 } from '@/constants/Colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -13,14 +13,14 @@ import { router } from 'expo-router';
 import { useEffect } from 'react';
 
 import {
-    Alert,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 
