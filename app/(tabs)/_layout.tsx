@@ -2,12 +2,26 @@ import { HapticTab } from '@/components/HapticTab';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants/Colors';
+import { useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { Tabs } from 'expo-router';
+import { router, Tabs } from 'expo-router';
+import { useEffect } from 'react';
 import { Platform } from 'react-native';
+
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const { isAuthenticated } = useAppSelector(state => state.auth);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/welcome');
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   return (
     <Tabs
@@ -71,26 +85,26 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="health-prediction"
+        name="medical-history"
         options={{
-          title: 'Check',
+          title: 'History',
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol 
               size={focused ? 30 : 26} 
-              name="heart.fill" 
+              name="list.bullet" 
               color={color} 
             />
           ),
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="settings"
         options={{
-          title: 'Profile',
+          title: 'Settings',
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol 
               size={focused ? 30 : 26} 
-              name="person.fill" 
+              name="gearshape.fill" 
               color={color} 
             />
           ),

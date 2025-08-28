@@ -122,20 +122,14 @@ export default function MedicalHistoryScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const { predictions, isLoading, predictionsLoaded } = useAppSelector((state) => state.health);
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/welcome');
-      return;
-    }
-    
     // Only fetch if we haven't loaded predictions yet
     if (!predictionsLoaded) {
       dispatch(fetchPredictions(50));
     }
-  }, [dispatch, isAuthenticated, predictionsLoaded]);
+  }, [dispatch, predictionsLoaded]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -177,9 +171,7 @@ export default function MedicalHistoryScreen() {
     </View>
   );
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to welcome
-  }
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

@@ -1,11 +1,11 @@
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { MetricCard } from '@/components/MetricCard';
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
 } from '@/constants/Colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -15,14 +15,14 @@ import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 
 import {
-  Platform,
-  RefreshControl,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Platform,
+    RefreshControl,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 
@@ -35,12 +35,7 @@ export default function HomeScreen() {
   
   const [mood, setMood] = useState<'great' | 'good' | 'okay' | 'bad' | null>(null);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/welcome');
-      return;
-    }
-  }, [isAuthenticated]);
+
 
   useEffect(() => {
     if (isAuthenticated && user && !statsLoaded) {
@@ -81,9 +76,7 @@ export default function HomeScreen() {
     }
   }, [dispatch, isAuthenticated, user]);
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to welcome
-  }
+
 
   if (authLoading) {
     return (

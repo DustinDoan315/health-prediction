@@ -10,7 +10,6 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { logoutUser } from '@/store/slices/authSlice';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useEffect } from 'react';
 
 import {
   Alert,
@@ -30,11 +29,7 @@ export default function SettingsScreen() {
   const colors = Colors[colorScheme ?? 'light'];
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/welcome');
-    }
-  }, [isAuthenticated]);
+
 
   const handleLogout = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -120,9 +115,7 @@ export default function SettingsScreen() {
     },
   ];
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to welcome
-  }
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

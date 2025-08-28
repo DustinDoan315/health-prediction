@@ -1,10 +1,10 @@
 import { ConfidenceBadge } from '@/components/ConfidenceBadge';
 import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
 } from '@/constants/Colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
@@ -16,13 +16,13 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef } from 'react';
 
 import {
-    Dimensions,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Dimensions,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 
@@ -42,6 +42,9 @@ export default function PredictionResultScreen() {
       router.replace('/welcome');
       return;
     }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
 
     const id = parseInt(predictionId as string);
     if (predictionId && !hasLoadedPrediction.current) {
@@ -57,7 +60,11 @@ export default function PredictionResultScreen() {
         dispatch(fetchPredictionById(id));
       }
     }
-  }, [dispatch, predictionId, isAuthenticated, currentPrediction]);
+  }, [dispatch, predictionId, currentPrediction]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const getRiskLevel = (riskScore: number) => {
     if (riskScore < 0.3) return 'low';
@@ -100,9 +107,7 @@ export default function PredictionResultScreen() {
     router.push('/(tabs)');
   };
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to welcome
-  }
+
 
   if (isLoading || !currentPrediction) {
     return (

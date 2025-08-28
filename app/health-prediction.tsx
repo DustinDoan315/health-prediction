@@ -51,11 +51,11 @@ export default function HealthPredictionScreen() {
   useEffect(() => {
     if (!isAuthenticated) {
       router.replace('/welcome');
+      return;
     }
   }, [isAuthenticated]);
 
   useEffect(() => {
-    // Clear any existing prediction when screen loads
     dispatch(clearCurrentPrediction());
     hasNavigated.current = false;
   }, [dispatch]);
@@ -69,6 +69,10 @@ export default function HealthPredictionScreen() {
       });
     }
   }, [currentPrediction]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -375,9 +379,7 @@ export default function HealthPredictionScreen() {
     </>
   );
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to welcome
-  }
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
@@ -398,7 +400,7 @@ export default function HealthPredictionScreen() {
 
         <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
           <View style={styles.content}>
-            <Text style={[styles.title, { color: colors.text }]}>Let's assess your health</Text>
+            <Text style={[styles.title, { color: colors.text }]}>Let&#39;s assess your health</Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
               Fill in your information to get personalized health insights
             </Text>

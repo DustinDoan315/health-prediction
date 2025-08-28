@@ -5,17 +5,10 @@ import {
   Spacing,
   Typography
 } from '@/constants/Colors';
-import { useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AIChatResponse, apiService } from '@/services/api';
 import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState
-} from 'react';
+import { useCallback, useRef, useState } from 'react';
 import {
   Animated,
   Dimensions,
@@ -43,7 +36,6 @@ interface ChatMessage {
 const { height: screenHeight } = Dimensions.get('window');
 
 export default function ChatScreen() {
-  const { isAuthenticated } = useAppSelector((state) => state.auth);
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const [messages, setMessages] = useState<ChatMessage[]>([
@@ -81,11 +73,7 @@ export default function ChatScreen() {
     typingAnimation.setValue(0);
   }, [typingAnimation]);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.replace('/welcome');
-    }
-  }, [isAuthenticated]);
+
 
   const sendMessage = useCallback(async () => {
     if (!inputText.trim() || isLoading) return;
@@ -240,9 +228,7 @@ export default function ChatScreen() {
     setInputText(question);
   }, []);
 
-  if (!isAuthenticated) {
-    return null; // Will redirect to welcome
-  }
+
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>

@@ -1,26 +1,26 @@
 import { DataSourceRow } from '@/components/DataSourceRow';
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
 } from '@/constants/Colors';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { logoutUser } from '@/store/slices/authSlice';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 
@@ -28,7 +28,7 @@ export default function ProfileScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   
   const [dataSources, setDataSources] = useState([
     {
@@ -58,6 +58,17 @@ export default function ProfileScreen() {
       dataTypes: ['Blood Pressure', 'Weight', 'Medications'],
     },
   ]);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.replace('/welcome');
+      return;
+    }
+  }, [isAuthenticated]);
+
+  if (!isAuthenticated) {
+    return null;
+  }
 
   const handleLogout = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
