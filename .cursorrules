@@ -1,14 +1,42 @@
-# Health Prediction App – Enhanced Coding Rules
+# Health Prediction App – Clean Architecture Coding Rules
 
 ## Technology Stack
 
 - React Native (Expo Router)
 - TypeScript (strict mode, noUncheckedIndexedAccess)
-- Redux Toolkit + RTK Query
+- Clean Architecture (Domain, Data, Presentation layers)
+- Dependency Injection Container
+- MVVM Pattern with ViewModels
 - Yarn package manager (never npm)
 - Design System for reusable UI components
 - Jest + React Native Testing Library for testing
 - ESLint + Prettier + Husky for code linting & formatting pre-commit
+
+## Architecture Overview
+
+### Clean Architecture Layers
+
+```
+/src
+├── /domain           → Business logic & entities
+│   ├── /entities     → Domain models (User, HealthPrediction, etc.)
+│   ├── /repositories → Repository interfaces
+│   └── /usecases     → Business use cases
+├── /data             → Data layer implementation
+│   └── /repositories → Repository implementations (API, Local)
+├── /presentation     → UI layer
+│   ├── /viewmodels   → MVVM ViewModels
+│   └── /components   → UI components
+└── /core             → Cross-cutting concerns
+    └── /di           → Dependency Injection
+```
+
+### Layer Dependencies
+
+- **Presentation** → **Domain** (ViewModels use Use Cases)
+- **Data** → **Domain** (Repositories implement Domain interfaces)
+- **Domain** → **Nothing** (Pure business logic)
+- **Core** → **All layers** (DI container)
 
 ## Code Standards
 
@@ -22,6 +50,29 @@
 - Type guards (isXxx) for runtime checks
 - Enforce ReturnType and Parameters for selectors & thunks
 - Prefer readonly & as const for immutability
+- **Domain entities**: Use readonly properties, immutable objects
+- **Use cases**: Pure functions, no side effects
+- **ViewModels**: State management with React hooks
+
+### Clean Architecture Rules
+
+#### Domain Layer
+- **Entities**: Pure business objects with validation logic
+- **Use Cases**: Single responsibility, dependency inversion
+- **Repositories**: Abstract interfaces, no implementation details
+- **No external dependencies**: Only TypeScript types
+
+#### Data Layer
+- **Repository implementations**: Concrete implementations of domain interfaces
+- **API services**: HTTP client abstraction
+- **Data mapping**: Convert API responses to domain entities
+- **Error handling**: Transform network errors to domain errors
+
+#### Presentation Layer
+- **ViewModels**: Business logic for UI, state management
+- **Components**: Pure UI, no business logic
+- **MVVM pattern**: View ↔ ViewModel ↔ Use Cases
+- **Dependency injection**: Use DI container for dependencies
 
 ### React Native
 
@@ -31,43 +82,53 @@
 - Native driver for animations
 - Always wrap screens in SafeAreaView
 - KeyboardAvoidingView where user input is required
+- **ViewModels**: Use custom hooks for state management
+- **Components**: Receive data via props, emit events via callbacks
 
 ### File Structure
 
 ```
-/app              → Screens (Expo Router)
-/components       → UI components
+/app              → Screens (Expo Router) - Legacy, migrate to /src/presentation
+/src              → Clean Architecture implementation
+├── /domain       → Business logic
+├── /data         → Data layer
+├── /presentation → UI layer
+└── /core         → Cross-cutting concerns
+/components       → Legacy UI components (migrate to /src/presentation)
 /constants        → Colors, Spacing, Typography
 /hooks            → Custom reusable hooks
-/services         → API, helpers
-/store/slices     → Redux slices
+/services         → Legacy API services (migrate to /src/data)
+/store/slices     → Legacy Redux slices (migrate to ViewModels)
 /utils            → Pure helper functions
 /assets           → Images, fonts
 ```
 
 - Barrel exports (index.ts) in each folder
 - Flat folder design — no deep nesting
+- **Migration strategy**: Gradually move from legacy to clean architecture
 
-### Naming
+### Naming Conventions
 
-- PascalCase → Components, Interfaces
-- camelCase → Variables, functions, file names
-- SCREAMING_SNAKE_CASE → Constants
-- Prefix I → Interfaces (e.g., IUserProfile)
-- Hook names must start with use
+- PascalCase → Components, Interfaces, Classes, Use Cases
+- camelCase → Variables, functions, file names, methods
+- SCREAMING_SNAKE_CASE → Constants, Service Keys
+- Prefix I → Interfaces (e.g., IUserProfile, IAuthRepository)
+- Prefix use → Custom hooks (e.g., useAuthViewModel)
+- Suffix UseCase → Use case classes (e.g., LoginUseCase)
+- Suffix Repository → Repository classes (e.g., AuthRepository)
+- Suffix ViewModel → View model hooks (e.g., useAuthViewModel)
 
-### Styling
+### Dependency Injection
 
-- Design tokens from /constants
-- Spacing scale: 4, 8, 12, 16, 24, 32
-- Typography: h1–h6, body, caption, button
-- Only StyleSheet.create or styled-system wrapper
-- Semantic colors: primary, secondary, success, error, warning, info
-- Light/Dark mode required
-- Responsive design: adapt to tablet + large screens
+- **Service Keys**: Centralized service registration keys
+- **Container**: Singleton DI container
+- **Service Registry**: Register all dependencies at app startup
+- **Interface-based**: Depend on abstractions, not concretions
+- **Testability**: Easy mocking for unit tests
 
 ### State Management
 
+#### Legacy (Redux Toolkit)
 - Redux Toolkit for global state
 - RTK Query for all API calls
 - Derived data only via selectors
@@ -75,14 +136,31 @@
 - Persist sensitive tokens only via Expo SecureStore
 - No inline business logic in components — only hooks or slices
 
+#### New Architecture (ViewModels)
+- **ViewModels**: Custom hooks with useState/useCallback
+- **State**: Local component state managed by ViewModels
+- **Business Logic**: Encapsulated in Use Cases
+- **Dependencies**: Injected via DI container
+- **Testing**: Easy to mock and test ViewModels
+- **Performance**: Optimized with React.memo and useCallback
+
 ### API Integration
 
+#### Legacy (Direct API calls)
 - Centralized API client (services/api.ts)
 - Strongly typed endpoints with IApiResponse<T>
 - Retry logic with exponential backoff
 - Graceful handling of timeouts
 - Never call fetch directly
 - Network status awareness (retry when online)
+
+#### New Architecture (Repository Pattern)
+- **Repository interfaces**: Abstract data access in Domain layer
+- **Repository implementations**: Concrete API implementations in Data layer
+- **Use Cases**: Business logic that uses repositories
+- **Error handling**: Domain-specific error types
+- **Data mapping**: API responses → Domain entities
+- **Dependency injection**: Repositories injected into Use Cases
 
 ### Security
 
@@ -106,6 +184,9 @@
 - **Skeleton loading**: Each screen/component needs specific skeleton UI instead of generic loading spinners
 - **Skeleton reuse**: Create reusable skeleton components for common UI patterns (cards, lists, forms)
 - **Skeleton animation**: Use subtle shimmer/pulse animations for better perceived performance
+- **ViewModels**: Optimize with useCallback and useMemo
+- **Dependency injection**: Singleton pattern for expensive objects
+- **Lazy loading**: Register services only when needed
 
 ### Accessibility
 
@@ -147,6 +228,11 @@
 - **No hardcoded content**: All text, labels, messages must be in centralized content files
 - **Content management**: Create separate files for UI text, error messages, and static content
 - **i18n ready**: Structure content files to support future internationalization
+- **Clean Architecture**: Follow dependency inversion principle
+- **Single Responsibility**: Each class/function has one reason to change
+- **Interface Segregation**: Small, focused interfaces
+- **Dependency Injection**: No hard-coded dependencies
+- **Testability**: Easy to unit test all layers
 
 ### Git Rules
 
@@ -170,3 +256,10 @@
 - ❌ No missing error handling
 - ❌ No missing accessibility labels
 - ❌ No inline styles except quick prototypes
+- ❌ No direct API calls in components (use ViewModels)
+- ❌ No business logic in components (use Use Cases)
+- ❌ No concrete dependencies in Domain layer
+- ❌ No ViewModels calling repositories directly (use Use Cases)
+- ❌ No hard-coded dependencies (use DI container)
+- ❌ No mutable domain entities (use readonly)
+- ❌ No side effects in Use Cases (pure functions)
