@@ -17,9 +17,11 @@ export * from './ListSkeleton';
 export * from './LoadingSpinner';
 export * from './MedicalHistorySkeleton';
 export * from './MetricCard';
+export * from './OnboardingSkeleton';
+export * from './OptimizedCard';
 export * from './PredictionResultSkeleton';
 export * from './ProfileScreenSkeleton';
 export * from './Skeleton';
 export * from './ThemedText';
-export * from './ThemedView';
+export * from './WelcomeScreenSkeleton';
 

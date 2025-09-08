@@ -1,20 +1,34 @@
+import { WelcomeScreenSkeleton } from '@/components/WelcomeScreenSkeleton';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+} from '@/constants';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { loadUser } from '@/store/slices/authSlice';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
+
 import {
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 
 export default function WelcomeScreen() {
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+  const colorScheme = useColorScheme();
+  const styles = createStyles(colorScheme ?? 'light');
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -28,15 +42,12 @@ export default function WelcomeScreen() {
   }, [isAuthenticated]);
 
   const handleGetStarted = () => {
-    router.push('/auth');
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    router.push('/onboarding');
   };
 
   if (isLoading) {
-    return (
-      <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>{UIText.welcome.loading}</Text>
-      </View>
-    );
+    return <WelcomeScreenSkeleton />;
   }
 
   return (
@@ -62,7 +73,7 @@ export default function WelcomeScreen() {
           <View style={styles.titleSection}>
             <Text style={styles.title}>{UIText.welcome.greeting}</Text>
             <Text style={styles.subtitle}>
-              Your personal health assistant powered by AI. Get insights, predictions, and personalized recommendations for better health.
+              {UIText.welcome.subtitle}
             </Text>
           </View>
 
@@ -70,7 +81,7 @@ export default function WelcomeScreen() {
           <View style={styles.featuresContainer}>
             <View style={styles.featureItem}>
               <Text style={styles.featureIcon}>🔍</Text>
-              <Text style={styles.featureText}>AI-Powered Health Analysis</Text>
+              <Text style={styles.featureText}>{UIText.welcome.features.aiAnalysis}</Text>
             </View>
             <View style={styles.featureItem}>
               <Text style={styles.featureIcon}>📊</Text>
@@ -85,19 +96,29 @@ export default function WelcomeScreen() {
           {/* Get Started Button */}
           <View style={styles.buttonContainer}>
             <TouchableOpacity 
-              style={styles.button} 
               onPress={handleGetStarted}
               activeOpacity={0.8}
+              accessibilityLabel={UIText.welcome.getStarted}
+              accessibilityRole="button"
+              accessibilityHint="Navigate to authentication screen"
             >
-              <Text style={styles.buttonText}>{UIText.welcome.getStarted}</Text>
-              <Text style={styles.buttonIcon}>→</Text>
+              <LinearGradient
+                colors={[Colors[colorScheme ?? 'light'].gradientStart,
+                  Colors[colorScheme ?? 'light'].gradientEnd]}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={styles.button}
+              >
+                <Text style={styles.buttonText}>{UIText.welcome.getStarted}</Text>
+                <Text style={styles.buttonIcon}>→</Text>
+              </LinearGradient>
             </TouchableOpacity>
           </View>
 
           {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              By continuing, you agree to our Terms of Service & Privacy Policy
+              {UIText.welcome.termsText}
             </Text>
           </View>
         </View>
@@ -106,137 +127,128 @@ export default function WelcomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  background: {
-    flex: 1,
-    backgroundColor: '#6C63FF',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    paddingVertical: 48,
-  },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F7F8FA',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: '#6B7280',
-    marginTop: 8,
-  },
-  header: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  logoContainer: {
-    alignItems: 'center',
-  },
-  logoText: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  logoSubtext: {
-    fontSize: 14,
-    color: 'rgba(255, 255, 255, 0.8)',
-    fontWeight: '500',
-  },
-  illustrationContainer: {
-    alignItems: 'center',
-    marginBottom: 10,
-  },
-  illustration: {
-    width: 120,
-    height: 120,
-    borderRadius: 90,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  illustrationEmoji: {
-    fontSize: 72,
-  },
-  titleSection: {
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 24,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: 'rgba(255, 255, 255, 0.9)',
-    textAlign: 'center',
-    lineHeight: 24,
-    maxWidth: 320,
-  },
-  featuresContainer: {
-    marginBottom: 48,
-    width: '100%',
-  },
-  featureItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    paddingHorizontal: 24,
-  },
-  featureIcon: {
-    fontSize: 20,
-    marginRight: 16,
-  },
-  featureText: {
-    color: 'rgba(255, 255, 255, 0.9)',
-    fontSize: 16,
-    fontWeight: '500',
-  },
-  buttonContainer: {
-    marginBottom: 48,
-  },
-  button: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 48,
-    paddingVertical: 16,
-    borderRadius: 20,
-    backgroundColor: '#fff',
-    minWidth: 220,
-    justifyContent: 'center',
-    shadowOffset: { width: 0, height: 16 },
-    shadowOpacity: 0.24,
-    shadowRadius: 32,
-    elevation: 16,
-  },
-  buttonText: {
-    fontSize: 20,
-    fontWeight: '600',
-    marginRight: 8,
-    color: '#6C63FF',
-  },
-  buttonIcon: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#6C63FF',
-  },
-  footer: {
-    alignItems: 'center',
-  },
-  footerText: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: 12,
-    textAlign: 'center',
-    lineHeight: 16,
-  },
-});
+const createStyles = (colorScheme: 'light' | 'dark') => {
+  const colors = Colors[colorScheme];
+  
+  return StyleSheet.create({
+    container: {
+      flex: 1,
+    },
+    background: {
+      flex: 1,
+      backgroundColor: colors.primary,
+    },
+    content: {
+      flex: 1,
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: Spacing.xxl,
+      paddingVertical: Spacing.xl * 2,
+    },
+    header: {
+      alignItems: 'center',
+      marginBottom: Spacing.sm,
+    },
+    logoContainer: {
+      alignItems: 'center',
+    },
+    logoText: {
+      ...Typography.h1,
+      color: colors.surface,
+      marginBottom: Spacing.xs,
+    },
+    logoSubtext: {
+      ...Typography.caption,
+      color: colors.surface,
+      opacity: 0.8,
+      fontWeight: '500',
+    },
+    illustrationContainer: {
+      alignItems: 'center',
+      marginBottom: Spacing.sm,
+    },
+    illustration: {
+      width: 120,
+      height: 120,
+      borderRadius: 60,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    },
+    illustrationEmoji: {
+      fontSize: 72,
+    },
+    titleSection: {
+      marginBottom: Spacing.xl * 2,
+    },
+    title: {
+      ...Typography.h1,
+      color: colors.surface,
+      marginBottom: Spacing.xl,
+      textAlign: 'center',
+    },
+    subtitle: {
+      ...Typography.body,
+      color: colors.surface,
+      opacity: 0.9,
+      maxWidth: 320,
+
+    },
+    featuresContainer: {
+      marginBottom: Spacing.xl * 2,
+      justifyContent: 'center',
+      textAlign: 'center',
+
+    },
+    featureItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: Spacing.lg,
+      paddingHorizontal: Spacing.xl,
+    },
+    featureIcon: {
+      fontSize: 20,
+      marginRight: Spacing.lg,
+    },
+    featureText: {
+      ...Typography.body,
+      color: colors.surface,
+      opacity: 0.9,
+      fontWeight: '500',
+    },
+    buttonContainer: {
+      marginBottom: Spacing.xl * 2,
+    },
+    button: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: Spacing.xl * 2,
+      paddingVertical: Spacing.lg,
+      borderRadius: BorderRadius.xl,
+      minWidth: 220,
+      justifyContent: 'center',
+      ...Elevation.modal,
+    },
+    buttonText: {
+      ...Typography.button,
+      fontSize: 20,
+      marginRight: Spacing.sm,
+      color: colors.surface,
+    },
+    buttonIcon: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.surface,
+    },
+    footer: {
+      alignItems: 'center',
+    },
+    footerText: {
+      ...Typography.caption,
+      color: colors.surface,
+      opacity: 0.7,
+      textAlign: 'center',
+    },
+  });
+};
+

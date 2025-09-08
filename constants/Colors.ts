@@ -95,8 +95,8 @@ export const Colors = {
     healthNeutral: '#9CA3AF',
     
     // Gradient
-    gradientStart: '#8B85FF',
-    gradientEnd: '#33BFFF',
+    gradientStart: '#33BFFF',
+    gradientEnd: '#8B85FF',
   },
 };
 

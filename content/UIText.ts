@@ -195,11 +195,101 @@ export const UIText = {
     appName: 'HealthAI',
     tagline: 'Powered by AI',
     greeting: 'Hello Beautiful',
+    subtitle: 'Your health assistant powered by AI. \nGet insights, predictions, and personalized recommendations for better health.',
     features: {
+      aiAnalysis: 'AI-Powered Health Analysis',
       personalizedRisk: 'Personalized Risk Assessment',
       smartRecommendations: 'Smart Health Recommendations',
     },
     getStarted: 'Get Started',
+    termsText: 'By continuing, you agree to our Terms of Service & Privacy Policy',
+  },
+
+  // Onboarding Flow
+  onboarding: {
+    // Screen 1: Welcome
+    welcome: {
+      title: 'Welcome to HealthAI',
+      subtitle: 'Your personal health companion powered by advanced AI technology',
+      description: 'Get personalized health insights, risk assessments, and smart recommendations to help you live your healthiest life.',
+      next: 'Continue',
+      skip: 'Skip',
+    },
+    
+    // Screen 2: AI Analysis
+    aiAnalysis: {
+      title: 'AI-Powered Analysis',
+      subtitle: 'Advanced health assessment',
+      description: 'Our AI analyzes your health data using medical-grade algorithms to provide accurate predictions and insights.',
+      features: [
+        'Medical-grade AI algorithms',
+        'Comprehensive health analysis',
+        'Real-time risk assessment',
+        'Evidence-based predictions'
+      ],
+      next: 'Continue',
+      skip: 'Skip',
+    },
+    
+    // Screen 3: Risk Assessment
+    riskAssessment: {
+      title: 'Personalized Risk Assessment',
+      subtitle: 'Understand your health risks',
+      description: 'Get detailed risk scores for various health conditions based on your personal data and lifestyle factors.',
+      features: [
+        'Personalized risk scoring',
+        'Multiple health conditions',
+        'Lifestyle factor analysis',
+        'Trend tracking over time'
+      ],
+      next: 'Continue',
+      skip: 'Skip',
+    },
+    
+    // Screen 4: Smart Recommendations
+    smartRecommendations: {
+      title: 'Smart Recommendations',
+      subtitle: 'Actionable health advice',
+      description: 'Receive personalized recommendations to improve your health, from lifestyle changes to preventive measures.',
+      features: [
+        'Personalized health tips',
+        'Lifestyle recommendations',
+        'Preventive care guidance',
+        'Progress tracking'
+      ],
+      next: 'Continue',
+      skip: 'Skip',
+    },
+    
+    // Screen 5: Privacy & Security
+    privacy: {
+      title: 'Your Privacy Matters',
+      subtitle: 'Secure and private',
+      description: 'Your health data is encrypted and stored securely. We follow strict privacy standards and never share your information.',
+      features: [
+        'End-to-end encryption',
+        'HIPAA compliant',
+        'Your data, your control',
+        'No data sharing'
+      ],
+      next: 'Continue',
+      skip: 'Skip',
+    },
+    
+    // Screen 6: Get Started
+    getStarted: {
+      title: 'Ready to Begin?',
+      subtitle: 'Start your health journey',
+      description: 'Create your account and take your first health assessment to get personalized insights.',
+      startJourney: 'Start My Journey',
+      signIn: 'I already have an account',
+    },
+    
+    // Common
+    next: 'Next',
+    previous: 'Previous',
+    skip: 'Skip',
+    done: 'Done',
   },
 
   // Forgot Password
