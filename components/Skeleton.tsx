@@ -1,5 +1,4 @@
 import { BorderRadius, Colors } from '@/constants';
-import { useColorScheme } from '@/hooks';
 import React, { useEffect } from 'react';
 import { StyleSheet, ViewStyle } from 'react-native';
 import Animated, {
@@ -10,6 +9,7 @@ import Animated, {
     withTiming,
 } from 'react-native-reanimated';
 
+import { useColorScheme } from '@/hooks';
 
 interface ISkeletonProps {
   width?: number | string;
@@ -50,15 +50,15 @@ export function Skeleton({
     };
   });
 
-  const skeletonStyle = [
+  const skeletonStyle: ViewStyle[] = [
     styles.skeleton,
     {
-      width,
+      width: width as any,
       height,
       borderRadius,
       backgroundColor: colors.surface,
     },
-    style,
+    ...(style ? [style] : []),
   ];
 
   if (children) {

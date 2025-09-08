@@ -6,7 +6,11 @@ const SENTRY_DSN = process.env.EXPO_PUBLIC_SENTRY_DSN || '';
 
 export const initSentry = () => {
   if (!SENTRY_DSN) {
-    console.warn('Sentry DSN not configured. Error tracking disabled.');
+    if (__DEV__) {
+      console.log('Sentry DSN not configured. Error tracking disabled in development.');
+    } else {
+      console.warn('Sentry DSN not configured. Error tracking disabled.');
+    }
     return;
   }
 
@@ -101,7 +105,7 @@ export const addBreadcrumb = (message: string, category: string, data?: Record<s
 };
 
 export const startTransaction = (name: string, op: string) => {
-  return Sentry.startSpan({ name, op }, () => {});
+  return Sentry.startSpan({ name, op }, (span) => span);
 };
 
 export const setTag = (key: string, value: string) => {

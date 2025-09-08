@@ -23,5 +23,6 @@ export * from './PredictionResultSkeleton';
 export * from './ProfileScreenSkeleton';
 export * from './Skeleton';
 export * from './ThemedText';
+export * from './ThemedView';
 export * from './WelcomeScreenSkeleton';
 

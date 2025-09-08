@@ -25,7 +25,7 @@ export const trackHealthPrediction = async <T>(
       success: true,
     });
 
-    transaction.setStatus('ok');
+    transaction.setStatus('ok' as any);
     return result;
   } catch (error) {
     captureException(error as Error, {
@@ -39,10 +39,10 @@ export const trackHealthPrediction = async <T>(
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
-    transaction.setStatus('internal_error');
+    transaction.setStatus('internal_error' as any);
     throw error;
   } finally {
-    transaction.finish();
+    transaction.end();
   }
 };
 
@@ -65,7 +65,7 @@ export const trackApiCall = async <T>(
       success: true,
     });
 
-    transaction.setStatus('ok');
+    transaction.setStatus('ok' as any);
     return result;
   } catch (error) {
     captureException(error as Error, {
@@ -79,10 +79,10 @@ export const trackApiCall = async <T>(
       error: error instanceof Error ? error.message : 'Unknown error',
     });
 
-    transaction.setStatus('internal_error');
+    transaction.setStatus('internal_error' as any);
     throw error;
   } finally {
-    transaction.finish();
+    transaction.end();
   }
 };
 
