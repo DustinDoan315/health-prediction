@@ -33,6 +33,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "@sentry/react-native/expo",
+        {
+          "url": "https://sentry.io/",
+          "organization": "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",
+          "project": "health-prediction"
+        }
       ]
     ],
     "experiments": {

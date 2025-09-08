@@ -7,7 +7,6 @@ import {
   Colors,
   Elevation,
 } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { Component, ReactNode } from 'react';
 import {
   StyleSheet,
@@ -16,6 +15,8 @@ import {
   View
 } from 'react-native';
 
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { captureException } from '@/services';
 
 interface Props {
   children: ReactNode;
@@ -38,6 +39,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error, errorInfo: any) {
     console.error('ErrorBoundary caught an error:', error, errorInfo);
+    
+    captureException(error, {
+      errorInfo,
+      componentStack: errorInfo.componentStack,
+      errorBoundary: 'ErrorBoundary',
+    });
   }
 
   handleRetry = () => {
@@ -54,7 +61,7 @@ export class ErrorBoundary extends Component<Props, State> {
 }
 
 interface ErrorFallbackProps {
-  onRetry: () => void;
+  readonly onRetry: () => void;
 }
 
 function ErrorFallback({ onRetry }: ErrorFallbackProps) {

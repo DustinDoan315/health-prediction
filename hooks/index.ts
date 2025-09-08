@@ -5,5 +5,6 @@
 
 export * from './redux';
 export * from './useColorScheme';
+export * from './useSentry';
 export * from './useThemeColor';
 
