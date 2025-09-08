@@ -1,9 +1,9 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
-  apiService,
-  HealthPrediction,
-  HealthPredictionRequest,
-  HealthStats
+    apiService,
+    HealthPrediction,
+    HealthPredictionRequest,
+    HealthStats
 } from '../../services/api';
 
 const initialState: HealthState = {
@@ -175,5 +175,5 @@ const healthSlice = createSlice({
   },
 });
 
-export const { clearError, setCurrentPrediction, clearCurrentPrediction, resetLoadedFlags } = healthSlice.actions;
+export const { clearError: clearHealthError, setCurrentPrediction, clearCurrentPrediction, resetLoadedFlags } = healthSlice.actions;
 export default healthSlice.reducer;

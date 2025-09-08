@@ -1,22 +1,21 @@
-import { ConfidenceBadge } from '@/components/ConfidenceBadge';
+import { ConfidenceBadge, PredictionResultSkeleton } from '@/components';
 import {
   BorderRadius,
   Colors,
   Elevation,
   Spacing,
   Typography
-} from '@/constants/Colors';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { HealthPrediction } from '@/services/api';
-import { fetchPredictionById } from '@/store/slices/healthSlice';
+} from '@/constants';
+import { UIText } from '@/content';
+import { useAppDispatch, useAppSelector, useColorScheme } from '@/hooks';
+import { HealthPrediction } from '@/services';
+import { fetchPredictionById } from '@/store/slices';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useRef } from 'react';
 
 import {
-  Dimensions,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -25,8 +24,6 @@ import {
   View,
 } from 'react-native';
 
-
-const { width } = Dimensions.get('window');
 
 export default function PredictionResultScreen() {
   const { predictionId } = useLocalSearchParams();
@@ -91,10 +88,10 @@ export default function PredictionResultScreen() {
   };
 
   const getBMICategory = (bmi: number) => {
-    if (bmi < 18.5) return 'Underweight';
-    if (bmi < 25) return 'Normal';
-    if (bmi < 30) return 'Overweight';
-    return 'Obese';
+    if (bmi < 18.5) return UIText.bmiCategories.underweight;
+    if (bmi < 25) return UIText.bmiCategories.normal;
+    if (bmi < 30) return UIText.bmiCategories.overweight;
+    return UIText.bmiCategories.obese;
   };
 
   const handleNewPrediction = () => {
@@ -110,13 +107,7 @@ export default function PredictionResultScreen() {
 
 
   if (isLoading || !currentPrediction) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading results...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <PredictionResultSkeleton />;
   }
 
   const prediction = currentPrediction as HealthPrediction;
@@ -131,9 +122,9 @@ export default function PredictionResultScreen() {
           style={[styles.backButton, { backgroundColor: colors.background }]}
           onPress={() => router.back()}
         >
-          <Text style={[styles.backButtonText, { color: colors.text }]}>←</Text>
+          <Text style={[styles.backButtonText, { color: colors.text }]}>{UIText.navigation.back}</Text>
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Health Report</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{UIText.navigation.healthReport}</Text>
         <View style={styles.placeholder} />
       </View>
 
@@ -146,13 +137,15 @@ export default function PredictionResultScreen() {
           >
             <Text style={styles.riskIcon}>{getRiskIcon(riskLevel)}</Text>
             <Text style={[styles.riskLevel, { color: colors.surface }]}>
-              {riskLevel.toUpperCase()} RISK
+              {riskLevel === 'low' ? UIText.predictionResult.lowRisk : 
+               riskLevel === 'medium' ? UIText.predictionResult.mediumRisk : 
+               UIText.predictionResult.highRisk}
             </Text>
             <Text style={[styles.riskScore, { color: colors.surface }]}>
               {(prediction.risk_score * 100).toFixed(0)}%
             </Text>
             <Text style={[styles.riskSubtitle, { color: colors.surface }]}>
-              Health Risk Score
+              {UIText.predictionResult.healthRiskScore}
             </Text>
           </LinearGradient>
         </View>
@@ -168,22 +161,22 @@ export default function PredictionResultScreen() {
 
         {/* Health Metrics */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Health Metrics</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{UIText.predictionResult.yourHealthMetrics}</Text>
           <View style={styles.metricsGrid}>
             <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
               <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.bmi.toFixed(1)}</Text>
-              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>BMI</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.bmi}</Text>
               <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>{getBMICategory(prediction.bmi)}</Text>
             </View>
             <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
               <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.age}</Text>
-              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Age</Text>
-              <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>years</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.age}</Text>
+              <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>{UIText.healthMetrics.years}</Text>
             </View>
             <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
               <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.exercise_hours_per_week}</Text>
-              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Exercise</Text>
-              <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>hrs/week</Text>
+              <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.exercise}</Text>
+              <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>{UIText.healthMetrics.hrsWeek}</Text>
             </View>
           </View>
 
@@ -192,22 +185,22 @@ export default function PredictionResultScreen() {
               {prediction.systolic_bp && (
                 <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
                   <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.systolic_bp}/{prediction.diastolic_bp}</Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Blood Pressure</Text>
-                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>mmHg</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.bloodPressure}</Text>
+                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>{UIText.healthMetrics.mmHg}</Text>
                 </View>
               )}
               {prediction.cholesterol && (
                 <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
                   <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.cholesterol}</Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Cholesterol</Text>
-                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>mg/dL</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.cholesterol}</Text>
+                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>{UIText.healthMetrics.mgdL}</Text>
                 </View>
               )}
               {prediction.glucose && (
                 <View style={[styles.metricCard, { backgroundColor: colors.surface }]}>
                   <Text style={[styles.metricValue, { color: colors.primary }]}>{prediction.glucose}</Text>
-                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>Glucose</Text>
-                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>mg/dL</Text>
+                  <Text style={[styles.metricLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.glucose}</Text>
+                  <Text style={[styles.metricCategory, { color: colors.textSecondary }]}>{UIText.healthMetrics.mgdL}</Text>
                 </View>
               )}
             </View>
@@ -215,28 +208,28 @@ export default function PredictionResultScreen() {
 
           <View style={[styles.additionalInfo, { backgroundColor: colors.surface }]}>
             <View style={[styles.infoRow, { borderBottomColor: colors.background }]}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Smoking Status:</Text>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.smokingStatus}</Text>
               <Text style={[
                 styles.infoValue, 
                 prediction.smoking ? { color: colors.healthAttention } : { color: colors.healthGood }
               ]}>
-                {prediction.smoking ? 'Yes' : 'No'}
+                {prediction.smoking ? UIText.healthMetrics.yes : UIText.healthMetrics.no}
               </Text>
             </View>
             <View style={[styles.infoRow, { borderBottomColor: colors.background }]}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Height:</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{prediction.height_cm} cm</Text>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.height}</Text>
+              <Text style={[styles.infoValue, { color: colors.text }]}>{prediction.height_cm} {UIText.healthMetrics.cm}</Text>
             </View>
             <View style={[styles.infoRow, { borderBottomColor: colors.background }]}>
-              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>Weight:</Text>
-              <Text style={[styles.infoValue, { color: colors.text }]}>{prediction.weight_kg} kg</Text>
+              <Text style={[styles.infoLabel, { color: colors.textSecondary }]}>{UIText.healthMetrics.weight}</Text>
+              <Text style={[styles.infoValue, { color: colors.text }]}>{prediction.weight_kg} {UIText.healthMetrics.kg}</Text>
             </View>
           </View>
         </View>
 
         {/* Recommendations */}
         <View style={styles.section}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Personalized Recommendations</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{UIText.predictionResult.personalizedRecommendations}</Text>
           {prediction.recommendations && prediction.recommendations.length > 0 ? (
             prediction.recommendations.map((recommendation, index) => (
               <View key={index} style={[styles.recommendationCard, { backgroundColor: colors.surface }]}>
@@ -249,7 +242,7 @@ export default function PredictionResultScreen() {
           ) : (
             <View style={[styles.noRecommendations, { backgroundColor: colors.healthGood }]}>
               <Text style={[styles.noRecommendationsText, { color: colors.surface }]}>
-                Great job! Keep maintaining your current healthy lifestyle.
+                {UIText.predictionResult.greatJob}
               </Text>
             </View>
           )}
@@ -258,9 +251,9 @@ export default function PredictionResultScreen() {
         {/* AI Badge */}
         {prediction.ai_powered && (
           <View style={[styles.aiBadge, { backgroundColor: colors.primary }]}>
-            <Text style={[styles.aiText, { color: colors.surface }]}>🤖 AI-Powered Analysis</Text>
+            <Text style={[styles.aiText, { color: colors.surface }]}>{UIText.predictionResult.aiPoweredAnalysis}</Text>
             <Text style={[styles.aiSubtext, { color: colors.surface }]}>
-              This prediction was generated using advanced AI algorithms
+              {UIText.predictionResult.aiSubtext}
             </Text>
           </View>
         )}
@@ -268,8 +261,7 @@ export default function PredictionResultScreen() {
         {/* Timestamp */}
         <View style={styles.timestampContainer}>
           <Text style={[styles.timestampText, { color: colors.textSecondary }]}>
-            Generated on {new Date(prediction.created_at).toLocaleDateString()} at{' '}
-            {new Date(prediction.created_at).toLocaleTimeString()}
+            {UIText.predictionResult.generatedOn.replace('{date}', new Date(prediction.created_at).toLocaleDateString()).replace('{time}', new Date(prediction.created_at).toLocaleTimeString())}
           </Text>
         </View>
       </ScrollView>
@@ -280,14 +272,14 @@ export default function PredictionResultScreen() {
           style={[styles.secondaryButton, { borderColor: colors.primary }]} 
           onPress={handleNewPrediction}
         >
-          <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>New Assessment</Text>
+          <Text style={[styles.secondaryButtonText, { color: colors.primary }]}>{UIText.predictionResult.newAssessment}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.primaryButton} onPress={handleBackToHome}>
           <LinearGradient
             colors={[colors.gradientStart, colors.gradientEnd]}
             style={styles.primaryGradient}
           >
-            <Text style={[styles.primaryButtonText, { color: colors.surface }]}>Back to Home</Text>
+            <Text style={[styles.primaryButtonText, { color: colors.surface }]}>{UIText.predictionResult.backToHome}</Text>
           </LinearGradient>
         </TouchableOpacity>
       </View>
@@ -353,12 +345,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   riskLevel: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '700',
     marginBottom: Spacing.xs,
   },
   riskScore: {
-    ...Typography.pageTitle,
+    ...Typography.h1,
     fontWeight: '700',
     marginBottom: Spacing.xs,
   },
@@ -374,7 +366,7 @@ const styles = StyleSheet.create({
     marginHorizontal: Spacing.lg,
   },
   sectionTitle: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '600',
     marginBottom: Spacing.md,
   },
@@ -392,7 +384,7 @@ const styles = StyleSheet.create({
     ...Elevation.card,
   },
   metricValue: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '700',
     marginBottom: Spacing.xs,
   },
@@ -417,10 +409,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   infoLabel: {
-    ...Typography.meta,
+    ...Typography.caption,
   },
   infoValue: {
-    ...Typography.meta,
+    ...Typography.caption,
     fontWeight: '500',
   },
   recommendationCard: {
@@ -443,8 +435,8 @@ const styles = StyleSheet.create({
   },
   recommendationText: {
     flex: 1,
-    ...Typography.meta,
-    lineHeight: Typography.meta.lineHeight,
+    ...Typography.caption,
+    lineHeight: Typography.caption.lineHeight,
   },
   noRecommendations: {
     borderRadius: BorderRadius.md,

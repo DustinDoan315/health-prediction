@@ -1,16 +1,19 @@
-import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
-} from '@/constants/Colors';
+import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { logoutUser } from '@/store/slices/authSlice';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 
+import {
+  Spacing,
+  Typography,
+} from '@/constants';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+} from '@/constants/Colors';
 import {
   Alert,
   Platform,
@@ -27,7 +30,7 @@ export default function SettingsScreen() {
   const dispatch = useAppDispatch();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  const { user, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { user } = useAppSelector((state) => state.auth);
 
 
 
@@ -122,7 +125,7 @@ export default function SettingsScreen() {
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Settings</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>{UIText.settings.title}</Text>
         </View>
 
         {/* Profile Section */}
@@ -134,7 +137,7 @@ export default function SettingsScreen() {
             <View style={styles.profileInfo}>
               <Text style={[styles.profileName, { color: colors.text }]}>{user?.full_name || 'User'}</Text>
               <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user?.email || 'user@example.com'}</Text>
-              <Text style={[styles.profileStatus, { color: colors.primary }]}>Member</Text>
+              <Text style={[styles.profileStatus, { color: colors.primary }]}>{UIText.settings.member}</Text>
             </View>
             <TouchableOpacity 
               style={[styles.editButton, { backgroundColor: colors.background }]}
@@ -178,8 +181,8 @@ export default function SettingsScreen() {
               <Text style={[styles.settingEmoji, { color: colors.surface }]}>🚪</Text>
             </View>
             <View style={styles.settingContent}>
-              <Text style={[styles.settingTitle, { color: colors.error }]}>Logout</Text>
-              <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>Sign out of your account</Text>
+              <Text style={[styles.settingTitle, { color: colors.error }]}>{UIText.settings.logout}</Text>
+              <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{UIText.settings.logoutSubtitle}</Text>
             </View>
             <Text style={[styles.settingArrow, { color: colors.error }]}>›</Text>
           </TouchableOpacity>
@@ -187,8 +190,8 @@ export default function SettingsScreen() {
 
         {/* App Info */}
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Health Prediction App</Text>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>Version 1.0.0</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>{UIText.settings.appName}</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>{UIText.settings.version}</Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -209,7 +212,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   headerTitle: {
-    ...Typography.pageTitle,
+    ...Typography.h3,
     fontWeight: '600',
   },
   profileSection: {
@@ -238,12 +241,12 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   profileName: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '600',
     marginBottom: 4,
   },
   profileEmail: {
-    ...Typography.meta,
+    ...Typography.caption,
     marginBottom: 2,
   },
   profileStatus: {
@@ -299,7 +302,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
   settingSubtitle: {
-    ...Typography.meta,
+    ...Typography.caption,
   },
   settingArrow: {
     fontSize: 18,
@@ -321,7 +324,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.xl,
   },
   footerText: {
-    ...Typography.meta,
+    ...Typography.caption,
     marginBottom: 4,
   },
 });

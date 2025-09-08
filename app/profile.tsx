@@ -1,14 +1,13 @@
-import { DataSourceRow } from '@/components/DataSourceRow';
+import { DataSourceRow } from '@/components';
 import {
     BorderRadius,
     Colors,
     Elevation,
     Spacing,
     Typography
-} from '@/constants/Colors';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { logoutUser } from '@/store/slices/authSlice';
+} from '@/constants';
+import { useAppDispatch, useAppSelector, useColorScheme } from '@/hooks';
+import { logoutUser } from '@/store/slices';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
@@ -333,7 +332,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   title: {
-    ...Typography.pageTitle,
+    ...Typography.h1,
     flex: 1,
     textAlign: 'center',
     marginLeft: -44, // Center the title
@@ -359,31 +358,31 @@ const styles = StyleSheet.create({
     marginRight: Spacing.md,
   },
   avatarText: {
-    ...Typography.pageTitle,
+    ...Typography.h1,
     fontWeight: '700',
   },
   userInfo: {
     flex: 1,
   },
   userName: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '600',
     marginBottom: Spacing.xs,
   },
   userEmail: {
-    ...Typography.meta,
+    ...Typography.caption,
   },
   section: {
     marginBottom: Spacing.xl,
   },
   sectionTitle: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '600',
     marginBottom: Spacing.sm,
     paddingHorizontal: Spacing.lg,
   },
   sectionDescription: {
-    ...Typography.meta,
+    ...Typography.caption,
     marginBottom: Spacing.md,
     paddingHorizontal: Spacing.lg,
   },
@@ -414,7 +413,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   menuVersion: {
-    ...Typography.meta,
+    ...Typography.caption,
     fontWeight: '500',
   },
   dangerItem: {

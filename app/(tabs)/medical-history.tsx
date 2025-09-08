@@ -1,16 +1,15 @@
-import { AnimatedCard } from '@/components/AnimatedCard';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { AnimatedCard, MedicalHistorySkeleton } from '@/components';
 import {
   BorderRadius,
   Colors,
   Elevation,
   Spacing,
   Typography
-} from '@/constants/Colors';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { HealthPrediction } from '@/services/api';
-import { fetchPredictions } from '@/store/slices/healthSlice';
+} from '@/constants';
+import { UIText } from '@/content';
+import { useAppDispatch, useAppSelector, useColorScheme } from '@/hooks';
+import { HealthPrediction } from '@/services';
+import { fetchPredictions } from '@/store/slices';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import {
@@ -86,7 +85,7 @@ const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: H
             <Text style={[styles.statValue, { color: colors.text }]}>{item.bmi.toFixed(1)}</Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Risk Score</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{UIText.medicalHistory.riskScore}</Text>
             <Text style={[styles.statValue, { color: colors.text }]}>{(item.risk_score * 100).toFixed(0)}%</Text>
           </View>
           <View style={styles.statItem}>
@@ -97,7 +96,7 @@ const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: H
 
         {item.recommendations && item.recommendations.length > 0 && (
           <View style={styles.recommendationsContainer}>
-            <Text style={[styles.recommendationsTitle, { color: colors.text }]}>Top Recommendation:</Text>
+            <Text style={[styles.recommendationsTitle, { color: colors.text }]}>{UIText.medicalHistory.topRecommendation}</Text>
             <Text style={[styles.recommendationText, { color: colors.textSecondary }]} numberOfLines={2}>
               {item.recommendations[0]}
             </Text>
@@ -106,7 +105,7 @@ const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: H
       </View>
 
       <View style={styles.cardFooter}>
-        <Text style={[styles.viewDetailsText, { color: colors.primary }]}>Tap to view details →</Text>
+        <Text style={[styles.viewDetailsText, { color: colors.primary }]}>{UIText.medicalHistory.viewDetails}</Text>
         {item.ai_powered && (
           <View style={[styles.aiTag, { backgroundColor: colors.primary }]}>
             <Text style={[styles.aiTagText, { color: colors.surface }]}>AI</Text>
@@ -158,7 +157,7 @@ export default function MedicalHistoryScreen() {
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyEmoji}>📊</Text>
-      <Text style={[styles.emptyTitle, { color: colors.text }]}>No health records yet</Text>
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>{UIText.medicalHistory.emptyTitle}</Text>
       <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
         Start tracking your health by creating your first assessment
       </Text>
@@ -166,7 +165,7 @@ export default function MedicalHistoryScreen() {
         style={[styles.emptyButton, { backgroundColor: colors.primary }]}
         onPress={handleAddPrediction}
       >
-        <Text style={[styles.emptyButtonText, { color: colors.surface }]}>Create Assessment</Text>
+        <Text style={[styles.emptyButtonText, { color: colors.surface }]}>{UIText.medicalHistory.createAssessment}</Text>
       </TouchableOpacity>
     </View>
   );
@@ -186,10 +185,7 @@ export default function MedicalHistoryScreen() {
       </View>
 
       {isLoading && predictions.length === 0 ? (
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner size={40} />
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading your health history...</Text>
-        </View>
+        <MedicalHistorySkeleton />
       ) : (
         <FlatList
           data={predictions}
@@ -240,7 +236,7 @@ const styles = StyleSheet.create({
     borderBottomColor: 'rgba(0,0,0,0.1)',
   },
   headerTitle: {
-    ...Typography.pageTitle,
+    ...Typography.h1,
     fontWeight: '600',
   },
   addButton: {
@@ -281,7 +277,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   timeText: {
-    ...Typography.meta,
+    ...Typography.caption,
     marginTop: 2,
   },
   riskBadge: {
@@ -315,20 +311,20 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   statValue: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '700',
   },
   recommendationsContainer: {
     marginTop: Spacing.sm,
   },
   recommendationsTitle: {
-    ...Typography.meta,
+    ...Typography.caption,
     fontWeight: '600',
     marginBottom: Spacing.xs,
   },
   recommendationText: {
-    ...Typography.meta,
-    lineHeight: Typography.meta.lineHeight,
+    ...Typography.caption,
+    lineHeight: Typography.caption.lineHeight,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -338,7 +334,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   viewDetailsText: {
-    ...Typography.meta,
+    ...Typography.caption,
     fontWeight: '500',
   },
   aiTag: {
@@ -359,7 +355,7 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   emptyTitle: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '600',
     marginBottom: Spacing.sm,
     textAlign: 'center',

@@ -1,20 +1,19 @@
+import { UIText } from '@/content';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { loadUser } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useEffect } from 'react';
 import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 
 export default function WelcomeScreen() {
   const dispatch = useAppDispatch();
-  const colorScheme = useColorScheme();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
@@ -35,7 +34,7 @@ export default function WelcomeScreen() {
   if (isLoading) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text style={styles.loadingText}>{UIText.welcome.loading}</Text>
       </View>
     );
   }
@@ -47,8 +46,8 @@ export default function WelcomeScreen() {
           {/* Header with Logo */}
           <View style={styles.header}>
             <View style={styles.logoContainer}>
-              <Text style={styles.logoText}>HealthAI</Text>
-              <Text style={styles.logoSubtext}>Powered by AI</Text>
+              <Text style={styles.logoText}>{UIText.welcome.appName}</Text>
+              <Text style={styles.logoSubtext}>{UIText.welcome.tagline}</Text>
             </View>
           </View>
 
@@ -61,7 +60,7 @@ export default function WelcomeScreen() {
 
           {/* Title Section */}
           <View style={styles.titleSection}>
-            <Text style={styles.title}>Hello Beautiful</Text>
+            <Text style={styles.title}>{UIText.welcome.greeting}</Text>
             <Text style={styles.subtitle}>
               Your personal health assistant powered by AI. Get insights, predictions, and personalized recommendations for better health.
             </Text>
@@ -75,11 +74,11 @@ export default function WelcomeScreen() {
             </View>
             <View style={styles.featureItem}>
               <Text style={styles.featureIcon}>📊</Text>
-              <Text style={styles.featureText}>Personalized Risk Assessment</Text>
+              <Text style={styles.featureText}>{UIText.welcome.features.personalizedRisk}</Text>
             </View>
             <View style={styles.featureItem}>
               <Text style={styles.featureIcon}>💡</Text>
-              <Text style={styles.featureText}>Smart Health Recommendations</Text>
+              <Text style={styles.featureText}>{UIText.welcome.features.smartRecommendations}</Text>
             </View>
           </View>
 
@@ -90,7 +89,7 @@ export default function WelcomeScreen() {
               onPress={handleGetStarted}
               activeOpacity={0.8}
             >
-              <Text style={styles.buttonText}>Get Started</Text>
+              <Text style={styles.buttonText}>{UIText.welcome.getStarted}</Text>
               <Text style={styles.buttonIcon}>→</Text>
             </TouchableOpacity>
           </View>

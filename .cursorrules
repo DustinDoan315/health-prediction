@@ -1,0 +1,172 @@
+# Health Prediction App – Enhanced Coding Rules
+
+## Technology Stack
+
+- React Native (Expo Router)
+- TypeScript (strict mode, noUncheckedIndexedAccess)
+- Redux Toolkit + RTK Query
+- Yarn package manager (never npm)
+- Design System for reusable UI components
+- Jest + React Native Testing Library for testing
+- ESLint + Prettier + Husky for code linting & formatting pre-commit
+
+## Code Standards
+
+### TypeScript
+
+- Strict mode always enabled
+- interface for props, state, API responses
+- Use type for unions & utility types
+- No any / unknown without type guards
+- Use generics for reusable hooks & utilities
+- Type guards (isXxx) for runtime checks
+- Enforce ReturnType and Parameters for selectors & thunks
+- Prefer readonly & as const for immutability
+
+### React Native
+
+- Functional components only, with hooks
+- React.memo + useCallback + useMemo for expensive renders
+- ErrorBoundary per navigation stack
+- Native driver for animations
+- Always wrap screens in SafeAreaView
+- KeyboardAvoidingView where user input is required
+
+### File Structure
+
+```
+/app              → Screens (Expo Router)
+/components       → UI components
+/constants        → Colors, Spacing, Typography
+/hooks            → Custom reusable hooks
+/services         → API, helpers
+/store/slices     → Redux slices
+/utils            → Pure helper functions
+/assets           → Images, fonts
+```
+
+- Barrel exports (index.ts) in each folder
+- Flat folder design — no deep nesting
+
+### Naming
+
+- PascalCase → Components, Interfaces
+- camelCase → Variables, functions, file names
+- SCREAMING_SNAKE_CASE → Constants
+- Prefix I → Interfaces (e.g., IUserProfile)
+- Hook names must start with use
+
+### Styling
+
+- Design tokens from /constants
+- Spacing scale: 4, 8, 12, 16, 24, 32
+- Typography: h1–h6, body, caption, button
+- Only StyleSheet.create or styled-system wrapper
+- Semantic colors: primary, secondary, success, error, warning, info
+- Light/Dark mode required
+- Responsive design: adapt to tablet + large screens
+
+### State Management
+
+- Redux Toolkit for global state
+- RTK Query for all API calls
+- Derived data only via selectors
+- Loading/error/success states mandatory
+- Persist sensitive tokens only via Expo SecureStore
+- No inline business logic in components — only hooks or slices
+
+### API Integration
+
+- Centralized API client (services/api.ts)
+- Strongly typed endpoints with IApiResponse<T>
+- Retry logic with exponential backoff
+- Graceful handling of timeouts
+- Never call fetch directly
+- Network status awareness (retry when online)
+
+### Security
+
+- Expo SecureStore for sensitive data
+- Input sanitization before storage or API calls
+- Never log health data (redact logs)
+- End-to-end encryption for health records
+- JWT refresh token handling
+- Strict privacy compliance (HIPAA/GDPR guidelines)
+- Auto logout on token expiry
+
+### Performance
+
+- 60fps animations (use react-native-reanimated if needed)
+- Virtualized lists (FlatList, SectionList) for >20 items
+- Image caching + compression
+- Code-splitting: lazy load large components
+- Cleanup in useEffect
+- Avoid anonymous functions in JSX
+- Monitor memory usage & battery drain
+- **Skeleton loading**: Each screen/component needs specific skeleton UI instead of generic loading spinners
+- **Skeleton reuse**: Create reusable skeleton components for common UI patterns (cards, lists, forms)
+- **Skeleton animation**: Use subtle shimmer/pulse animations for better perceived performance
+
+### Accessibility
+
+- Accessibility labels for all interactive elements
+- 44x44pt min touch area
+- Full VoiceOver/TalkBack support
+- Dynamic text scaling (react-native-size-matters)
+- WCAG AA contrast ratio
+- Haptic feedback for critical actions
+
+### Error Handling
+
+- ErrorBoundary per navigation root
+- try/catch for all async calls
+- User-friendly error UI (not raw error messages)
+- Retry button for network failures
+- Log technical errors with Sentry
+
+### Health App Rules
+
+- Validate every health input (range, units, required)
+- Unit conversions (cm ↔ ft, kg ↔ lbs, mmHg ↔ kPa)
+- Use medical-grade typography (e.g., large, readable numerics)
+- Clear data viz (charts, progress bars, risk meters)
+- Handle edge cases (zero, negative, outliers)
+- Provide safe disclaimers: "AI predictions are not medical advice"
+- Auto-delete health data on user request
+- Export health data in secure formats only
+
+### Code Quality
+
+- Functions <50 LOC
+- Max 3 nested blocks
+- Self-documenting names (no data1, value2)
+- Remove unused imports & variables
+- ESLint + Prettier run on pre-commit
+- Use tsdoc for complex functions
+- 80%+ unit test coverage for utilities & slices
+- **No hardcoded content**: All text, labels, messages must be in centralized content files
+- **Content management**: Create separate files for UI text, error messages, and static content
+- **i18n ready**: Structure content files to support future internationalization
+
+### Git Rules
+
+- Conventional commits (feat:, fix:, chore:, refactor:, test:)
+- One feature/fix per commit
+- Branch naming:
+  - feature/health-check-form
+  - fix/login-crash
+- Pull requests require at least 1 code review
+- CI pipeline runs tests + linting before merge
+
+## Strict "No" Rules
+
+- ❌ No console.log in production (use logger)
+- ❌ No TODO/FIXME left in code
+- ❌ No commented-out code
+- ❌ No hardcoded strings (use i18n)
+- ❌ No magic numbers (use constants)
+- ❌ No duplicate code (refactor to utils/hooks)
+- ❌ No unused types or components
+- ❌ No missing error handling
+- ❌ No missing accessibility labels
+- ❌ No inline styles except quick prototypes

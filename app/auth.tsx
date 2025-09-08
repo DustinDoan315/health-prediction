@@ -1,18 +1,21 @@
-import * as Haptics from 'expo-haptics';
-import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
-    } from '@/constants/Colors';
-import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
-import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
+import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
+import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
 
+import {
+  Spacing,
+  Typography,
+} from '@/constants';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+} from '@/constants/Colors';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -162,12 +165,12 @@ export default function AuthScreen() {
         >
           <View style={[styles.formCard, { backgroundColor: colors.surface }]}>
             <View style={styles.inputGroup}>
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Username</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.username}</Text>
               <View style={[styles.inputContainer, { borderColor: colors.background }]}>
                 <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>👤</Text>
                 <TextInput
                   style={[styles.input, { color: colors.text }]}
-                  placeholder="Enter your username"
+                  placeholder={UIText.auth.enterUsername}
                   placeholderTextColor={colors.textSecondary}
                   value={formData.username}
                   onChangeText={(value) => handleInputChange('username', value)}
@@ -179,12 +182,12 @@ export default function AuthScreen() {
             {!isLogin && (
               <>
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.text }]}>Full Name</Text>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.fullName}</Text>
                   <View style={[styles.inputContainer, { borderColor: colors.background }]}>
                     <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>👤</Text>
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
-                      placeholder="Enter your full name"
+                      placeholder={UIText.auth.enterFullName}
                       placeholderTextColor={colors.textSecondary}
                       value={formData.full_name}
                       onChangeText={(value) => handleInputChange('full_name', value)}
@@ -193,12 +196,12 @@ export default function AuthScreen() {
                 </View>
 
                 <View style={styles.inputGroup}>
-                  <Text style={[styles.inputLabel, { color: colors.text }]}>Email Address</Text>
+                  <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.emailAddress}</Text>
                   <View style={[styles.inputContainer, { borderColor: colors.background }]}>
                     <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>📧</Text>
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
-                      placeholder="Enter your email address..."
+                      placeholder={UIText.auth.enterEmail}
                       placeholderTextColor={colors.textSecondary}
                       value={formData.email}
                       onChangeText={(value) => handleInputChange('email', value)}
@@ -211,12 +214,12 @@ export default function AuthScreen() {
             )}
 
             <View style={styles.inputGroup}>
-              <Text style={[styles.inputLabel, { color: colors.text }]}>Password</Text>
+              <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.password}</Text>
               <View style={[styles.inputContainer, { borderColor: colors.background }]}>
                 <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>🔒</Text>
                 <TextInput
                   style={[styles.input, { color: colors.text }]}
-                  placeholder="Enter your password"
+                  placeholder={UIText.auth.enterPassword}
                   placeholderTextColor={colors.textSecondary}
                   value={formData.password}
                   onChangeText={(value) => handleInputChange('password', value)}
@@ -241,12 +244,12 @@ export default function AuthScreen() {
 
             {!isLogin && (
               <View style={styles.inputGroup}>
-                <Text style={[styles.inputLabel, { color: colors.text }]}>Password Confirmation</Text>
+                <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.passwordConfirmation}</Text>
                 <View style={[styles.inputContainer, { borderColor: colors.background }]}>
                   <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>🔒</Text>
                   <TextInput
                     style={[styles.input, { color: colors.text }]}
-                    placeholder="Confirm your password"
+                    placeholder={UIText.auth.confirmPassword}
                     placeholderTextColor={colors.textSecondary}
                     value={formData.confirmPassword}
                     onChangeText={(value) => handleInputChange('confirmPassword', value)}

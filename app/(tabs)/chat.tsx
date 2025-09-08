@@ -1,17 +1,10 @@
-import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
-} from '@/constants/Colors';
+import { UIText } from '@/content';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { AIChatResponse, apiService } from '@/services/api';
 import * as Haptics from 'expo-haptics';
 import { useCallback, useRef, useState } from 'react';
 import {
   Animated,
-  Dimensions,
   FlatList,
   KeyboardAvoidingView,
   Platform,
@@ -23,6 +16,15 @@ import {
   View
 } from 'react-native';
 
+import {
+  Spacing,
+  Typography,
+} from '@/constants';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+} from '@/constants/Colors';
 
 
 interface ChatMessage {
@@ -32,8 +34,6 @@ interface ChatMessage {
   timestamp: Date;
   isTyping?: boolean;
 }
-
-const { height: screenHeight } = Dimensions.get('window');
 
 export default function ChatScreen() {
   const colorScheme = useColorScheme();
@@ -233,10 +233,10 @@ export default function ChatScreen() {
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.background }]}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>AI Health Assistant</Text>
+        <Text style={[styles.headerTitle, { color: colors.text }]}>{UIText.chat.title}</Text>
         <View style={styles.statusContainer}>
           <View style={[styles.statusDot, { backgroundColor: colors.healthGood }]} />
-          <Text style={[styles.statusText, { color: colors.healthGood }]}>Online</Text>
+          <Text style={[styles.statusText, { color: colors.healthGood }]}>{UIText.chat.online}</Text>
         </View>
       </View>
 
@@ -270,7 +270,7 @@ export default function ChatScreen() {
 
         {messages.length <= 1 && !isLoading && (
           <View style={[styles.quickQuestionsContainer, { backgroundColor: colors.surface, borderTopColor: colors.background }]}>
-            <Text style={[styles.quickQuestionsTitle, { color: colors.text }]}>Quick Questions:</Text>
+            <Text style={[styles.quickQuestionsTitle, { color: colors.text }]}>{UIText.chat.quickQuestions}</Text>
             <View style={styles.quickQuestionsGrid}>
               {quickQuestions.map((question, index) => (
                 <TouchableOpacity
@@ -296,7 +296,7 @@ export default function ChatScreen() {
               }]}
               value={inputText}
               onChangeText={setInputText}
-              placeholder="Ask me about your health..."
+              placeholder={UIText.chat.placeholder}
               placeholderTextColor={colors.textSecondary}
               multiline
               maxLength={1000}
@@ -338,7 +338,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   headerTitle: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '600',
   },
   statusContainer: {
@@ -352,7 +352,7 @@ const styles = StyleSheet.create({
     marginRight: Spacing.xs,
   },
   statusText: {
-    ...Typography.meta,
+    ...Typography.caption,
     fontWeight: '500',
   },
   chatContainer: {
@@ -432,7 +432,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   quickQuestionText: {
-    ...Typography.meta,
+    ...Typography.caption,
     fontWeight: '500',
     textAlign: 'center',
   },

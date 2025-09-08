@@ -1,27 +1,30 @@
+import { UIText } from '@/content';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import * as Haptics from 'expo-haptics';
-import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
-    } from '@/constants/Colors';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useState } from 'react';
 
 import {
-    Alert,
-    KeyboardAvoidingView,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StatusBar,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Spacing,
+  Typography,
+} from '@/constants';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+} from '@/constants/Colors';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StatusBar,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 
@@ -104,8 +107,8 @@ export default function ForgotPasswordScreen() {
             <TouchableOpacity style={styles.backButton} onPress={handleBack}>
               <Text style={styles.backButtonText}>←</Text>
             </TouchableOpacity>
-            <Text style={styles.headerTitle}>Forgot Password?</Text>
-            <Text style={styles.headerSubtitle}>Then let&lsquo;s submit password reset.</Text>
+            <Text style={styles.headerTitle}>{UIText.forgotPassword.title}</Text>
+            <Text style={styles.headerSubtitle}>{UIText.forgotPassword.subtitle}</Text>
           </View>
         </LinearGradient>
 
@@ -173,7 +176,7 @@ export default function ForgotPasswordScreen() {
                 </View>
               </View>
               
-              <Text style={[styles.modalTitle, { color: colors.text }]}>Password Sent!</Text>
+              <Text style={[styles.modalTitle, { color: colors.text }]}>{UIText.forgotPassword.passwordSent}</Text>
               <Text style={[styles.modalMessage, { color: colors.textSecondary }]}>
                 We&rsquo;ve sent the password to elem*******221b@gmail.com
               </Text>

@@ -1,15 +1,18 @@
-import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
-} from '@/constants/Colors';
+import { UIText } from '@/content';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { GoalTile } from './GoalTile';
 
+import {
+    Spacing,
+    Typography,
+} from '@/constants';
+import {
+    BorderRadius,
+    Colors,
+    Elevation,
+} from '@/constants/Colors';
 import {
     SafeAreaView,
     ScrollView,
@@ -105,7 +108,7 @@ export function GoalsPage() {
           >
             <Text style={[styles.backIcon, { color: colors.text }]}>←</Text>
           </TouchableOpacity>
-          <Text style={[styles.title, { color: colors.text }]}>Health Goals</Text>
+          <Text style={[styles.title, { color: colors.text }]}>{UIText.goals.title}</Text>
           <TouchableOpacity 
             style={[styles.addButton, { backgroundColor: colors.primary }]}
             onPress={handleAddGoal}
@@ -116,7 +119,7 @@ export function GoalsPage() {
 
         {/* Summary Stats */}
         <View style={[styles.summaryCard, { backgroundColor: colors.surface }]}>
-          <Text style={[styles.summaryTitle, { color: colors.text }]}>This Week</Text>
+          <Text style={[styles.summaryTitle, { color: colors.text }]}>{UIText.goals.thisWeek}</Text>
           <View style={styles.summaryStats}>
             <View style={styles.summaryStat}>
               <Text style={[styles.summaryNumber, { color: colors.primary }]}>
@@ -147,7 +150,7 @@ export function GoalsPage() {
 
         {/* Goals List */}
         <View style={styles.goalsContainer}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Your Goals</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{UIText.goals.yourGoals}</Text>
           {goals.map((goal) => (
             <GoalTile
               key={goal.id}

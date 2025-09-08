@@ -1,15 +1,14 @@
-import { LoadingSpinner } from '@/components/LoadingSpinner';
-import { MetricCard } from '@/components/MetricCard';
+import { HomeScreenSkeleton, MetricCard } from '@/components';
 import {
     BorderRadius,
     Colors,
     Elevation,
     Spacing,
     Typography
-} from '@/constants/Colors';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { fetchHealthStats, fetchPredictions } from '@/store/slices/healthSlice';
+} from '@/constants';
+import { UIText } from '@/content';
+import { useAppDispatch, useAppSelector, useColorScheme } from '@/hooks';
+import { fetchHealthStats, fetchPredictions } from '@/store/slices';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -79,14 +78,7 @@ export default function HomeScreen() {
 
 
   if (authLoading) {
-    return (
-      <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={styles.loadingContainer}>
-          <LoadingSpinner size={40} />
-          <Text style={[styles.loadingText, { color: colors.textSecondary }]}>Loading...</Text>
-        </View>
-      </SafeAreaView>
-    );
+    return <HomeScreenSkeleton />;
   }
 
   return (
@@ -107,41 +99,44 @@ export default function HomeScreen() {
         <View style={styles.header}>
           <View>
             <Text style={[styles.greeting, { color: colors.text }]}>
-              Hi {user?.full_name?.split(' ')[0] || 'there'}!
+              {UIText.home.greeting.replace('{name}', user?.full_name?.split(' ')[0] || '') || UIText.home.greetingFallback}
             </Text>
             <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
-              How are you feeling today?
+              {UIText.home.subtitle}
             </Text>
           </View>
           <View style={styles.headerActions}>
             <TouchableOpacity 
               style={[styles.searchButton, { backgroundColor: colors.surface }]}
-              onPress={() => {/* TODO: Implement search */}}
+              onPress={() => {
+                // TODO: Implement search functionality
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
             >
-              <Text style={[styles.searchIcon, { color: colors.textSecondary }]}>🔍</Text>
+              <Text style={[styles.searchIcon, { color: colors.textSecondary }]}>{UIText.common.search}</Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.profilePic, { backgroundColor: colors.primary }]}
               onPress={() => router.push('/profile')}
             >
-              <Text style={[styles.profileEmoji, { color: colors.surface }]}>👤</Text>
+              <Text style={[styles.profileEmoji, { color: colors.surface }]}>{UIText.common.profile}</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Today's Mood Check-in */}
         <View style={styles.moodContainer}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Today</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{UIText.home.today}</Text>
           <View style={[styles.moodCard, { backgroundColor: colors.surface }]}>
             <Text style={[styles.moodQuestion, { color: colors.text }]}>
-              How are you feeling today?
+              {UIText.home.moodQuestion}
             </Text>
             <View style={styles.moodOptions}>
               {[
-                { value: 'great', emoji: '😊', label: 'Great' },
-                { value: 'good', emoji: '🙂', label: 'Good' },
-                { value: 'okay', emoji: '😐', label: 'Okay' },
-                { value: 'bad', emoji: '😔', label: 'Bad' },
+                { value: 'great', emoji: '😊', label: UIText.mood.great },
+                { value: 'good', emoji: '🙂', label: UIText.mood.good },
+                { value: 'okay', emoji: '😐', label: UIText.mood.okay },
+                { value: 'bad', emoji: '😔', label: UIText.mood.bad },
               ].map((option) => (
                 <TouchableOpacity
                   key={option.value}
@@ -167,7 +162,7 @@ export default function HomeScreen() {
 
         {/* Quick Action Tiles */}
         <View style={styles.actionsContainer}>
-          <Text style={[styles.sectionTitle, { color: colors.text }]}>Quick Actions</Text>
+          <Text style={[styles.sectionTitle, { color: colors.text }]}>{UIText.home.quickActions}</Text>
           
           <View style={styles.actionTiles}>
             <TouchableOpacity 
@@ -177,9 +172,9 @@ export default function HomeScreen() {
               <View style={[styles.actionIcon, { backgroundColor: colors.primary }]}>
                 <Text style={[styles.actionEmoji, { color: colors.surface }]}>📋</Text>
               </View>
-              <Text style={[styles.actionTitle, { color: colors.text }]}>Medical History</Text>
+              <Text style={[styles.actionTitle, { color: colors.text }]}>{UIText.actions.medicalHistory}</Text>
               <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
-                View your health records
+                {UIText.actions.medicalHistorySubtitle}
               </Text>
             </TouchableOpacity>
 
@@ -190,9 +185,9 @@ export default function HomeScreen() {
               <View style={[styles.actionIcon, { backgroundColor: colors.secondary }]}>
                 <Text style={[styles.actionEmoji, { color: colors.surface }]}>💬</Text>
               </View>
-              <Text style={[styles.actionTitle, { color: colors.text }]}>AI Assistant</Text>
+              <Text style={[styles.actionTitle, { color: colors.text }]}>{UIText.actions.aiAssistant}</Text>
               <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
-                Get health advice
+                {UIText.actions.aiAssistantSubtitle}
               </Text>
             </TouchableOpacity>
 
@@ -203,9 +198,9 @@ export default function HomeScreen() {
               <View style={[styles.actionIcon, { backgroundColor: colors.success }]}>
                 <Text style={[styles.actionEmoji, { color: colors.surface }]}>🔍</Text>
               </View>
-              <Text style={[styles.actionTitle, { color: colors.text }]}>New Prediction</Text>
+              <Text style={[styles.actionTitle, { color: colors.text }]}>{UIText.actions.newPrediction}</Text>
               <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
-                2-min checkup
+                {UIText.actions.newPredictionSubtitle}
               </Text>
             </TouchableOpacity>
           </View>
@@ -214,23 +209,23 @@ export default function HomeScreen() {
         {/* Health Metrics Overview */}
         {stats && (
           <View style={styles.metricsContainer}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>Recent Insights</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>{UIText.home.recentInsights}</Text>
             <View style={styles.metricsGrid}>
               <MetricCard
-                title="Total Predictions"
+                title={UIText.metrics.totalPredictions}
                 value={stats.total_predictions}
                 status="neutral"
                 icon="📊"
               />
               <MetricCard
-                title="Average Risk"
+                title={UIText.metrics.averageRisk}
                 value={stats.average_risk_score.toFixed(1)}
                 unit=""
                 status={stats.average_risk_score < 3 ? 'good' : stats.average_risk_score < 7 ? 'watch' : 'attention'}
                 icon="⚠️"
               />
               <MetricCard
-                title="Low Risk Count"
+                title={UIText.metrics.lowRiskCount}
                 value={stats.risk_distribution.low}
                 status="good"
                 icon="✅"
@@ -245,7 +240,7 @@ export default function HomeScreen() {
           onPress={handleCreatePrediction}
         >
           <Text style={[styles.primaryCTAText, { color: colors.surface }]}>
-            See my risk & plan
+            {UIText.home.seeMyRiskPlan}
           </Text>
           <Text style={[styles.primaryCTAArrow, { color: colors.surface }]}>→</Text>
         </TouchableOpacity>
@@ -280,7 +275,7 @@ const styles = StyleSheet.create({
     paddingBottom: Spacing.md,
   },
   greeting: {
-    ...Typography.pageTitle,
+    ...Typography.h1,
     marginBottom: Spacing.xs,
   },
   subtitle: {
@@ -317,7 +312,7 @@ const styles = StyleSheet.create({
     marginTop: Spacing.lg,
   },
   sectionTitle: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     marginBottom: Spacing.md,
   },
   moodCard: {
@@ -384,7 +379,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   actionSubtitle: {
-    ...Typography.meta,
+    ...Typography.caption,
   },
   metricsContainer: {
     paddingHorizontal: Spacing.lg,
@@ -406,7 +401,7 @@ const styles = StyleSheet.create({
     ...Elevation.modal,
   },
   primaryCTAText: {
-    ...Typography.sectionTitle,
+    ...Typography.h3,
     fontWeight: '600',
     marginRight: Spacing.sm,
   },

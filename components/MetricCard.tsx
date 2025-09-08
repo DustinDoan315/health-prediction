@@ -1,17 +1,19 @@
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
+    Spacing,
+    Typography,
+} from '@/constants';
+import {
+    BorderRadius,
+    Colors,
+    Elevation,
 } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import React from 'react';
 import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View
 } from 'react-native';
 
 

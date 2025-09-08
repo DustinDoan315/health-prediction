@@ -1,8 +1,10 @@
 import {
+    Spacing,
+    Typography,
+} from '@/constants';
+import {
     BorderRadius,
     Colors,
-    Spacing,
-    Typography
 } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import {

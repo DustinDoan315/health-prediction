@@ -100,44 +100,6 @@ export const Colors = {
   },
 };
 
-// Typography scale
-export const Typography = {
-  pageTitle: {
-    fontSize: 32,
-    lineHeight: 41.6, // 1.3
-    fontWeight: '700' as const,
-  },
-  sectionTitle: {
-    fontSize: 20,
-    lineHeight: 26, // 1.3
-    fontWeight: '600' as const,
-  },
-  body: {
-    fontSize: 16,
-    lineHeight: 24, // 1.5
-    fontWeight: '400' as const,
-  },
-  meta: {
-    fontSize: 14,
-    lineHeight: 21, // 1.5
-    fontWeight: '400' as const,
-  },
-  caption: {
-    fontSize: 12,
-    lineHeight: 16.8, // 1.4
-    fontWeight: '400' as const,
-  },
-};
-
-// Spacing system
-export const Spacing = {
-  xs: 4,
-  sm: 8,
-  md: 16,
-  lg: 24,
-  xl: 32,
-  xxl: 48,
-};
 
 // Border radius system
 export const BorderRadius = {

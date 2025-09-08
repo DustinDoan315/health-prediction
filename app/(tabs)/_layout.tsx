@@ -1,9 +1,9 @@
-import { HapticTab } from '@/components/HapticTab';
+import { HapticTab } from '@/components';
 import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants/Colors';
-import { useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Colors } from '@/constants';
+import { UIText } from '@/content';
+import { useAppSelector, useColorScheme } from '@/hooks';
 import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
@@ -61,7 +61,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: UIText.navigation.home,
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol 
               size={focused ? 30 : 26} 
@@ -74,7 +74,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="chat"
         options={{
-          title: 'Chat',
+          title: UIText.navigation.chat,
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol 
               size={focused ? 30 : 26} 
@@ -87,7 +87,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="medical-history"
         options={{
-          title: 'History',
+          title: UIText.navigation.history,
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol 
               size={focused ? 30 : 26} 
@@ -100,7 +100,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="settings"
         options={{
-          title: 'Settings',
+          title: UIText.navigation.settings,
           tabBarIcon: ({ color, focused }) => (
             <IconSymbol 
               size={focused ? 30 : 26} 

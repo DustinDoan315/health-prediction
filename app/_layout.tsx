@@ -1,5 +1,5 @@
-import { ErrorBoundary } from '@/components/ErrorBoundary';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { ErrorBoundary } from '@/components';
+import { useColorScheme } from '@/hooks';
 import { store } from '@/store/store';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';

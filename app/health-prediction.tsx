@@ -1,10 +1,4 @@
-import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
-} from '@/constants/Colors';
+import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { clearCurrentPrediction, createPrediction, createSimplePrediction } from '@/store/slices/healthSlice';
@@ -13,6 +7,15 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 
+import {
+  Spacing,
+  Typography,
+} from '@/constants';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+} from '@/constants/Colors';
 import {
   Alert,
   KeyboardAvoidingView,
@@ -185,14 +188,14 @@ export default function HealthPredictionScreen() {
   const renderBasicForm = () => (
     <>
       <View style={styles.inputGroup}>
-        <Text style={[styles.label, { color: colors.text }]}>Age *</Text>
+        <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.age}</Text>
         <TextInput
           style={[styles.input, { 
             borderColor: colors.background, 
             backgroundColor: colors.background,
             color: colors.text 
           }]}
-          placeholder="Enter your age"
+          placeholder={UIText.healthForm.enterAge}
           placeholderTextColor={colors.textSecondary}
           value={formData.age}
           onChangeText={(value) => handleInputChange('age', value)}
@@ -202,14 +205,14 @@ export default function HealthPredictionScreen() {
 
       <View style={styles.inputRow}>
         <View style={[styles.inputGroup, { flex: 1, marginRight: Spacing.sm }]}>
-          <Text style={[styles.label, { color: colors.text }]}>Height (cm) *</Text>
+          <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.height}</Text>
           <TextInput
             style={[styles.input, { 
               borderColor: colors.background, 
               backgroundColor: colors.background,
               color: colors.text 
             }]}
-            placeholder="170"
+            placeholder={UIText.healthForm.heightPlaceholder}
             placeholderTextColor={colors.textSecondary}
             value={formData.height_cm}
             onChangeText={(value) => handleInputChange('height_cm', value)}
@@ -218,14 +221,14 @@ export default function HealthPredictionScreen() {
         </View>
 
         <View style={[styles.inputGroup, { flex: 1, marginLeft: Spacing.sm }]}>
-          <Text style={[styles.label, { color: colors.text }]}>Weight (kg) *</Text>
+          <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.weight}</Text>
           <TextInput
             style={[styles.input, { 
               borderColor: colors.background, 
               backgroundColor: colors.background,
               color: colors.text 
             }]}
-            placeholder="70"
+            placeholder={UIText.healthForm.weightPlaceholder}
             placeholderTextColor={colors.textSecondary}
             value={formData.weight_kg}
             onChangeText={(value) => handleInputChange('weight_kg', value)}
@@ -235,14 +238,14 @@ export default function HealthPredictionScreen() {
       </View>
 
       <View style={styles.inputGroup}>
-        <Text style={[styles.label, { color: colors.text }]}>Exercise (hours/week)</Text>
+        <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.exercise}</Text>
         <TextInput
           style={[styles.input, { 
             borderColor: colors.background, 
             backgroundColor: colors.background,
             color: colors.text 
           }]}
-          placeholder="3.5"
+          placeholder={UIText.healthForm.exercisePlaceholder}
           placeholderTextColor={colors.textSecondary}
           value={formData.exercise_hours_per_week}
           onChangeText={(value) => handleInputChange('exercise_hours_per_week', value)}
@@ -254,7 +257,7 @@ export default function HealthPredictionScreen() {
       </View>
 
       <View style={styles.switchContainer}>
-        <Text style={[styles.label, { color: colors.text }]}>Do you smoke?</Text>
+        <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.smoking}</Text>
         <View style={[styles.switchRow, { backgroundColor: colors.background }]}>
           <TouchableOpacity
             style={[
@@ -294,18 +297,18 @@ export default function HealthPredictionScreen() {
       {renderBasicForm()}
       
       <View style={styles.advancedSection}>
-        <Text style={[styles.sectionTitle, { color: colors.text }]}>Advanced Metrics (Optional)</Text>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>{UIText.healthForm.advancedMetrics}</Text>
         
         <View style={styles.inputRow}>
           <View style={[styles.inputGroup, { flex: 1, marginRight: Spacing.sm }]}>
-            <Text style={[styles.label, { color: colors.text }]}>Systolic BP</Text>
+            <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.systolicBP}</Text>
             <TextInput
               style={[styles.input, { 
                 borderColor: colors.background, 
                 backgroundColor: colors.background,
                 color: colors.text 
               }]}
-              placeholder="120"
+              placeholder={UIText.healthForm.systolicPlaceholder}
               placeholderTextColor={colors.textSecondary}
               value={formData.systolic_bp}
               onChangeText={(value) => handleInputChange('systolic_bp', value)}
@@ -317,14 +320,14 @@ export default function HealthPredictionScreen() {
           </View>
 
           <View style={[styles.inputGroup, { flex: 1, marginLeft: Spacing.sm }]}>
-            <Text style={[styles.label, { color: colors.text }]}>Diastolic BP</Text>
+            <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.diastolicBP}</Text>
             <TextInput
               style={[styles.input, { 
                 borderColor: colors.background, 
                 backgroundColor: colors.background,
                 color: colors.text 
               }]}
-              placeholder="80"
+              placeholder={UIText.healthForm.diastolicPlaceholder}
               placeholderTextColor={colors.textSecondary}
               value={formData.diastolic_bp}
               onChangeText={(value) => handleInputChange('diastolic_bp', value)}
@@ -338,14 +341,14 @@ export default function HealthPredictionScreen() {
 
         <View style={styles.inputRow}>
           <View style={[styles.inputGroup, { flex: 1, marginRight: Spacing.sm }]}>
-            <Text style={[styles.label, { color: colors.text }]}>Cholesterol</Text>
+            <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.cholesterol}</Text>
             <TextInput
               style={[styles.input, { 
                 borderColor: colors.background, 
                 backgroundColor: colors.background,
                 color: colors.text 
               }]}
-              placeholder="190"
+              placeholder={UIText.healthForm.cholesterolPlaceholder}
               placeholderTextColor={colors.textSecondary}
               value={formData.cholesterol}
               onChangeText={(value) => handleInputChange('cholesterol', value)}
@@ -357,14 +360,14 @@ export default function HealthPredictionScreen() {
           </View>
 
           <View style={[styles.inputGroup, { flex: 1, marginLeft: Spacing.sm }]}>
-            <Text style={[styles.label, { color: colors.text }]}>Glucose</Text>
+            <Text style={[styles.label, { color: colors.text }]}>{UIText.healthForm.glucose}</Text>
             <TextInput
               style={[styles.input, { 
                 borderColor: colors.background, 
                 backgroundColor: colors.background,
                 color: colors.text 
               }]}
-              placeholder="95"
+              placeholder={UIText.healthForm.glucosePlaceholder}
               placeholderTextColor={colors.textSecondary}
               value={formData.glucose}
               onChangeText={(value) => handleInputChange('glucose', value)}
@@ -394,7 +397,7 @@ export default function HealthPredictionScreen() {
           >
             <Text style={[styles.backButtonText, { color: colors.text }]}>←</Text>
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>Health Assessment</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>{UIText.healthForm.title}</Text>
           <View style={styles.placeholder} />
         </View>
 

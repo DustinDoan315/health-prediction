@@ -1,9 +1,11 @@
 import {
+  Spacing,
+  Typography,
+} from '@/constants';
+import {
   BorderRadius,
   Colors,
   Elevation,
-  Spacing,
-  Typography
 } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { Component, ReactNode } from 'react';
