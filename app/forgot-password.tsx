@@ -3,7 +3,7 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import {
   Spacing,
@@ -16,6 +16,7 @@ import {
 } from '@/constants/Colors';
 import {
   Alert,
+  Animated,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -35,18 +36,57 @@ export default function ForgotPasswordScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
 
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const modalAnim = useRef(new Animated.Value(0)).current;
+
   const handleBack = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.back();
+    
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: -50,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      router.back();
+    });
   };
 
   const handleOptionSelect = (option: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0.7,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    
     setSelectedOption(option);
   };
 
   const handleResetPassword = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    
+    Animated.timing(modalAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+    
     setShowSuccessModal(true);
   };
 
@@ -57,8 +97,15 @@ export default function ForgotPasswordScreen() {
 
   const handleCloseModal = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setShowSuccessModal(false);
-    router.back();
+    
+    Animated.timing(modalAnim, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start(() => {
+      setShowSuccessModal(false);
+      router.back();
+    });
   };
 
   const resetOptions = [
@@ -93,31 +140,44 @@ export default function ForgotPasswordScreen() {
   ];
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-      <KeyboardAvoidingView 
-        style={styles.container} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <LinearGradient
-          colors={[colors.gradientStart, colors.gradientEnd]}
-          style={styles.header}
+    <LinearGradient
+      colors={['#DBEAFE', '#BFDBFE', '#93C5FD']}
+      style={styles.container}
+    >
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView 
+          style={styles.container} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <View style={styles.headerContent}>
-            <TouchableOpacity style={styles.backButton} onPress={handleBack}>
-              <Text style={styles.backButtonText}>←</Text>
-            </TouchableOpacity>
-            <Text style={styles.headerTitle}>{UIText.forgotPassword.title}</Text>
-            <Text style={styles.headerSubtitle}>{UIText.forgotPassword.subtitle}</Text>
-          </View>
-        </LinearGradient>
+          <ScrollView 
+            style={styles.scrollView} 
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <Animated.View 
+              style={[
+                styles.content,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }]
+                }
+              ]}
+            >
+              <View style={styles.header}>
+                <View style={styles.headerContent}>
+                  <TouchableOpacity style={styles.backButton} onPress={handleBack}>
+                    <Text style={styles.backButtonText}>←</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.headerTitle}>{UIText.forgotPassword.title}</Text>
+                  <Text style={styles.headerSubtitle}>{UIText.forgotPassword.subtitle}</Text>
+                </View>
+              </View>
 
-        <ScrollView 
-          style={styles.scrollView} 
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={[styles.formCard, { backgroundColor: colors.surface }]}>
+              <LinearGradient
+                colors={['#FFFFFF', '#F1F5F9', '#E2E8F0']}
+                style={styles.formCard}
+              >
             <Text style={[styles.sectionTitle, { color: colors.text }]}>
               Choose your reset method
             </Text>
@@ -160,14 +220,37 @@ export default function ForgotPasswordScreen() {
                 Reset Password
               </Text>
               <Text style={[styles.resetButtonIcon, { color: colors.surface }]}>🔒</Text>
-            </TouchableOpacity>
-          </View>
-        </ScrollView>
+              </TouchableOpacity>
+              </LinearGradient>
+            </Animated.View>
+          </ScrollView>
 
         {/* Success Modal */}
         {showSuccessModal && (
-          <View style={styles.modalOverlay}>
-            <View style={[styles.modalCard, { backgroundColor: colors.surface }]}>
+          <Animated.View 
+            style={[
+              styles.modalOverlay,
+              {
+                opacity: modalAnim,
+              }
+            ]}
+          >
+            <Animated.View 
+              style={[
+                styles.modalCard,
+                {
+                  backgroundColor: colors.surface,
+                  transform: [
+                    {
+                      scale: modalAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.8, 1],
+                      }),
+                    },
+                  ],
+                }
+              ]}
+            >
               <View style={styles.modalIllustration}>
                 <View style={[styles.phoneContainer, { backgroundColor: colors.primary }]}>
                   <View style={[styles.lockContainer, { backgroundColor: colors.surface }]}>
@@ -197,11 +280,12 @@ export default function ForgotPasswordScreen() {
               >
                 <Text style={styles.closeButtonText}>✕</Text>
               </TouchableOpacity>
-            </View>
-          </View>
+            </Animated.View>
+          </Animated.View>
         )}
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
@@ -209,9 +293,12 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
+  content: {
+    flex: 1,
+  },
   header: {
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xxl,
+    paddingTop: Spacing.xxl,
+    paddingBottom: Spacing.xl,
     paddingHorizontal: Spacing.lg,
   },
   headerContent: {
@@ -224,24 +311,25 @@ const styles = StyleSheet.create({
     width: 44,
     height: 44,
     borderRadius: 22,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   backButtonText: {
     fontSize: 20,
-    color: '#fff',
+    color: '#3B82F6',
     fontWeight: '600',
   },
   headerTitle: {
     ...Typography.pageTitle,
-    color: '#fff',
+    color: '#1E293B',
     textAlign: 'center',
     marginBottom: Spacing.sm,
+    fontWeight: '700',
   },
   headerSubtitle: {
     ...Typography.body,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#64748B',
     textAlign: 'center',
     lineHeight: Typography.body.lineHeight,
   },
@@ -249,6 +337,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xl,
   },
@@ -256,6 +345,8 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
     marginTop: -Spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
     ...Elevation.card,
   },
   sectionTitle: {

@@ -5,7 +5,7 @@ import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import {
   Spacing,
@@ -18,6 +18,7 @@ import {
 } from '@/constants/Colors';
 import {
   Alert,
+  Animated,
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
@@ -47,6 +48,9 @@ export default function AuthScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
+
+  const fadeAnim = useRef(new Animated.Value(1)).current;
+  const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -110,16 +114,43 @@ export default function AuthScreen() {
 
   const toggleMode = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setIsLogin(!isLogin);
-    setFormData({
-      username: '',
-      email: '',
-      password: '',
-      confirmPassword: '',
-      full_name: '',
+    
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(slideAnim, {
+        toValue: -20,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setIsLogin(!isLogin);
+      setFormData({
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        full_name: '',
+      });
+      setShowPassword(false);
+      setShowConfirmPassword(false);
+      
+      Animated.parallel([
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+      ]).start();
     });
-    setShowPassword(false);
-    setShowConfirmPassword(false);
   };
 
   const handleSocialLogin = (provider: string) => {
@@ -133,40 +164,57 @@ export default function AuthScreen() {
   };
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.primary} />
-      <KeyboardAvoidingView 
-        style={styles.container} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <LinearGradient
-          colors={[colors.gradientStart, colors.gradientEnd]}
-          style={styles.header}
+    <LinearGradient
+      colors={['#DBEAFE', '#BFDBFE', '#93C5FD']}
+      style={styles.container}
+    >
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView 
+          style={styles.container} 
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         >
-          <View style={styles.headerContent}>
-            <View style={styles.logoContainer}>
-              <Text style={styles.logoIcon}>+</Text>
+          <ScrollView 
+            style={styles.scrollView} 
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.header}>
+              <View style={styles.headerContent}>
+                <View style={styles.logoContainer}>
+                  <Text style={styles.logoIcon}>🏥</Text>
+                </View>
+                <Text style={styles.headerTitle}>
+                  {isLogin ? 'Welcome Back!' : 'Join HealthAI'}
+                </Text>
+                <Text style={styles.headerSubtitle}>
+                  {isLogin 
+                    ? 'Sign in to continue your health journey' 
+                    : 'Start your personalized health journey today'
+                  }
+                </Text>
+              </View>
             </View>
-            <Text style={styles.headerTitle}>
-              {isLogin ? 'Sign In' : 'Sign Up For Free!'}
-            </Text>
-            {!isLogin && (
-              <Text style={styles.headerSubtitle}>
-                Join us for personalized health predictions
-              </Text>
-            )}
-          </View>
-        </LinearGradient>
+          <LinearGradient
+            colors={['#FFFFFF', '#F1F5F9', '#E2E8F0']}
+            style={styles.formCard}
+          >
+            <Animated.View 
+              style={[
+                styles.formContent,
+                {
+                  opacity: fadeAnim,
+                  transform: [{ translateY: slideAnim }]
+                }
+              ]}
+            >
 
-        <ScrollView 
-          style={styles.scrollView} 
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={[styles.formCard, { backgroundColor: colors.surface }]}>
             <View style={styles.inputGroup}>
               <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.username}</Text>
-              <View style={[styles.inputContainer, { borderColor: colors.background }]}>
+              <View style={[styles.inputContainer, { 
+                borderColor: colors.background,
+                backgroundColor: colors.background 
+              }]}>
                 <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>👤</Text>
                 <TextInput
                   style={[styles.input, { color: colors.text }]}
@@ -183,8 +231,11 @@ export default function AuthScreen() {
               <>
                 <View style={styles.inputGroup}>
                   <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.fullName}</Text>
-                  <View style={[styles.inputContainer, { borderColor: colors.background }]}>
-                    <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>👤</Text>
+                  <View style={[styles.inputContainer, { 
+                    borderColor: colors.background,
+                    backgroundColor: colors.background 
+                  }]}>
+                    <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>👨‍⚕️</Text>
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
                       placeholder={UIText.auth.enterFullName}
@@ -197,7 +248,10 @@ export default function AuthScreen() {
 
                 <View style={styles.inputGroup}>
                   <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.emailAddress}</Text>
-                  <View style={[styles.inputContainer, { borderColor: colors.background }]}>
+                  <View style={[styles.inputContainer, { 
+                    borderColor: colors.background,
+                    backgroundColor: colors.background 
+                  }]}>
                     <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>📧</Text>
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
@@ -215,8 +269,11 @@ export default function AuthScreen() {
 
             <View style={styles.inputGroup}>
               <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.password}</Text>
-              <View style={[styles.inputContainer, { borderColor: colors.background }]}>
-                <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>🔒</Text>
+              <View style={[styles.inputContainer, { 
+                borderColor: colors.background,
+                backgroundColor: colors.background 
+              }]}>
+                <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>🔐</Text>
                 <TextInput
                   style={[styles.input, { color: colors.text }]}
                   placeholder={UIText.auth.enterPassword}
@@ -245,8 +302,11 @@ export default function AuthScreen() {
             {!isLogin && (
               <View style={styles.inputGroup}>
                 <Text style={[styles.inputLabel, { color: colors.text }]}>{UIText.auth.passwordConfirmation}</Text>
-                <View style={[styles.inputContainer, { borderColor: colors.background }]}>
-                  <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>🔒</Text>
+                <View style={[styles.inputContainer, { 
+                  borderColor: colors.background,
+                  backgroundColor: colors.background 
+                }]}>
+                  <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>🔐</Text>
                   <TextInput
                     style={[styles.input, { color: colors.text }]}
                     placeholder={UIText.auth.confirmPassword}
@@ -278,9 +338,11 @@ export default function AuthScreen() {
               disabled={isLoading}
             >
               <Text style={[styles.submitButtonText, { color: colors.surface }]}>
-                {isLoading ? 'Loading...' : (isLogin ? 'Sign In' : 'Sign Up')}
+                {isLoading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
               </Text>
-              <Text style={[styles.submitButtonIcon, { color: colors.surface }]}>+</Text>
+              <Text style={[styles.submitButtonIcon, { color: colors.surface }]}>
+                {isLogin ? '→' : '✨'}
+              </Text>
             </TouchableOpacity>
 
             {isLogin && (
@@ -302,25 +364,27 @@ export default function AuthScreen() {
                 style={[styles.socialButton, { backgroundColor: '#1877F2' }]}
                 onPress={() => handleSocialLogin('Facebook')}
               >
-                <Text style={styles.socialButtonText}>f</Text>
+                <Text style={styles.socialButtonText}>📘</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={[styles.socialButton, { backgroundColor: '#DB4437' }]}
                 onPress={() => handleSocialLogin('Google')}
               >
-                <Text style={styles.socialButtonText}>G</Text>
+                <Text style={styles.socialButtonText}>🔍</Text>
               </TouchableOpacity>
               
               <TouchableOpacity 
-                style={[styles.socialButton, { backgroundColor: '#E4405F' }]}
-                onPress={() => handleSocialLogin('Instagram')}
+                style={[styles.socialButton, { backgroundColor: '#1DA1F2' }]}
+                onPress={() => handleSocialLogin('Twitter')}
               >
-                <Text style={styles.socialButtonText}>📷</Text>
+                <Text style={styles.socialButtonText}>🐦</Text>
               </TouchableOpacity>
             </View>
 
-            <TouchableOpacity style={styles.switchButton} onPress={toggleMode}>
+            </Animated.View>
+
+            <TouchableOpacity style={styles.switchContainer} onPress={toggleMode}>
               <Text style={[styles.switchText, { color: colors.textSecondary }]}>
                 {isLogin 
                   ? "Don't have an account? " 
@@ -331,10 +395,11 @@ export default function AuthScreen() {
                 </Text>
               </Text>
             </TouchableOpacity>
-          </View>
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          </LinearGradient>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </LinearGradient>
   );
 }
 
@@ -343,43 +408,46 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: Spacing.xl,
-    paddingBottom: Spacing.xxl,
+    paddingTop: Spacing.xxl,
+    paddingBottom: Spacing.xl,
     paddingHorizontal: Spacing.lg,
   },
   headerContent: {
     alignItems: 'center',
   },
   logoContainer: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    width: 90,
+    height: 90,
+    borderRadius: 45,
+    backgroundColor: 'rgba(59, 130, 246, 0.2)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.lg,
+    ...Elevation.card,
   },
   logoIcon: {
-    fontSize: 40,
-    color: '#fff',
-    fontWeight: 'bold',
+    fontSize: 45,
+    color: '#3B82F6',
   },
   headerTitle: {
     ...Typography.pageTitle,
-    color: '#fff',
+    color: '#1E293B',
     textAlign: 'center',
     marginBottom: Spacing.sm,
+    fontWeight: '700',
   },
   headerSubtitle: {
     ...Typography.body,
-    color: 'rgba(255, 255, 255, 0.9)',
+    color: '#64748B',
     textAlign: 'center',
     lineHeight: Typography.body.lineHeight,
+    paddingHorizontal: Spacing.md,
   },
   scrollView: {
     flex: 1,
   },
   scrollContent: {
+    flexGrow: 1,
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.xl,
   },
@@ -387,7 +455,12 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.xl,
     padding: Spacing.xl,
     marginTop: -Spacing.xl,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.3)',
     ...Elevation.card,
+  },
+  formContent: {
+    flex: 1,
   },
   inputGroup: {
     marginBottom: Spacing.lg,
@@ -401,12 +474,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1,
-    borderRadius: BorderRadius.md,
+    borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
-    backgroundColor: '#fff',
+    minHeight: 56,
   },
   inputIcon: {
-    fontSize: 18,
+    fontSize: 20,
     marginRight: Spacing.sm,
   },
   input: {
@@ -415,7 +488,7 @@ const styles = StyleSheet.create({
     ...Typography.body,
   },
   eyeIcon: {
-    padding: Spacing.xs,
+    padding: Spacing.sm,
   },
   helperText: {
     ...Typography.caption,
@@ -427,9 +500,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: BorderRadius.lg,
-    paddingVertical: Spacing.md,
+    paddingVertical: Spacing.lg,
     marginTop: Spacing.md,
     marginBottom: Spacing.lg,
+    minHeight: 56,
     ...Elevation.modal,
   },
   submitButtonDisabled: {
@@ -469,24 +543,25 @@ const styles = StyleSheet.create({
   },
   socialButtonsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
     marginBottom: Spacing.lg,
   },
   socialButton: {
-    width: 60,
-    height: 60,
-    borderRadius: BorderRadius.lg,
+    width: 70,
+    height: 70,
+    borderRadius: BorderRadius.xl,
     justifyContent: 'center',
     alignItems: 'center',
     ...Elevation.card,
   },
   socialButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 24,
   },
-  switchButton: {
+  switchContainer: {
     alignItems: 'center',
+    paddingTop: Spacing.lg,
+    paddingVertical: Spacing.md,
+    marginTop: Spacing.md,
   },
   switchText: {
     ...Typography.body,
