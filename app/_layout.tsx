@@ -1,3 +1,4 @@
+import { AppInitializer } from '@/src/core/AppInitializer';
 import { Colors } from '@/constants/Colors';
 import { DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { ErrorBoundary } from '@/components';
@@ -54,6 +55,7 @@ export default function RootLayout() {
 
   useEffect(() => {
     initSentry();
+    AppInitializer.initialize();
   }, []);
 
   if (!loaded) {

@@ -1,7 +1,14 @@
-import { IGetCurrentUserUseCase, ILoginUseCase, ILogoutUseCase, IRegisterUseCase } from './index';
+import {
+  IAppleLoginUseCase,
+  IGetCurrentUserUseCase,
+  IGoogleLoginUseCase,
+  ILoginUseCase,
+  ILogoutUseCase,
+  IRegisterUseCase
+  } from './interfaces';
+import { IAuthRepository, RegisterRequest } from '../../repositories';
+import { IUser } from '../../entities';
 
-import { IUser } from '../entities';
-import { IAuthRepository } from '../repositories';
 
 export class LoginUseCase implements ILoginUseCase {
   constructor(private readonly authRepository: IAuthRepository) {}
@@ -16,6 +23,30 @@ export class LoginUseCase implements ILoginUseCase {
     }
 
     return await this.authRepository.login(username, password);
+  }
+}
+
+export class GoogleLoginUseCase implements IGoogleLoginUseCase {
+  constructor(private readonly authRepository: IAuthRepository) {}
+
+  async execute(idToken: string): Promise<{ user: IUser; token: string }> {
+    if (!idToken.trim()) {
+      throw new Error('Google ID token is required');
+    }
+
+    return await this.authRepository.loginWithGoogle(idToken);
+  }
+}
+
+export class AppleLoginUseCase implements IAppleLoginUseCase {
+  constructor(private readonly authRepository: IAuthRepository) {}
+
+  async execute(identityToken: string, authorizationCode: string): Promise<{ user: IUser; token: string }> {
+    if (!identityToken.trim() || !authorizationCode.trim()) {
+      throw new Error('Apple identity token and authorization code are required');
+    }
+
+    return await this.authRepository.loginWithApple(identityToken, authorizationCode);
   }
 }
 

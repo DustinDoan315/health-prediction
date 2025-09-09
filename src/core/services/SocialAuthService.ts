@@ -1,0 +1,187 @@
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as AuthSession from 'expo-auth-session';
+import * as WebBrowser from 'expo-web-browser';
+
+import Constants from 'expo-constants';
+import { Platform } from 'react-native';
+
+// Configure WebBrowser for better UX
+WebBrowser.maybeCompleteAuthSession();
+
+export enum AuthProvider {
+  GOOGLE = 'google',
+  APPLE = 'apple',
+  EMAIL_PASSWORD = 'email_password',
+}
+
+export interface SocialAuthResult {
+  provider: AuthProvider;
+  email: string;
+  fullName: string;
+  idToken?: string;
+  authorizationCode?: string;
+  providerId: string;
+}
+
+export class SocialAuthService {
+  private static instance: SocialAuthService;
+
+  static getInstance(): SocialAuthService {
+    if (!SocialAuthService.instance) {
+      SocialAuthService.instance = new SocialAuthService();
+    }
+    return SocialAuthService.instance;
+  }
+
+  /**
+   * Sign in with Google using OAuth 2.0
+   */
+  async signInWithGoogle(): Promise<SocialAuthResult> {
+    try {
+      // Create the OAuth request
+      const request = new AuthSession.AuthRequest({
+        clientId: Constants.expoConfig?.extra?.googleClientId,
+        scopes: ['openid', 'profile', 'email'],
+        responseType: AuthSession.ResponseType.Code,
+        redirectUri: AuthSession.makeRedirectUri({
+          scheme: Array.isArray(Constants.expoConfig?.scheme) 
+            ? Constants.expoConfig.scheme[0] 
+            : Constants.expoConfig?.scheme,
+        }),
+        extraParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        },
+      });
+
+      // Start the authentication flow
+      const result = await request.promptAsync({
+        authorizationEndpoint: 'https://accounts.google.com/o/oauth2/v2/auth',
+      });
+
+      if (result.type === 'success') {
+        // Exchange the authorization code for tokens
+        const tokenResponse = await AuthSession.exchangeCodeAsync(
+          {
+            clientId: Constants.expoConfig?.extra?.googleClientId,
+            code: result.params.code as string,
+            redirectUri: AuthSession.makeRedirectUri({
+              scheme: Array.isArray(Constants.expoConfig?.scheme) 
+                ? Constants.expoConfig.scheme[0] 
+                : Constants.expoConfig?.scheme,
+            }),
+            extraParams: {
+              code_verifier: request.codeChallenge as string,
+            },
+          },
+          {
+            tokenEndpoint: 'https://oauth2.googleapis.com/token',
+          }
+        );
+
+        // Get user info from Google
+        const userInfoResponse = await fetch(
+          `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.accessToken}`
+        );
+        const userInfo = await userInfoResponse.json();
+
+        return {
+          provider: AuthProvider.GOOGLE,
+          email: userInfo.email,
+          fullName: userInfo.name || '',
+          idToken: tokenResponse.idToken,
+          providerId: userInfo.id,
+        };
+      } else if (result.type === 'cancel') {
+        throw new Error('Google sign-in was cancelled');
+      } else {
+        throw new Error('Google sign-in failed');
+      }
+    } catch (error) {
+      console.error('Google sign-in error:', error);
+      throw new Error(`Google sign-in failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
+  }
+
+  /**
+   * Sign in with Apple using expo-apple-authentication
+   */
+  async signInWithApple(): Promise<SocialAuthResult> {
+    if (Platform.OS !== 'ios') {
+      throw new Error('Apple Sign-In is only available on iOS');
+    }
+
+    try {
+      // Check if Apple Authentication is available
+      const isAvailable = await AppleAuthentication.isAvailableAsync();
+      if (!isAvailable) {
+        throw new Error('Apple Authentication is not available on this device');
+      }
+
+      // Perform Apple authentication
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      // Apple provides name only on first sign-in
+      const fullName = credential.fullName
+        ? `${credential.fullName.givenName || ''} ${credential.fullName.familyName || ''}`.trim()
+        : '';
+
+      return {
+        provider: AuthProvider.APPLE,
+        email: credential.email || '',
+        fullName,
+        idToken: credential.identityToken || undefined,
+        authorizationCode: credential.authorizationCode || undefined,
+        providerId: credential.user,
+      };
+    } catch (error: any) {
+      console.error('Apple sign-in error:', error);
+      
+      if (error.code === 'ERR_CANCELED') {
+        throw new Error('Apple sign-in was cancelled');
+      } else if (error.code === 'ERR_INVALID_RESPONSE') {
+        throw new Error('Invalid response from Apple');
+      } else if (error.code === 'ERR_NOT_HANDLED') {
+        throw new Error('Apple sign-in not handled');
+      } else if (error.code === 'ERR_UNKNOWN') {
+        throw new Error('Unknown Apple sign-in error');
+      } else {
+        throw new Error(`Apple sign-in failed: ${error.message || 'Unknown error'}`);
+      }
+    }
+  }
+
+  /**
+   * Sign out from all providers
+   */
+  async signOut(): Promise<void> {
+    try {
+      // For Google, we can't programmatically sign out the user from their Google account
+      // The user needs to sign out from their Google account settings
+      // For Apple, the user is automatically signed out when the app is uninstalled
+      console.log('Social authentication sign out completed');
+    } catch (error) {
+      console.warn('Social sign-out warning:', error);
+    }
+  }
+
+  /**
+   * Check if Apple Authentication is available
+   */
+  async isAppleAuthAvailable(): Promise<boolean> {
+    if (Platform.OS !== 'ios') {
+      return false;
+    }
+    
+    try {
+      return await AppleAuthentication.isAvailableAsync();
+    } catch {
+      return false;
+    }
+  }
+}

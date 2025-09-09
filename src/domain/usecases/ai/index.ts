@@ -1,6 +1,6 @@
 import { IAIChatMessage } from '../../entities';
 import { IAIRepository } from '../../repositories';
-import { IChatWithAIUseCase } from '../index';
+import { IChatWithAIUseCase } from './interfaces';
 
 export class ChatWithAIUseCase implements IChatWithAIUseCase {
   constructor(private readonly aiRepository: IAIRepository) {}

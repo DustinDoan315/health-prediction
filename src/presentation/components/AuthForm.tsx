@@ -1,7 +1,21 @@
 import React, { useState } from 'react';
-import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { BorderRadius, Colors, Spacing, Typography } from '../../../constants';
-import { RegisterRequest, useAuthViewModel } from '../viewmodels';
+import {
+  Alert,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
+  } from 'react-native';
+import {
+  BorderRadius,
+  Colors,
+  Spacing,
+  Typography
+  } from '../../../constants';
+import { RegisterRequest } from '../../domain/repositories';
+import { useAuthViewModel } from '../viewmodels';
+
 
 interface AuthFormProps {
   isLogin: boolean;

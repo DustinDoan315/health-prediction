@@ -1,14 +1,11 @@
-import { IHealthPrediction, IHealthStats } from '../../entities';
+import { HealthPredictionRequest, IHealthRepository, SimpleHealthPredictionRequest } from '../../repositories';
 import {
-    HealthPredictionRequest,
-    ICreateHealthPredictionUseCase,
-    ICreateSimpleHealthPredictionUseCase,
-    IGetHealthStatsUseCase,
-    IGetUserPredictionsUseCase,
-    SimpleHealthPredictionRequest
-} from '../index';
-
-import { IHealthRepository } from '../../repositories';
+  ICreateHealthPredictionUseCase,
+  ICreateSimpleHealthPredictionUseCase,
+  IGetHealthStatsUseCase,
+  IGetUserPredictionsUseCase
+  } from './interfaces';
+import { IHealthPrediction, IHealthStats } from '../../entities';
 
 export class CreateHealthPredictionUseCase implements ICreateHealthPredictionUseCase {
   constructor(private readonly healthRepository: IHealthRepository) {}

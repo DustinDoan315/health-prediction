@@ -19,6 +19,7 @@ import { RootState } from '@/store/store';
 import { router } from 'expo-router';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useAuthViewModel } from '@/src/presentation/viewmodels/AuthViewModel';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { useEffect, useRef, useState } from 'react';
 
@@ -56,15 +57,18 @@ export default function AuthScreen() {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
   const { isLoading, error, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
+  
+  // Use ViewModel for social authentication
+  const authViewModel = useAuthViewModel();
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated || authViewModel.state.isAuthenticated) {
       router.replace('/(tabs)');
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authViewModel.state.isAuthenticated]);
 
   useEffect(() => {
     if (error) {
@@ -72,6 +76,13 @@ export default function AuthScreen() {
       dispatch(clearError());
     }
   }, [error, dispatch]);
+
+  useEffect(() => {
+    if (authViewModel.state.error) {
+      Alert.alert('Error', authViewModel.state.error);
+      authViewModel.clearError();
+    }
+  }, [authViewModel]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -161,9 +172,22 @@ export default function AuthScreen() {
     });
   };
 
-  const handleSocialLogin = (provider: string) => {
+  const handleGoogleLogin = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    Alert.alert('Coming Soon', `${provider} login will be available soon!`);
+    try {
+      await authViewModel.loginWithGoogle();
+    } catch {
+      // Error is handled by the ViewModel
+    }
+  };
+
+  const handleAppleLogin = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      await authViewModel.loginWithApple();
+    } catch {
+      // Error is handled by the ViewModel
+    }
   };
 
   const handleForgotPassword = () => {
@@ -331,10 +355,10 @@ export default function AuthScreen() {
             <TouchableOpacity 
               style={[
                 styles.submitButton,
-                isLoading && styles.submitButtonDisabled
+                (isLoading || authViewModel.state.isLoading) && styles.submitButtonDisabled
               ]} 
               onPress={handleSubmit}
-              disabled={isLoading}
+              disabled={isLoading || authViewModel.state.isLoading}
             >
               <LinearGradient
                 colors={[colors.gradientStart, colors.gradientEnd]}
@@ -343,7 +367,7 @@ export default function AuthScreen() {
                 style={styles.submitButtonGradient}
               >
                 <Text style={[styles.submitButtonText, { color: colors.surface }]}>
-                  {isLoading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
+                  {(isLoading || authViewModel.state.isLoading) ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
                 </Text>
                 <Ionicons 
                   name={isLogin ? "arrow-forward" : "sparkles"} 
@@ -370,25 +394,22 @@ export default function AuthScreen() {
 
             <View style={styles.socialButtonsContainer}>
               <TouchableOpacity 
-                style={[styles.socialButton, { backgroundColor: '#1877F2' }]}
-                onPress={() => handleSocialLogin('Facebook')}
-              >
-                <FontAwesome5 name="facebook" size={24} color="white" />
-              </TouchableOpacity>
-              
-              <TouchableOpacity 
                 style={[styles.socialButton, { backgroundColor: '#DB4437' }]}
-                onPress={() => handleSocialLogin('Google')}
+                onPress={handleGoogleLogin}
+                disabled={isLoading || authViewModel.state.isLoading}
               >
                 <FontAwesome5 name="google" size={24} color="white" />
               </TouchableOpacity>
               
-              <TouchableOpacity 
-                style={[styles.socialButton, { backgroundColor: '#1DA1F2' }]}
-                onPress={() => handleSocialLogin('Twitter')}
-              >
-                <FontAwesome5 name="twitter" size={24} color="white" />
-              </TouchableOpacity>
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity 
+                  style={[styles.socialButton, { backgroundColor: '#000000' }]}
+                  onPress={handleAppleLogin}
+                  disabled={isLoading || authViewModel.state.isLoading}
+                >
+                  <FontAwesome5 name="apple" size={24} color="white" />
+                </TouchableOpacity>
+              )}
             </View>
 
             </Animated.View>
