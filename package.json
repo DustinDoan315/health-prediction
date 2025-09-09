@@ -59,7 +59,6 @@
     "react-native-svg": "15.11.2",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
-    "react-native-worklets": "^0.5.0",
     "react-redux": "^9.2.0"
   },
   "devDependencies": {

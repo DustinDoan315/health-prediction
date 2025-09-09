@@ -1,9 +1,9 @@
 import * as AppleAuthentication from 'expo-apple-authentication';
 import * as AuthSession from 'expo-auth-session';
-import * as WebBrowser from 'expo-web-browser';
-
 import Constants from 'expo-constants';
+import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
+
 
 // Configure WebBrowser for better UX
 WebBrowser.maybeCompleteAuthSession();
@@ -38,20 +38,24 @@ export class SocialAuthService {
    */
   async signInWithGoogle(): Promise<SocialAuthResult> {
     try {
-      // Create the OAuth request
+      const clientId = Constants.expoConfig?.extra?.googleClientId;
+      const redirectUri = 'https://auth.expo.io/@dustindoan/health-prediction/';
+      
+      console.log('Google OAuth Debug Info:');
+      console.log('Client ID:', clientId);
+      console.log('Redirect URI:', redirectUri);
+      
+      if (!clientId) {
+        throw new Error('Google Client ID is not configured');
+      }
+
+      // Create the OAuth request using authorization code flow
       const request = new AuthSession.AuthRequest({
-        clientId: Constants.expoConfig?.extra?.googleClientId,
-        scopes: ['openid', 'profile', 'email'],
+        clientId,
+        scopes: ['openid', 'email'],
         responseType: AuthSession.ResponseType.Code,
-        redirectUri: AuthSession.makeRedirectUri({
-          scheme: Array.isArray(Constants.expoConfig?.scheme) 
-            ? Constants.expoConfig.scheme[0] 
-            : Constants.expoConfig?.scheme,
-        }),
-        extraParams: {
-          access_type: 'offline',
-          prompt: 'consent',
-        },
+        redirectUri,
+        usePKCE: true,
       });
 
       // Start the authentication flow
@@ -60,18 +64,14 @@ export class SocialAuthService {
       });
 
       if (result.type === 'success') {
-        // Exchange the authorization code for tokens
+        // Exchange authorization code for tokens
         const tokenResponse = await AuthSession.exchangeCodeAsync(
           {
-            clientId: Constants.expoConfig?.extra?.googleClientId,
+            clientId,
             code: result.params.code as string,
-            redirectUri: AuthSession.makeRedirectUri({
-              scheme: Array.isArray(Constants.expoConfig?.scheme) 
-                ? Constants.expoConfig.scheme[0] 
-                : Constants.expoConfig?.scheme,
-            }),
+            redirectUri,
             extraParams: {
-              code_verifier: request.codeChallenge as string,
+              code_verifier: request.codeChallenge || '',
             },
           },
           {
