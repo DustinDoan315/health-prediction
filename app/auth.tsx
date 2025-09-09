@@ -1,11 +1,4 @@
-import { UIText } from '@/content';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
 
 import {
   Spacing,
@@ -16,6 +9,9 @@ import {
   Colors,
   Elevation,
 } from '@/constants/Colors';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
+import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Animated,
@@ -31,6 +27,10 @@ import {
   View,
 } from 'react-native';
 
+import { UIText } from '@/content';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { LinearGradient } from 'expo-linear-gradient';
+import { router } from 'expo-router';
 
 export default function AuthScreen() {
   const [isLogin, setIsLogin] = useState(true);

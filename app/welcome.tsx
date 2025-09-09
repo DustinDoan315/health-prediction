@@ -1,19 +1,19 @@
-import { WelcomeScreenSkeleton } from '@/components/WelcomeScreenSkeleton';
+import * as Haptics from 'expo-haptics';
 import {
   BorderRadius,
   Colors,
   Elevation,
   Spacing,
   Typography
-} from '@/constants';
+  } from '@/constants';
+import { LinearGradient } from 'expo-linear-gradient';
+import { loadUser } from '@/store/slices/authSlice';
+import { router } from 'expo-router';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { loadUser } from '@/store/slices/authSlice';
-import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
 import { useEffect } from 'react';
+import { WelcomeScreenSkeleton } from '@/components/WelcomeScreenSkeleton';
 
 import {
   SafeAreaView,
@@ -133,6 +133,7 @@ const createStyles = (colorScheme: 'light' | 'dark') => {
   return StyleSheet.create({
     container: {
       flex: 1,
+      backgroundColor: colors.primary,
     },
     background: {
       flex: 1,

@@ -1,24 +1,21 @@
-import { OnboardingSkeleton } from '@/components/OnboardingSkeleton';
+import * as Haptics from 'expo-haptics';
 import {
   BorderRadius,
   Colors,
   Elevation,
   Spacing,
   Typography
-} from '@/constants';
+  } from '@/constants';
+import { LinearGradient } from 'expo-linear-gradient';
+import { loadUser } from '@/store/slices/authSlice';
+import { OnboardingSkeleton } from '@/components/OnboardingSkeleton';
+import { router } from 'expo-router';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { loadUser } from '@/store/slices/authSlice';
-import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
-import { router } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import {
-  Animated,
-  Dimensions,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -26,8 +23,6 @@ import {
   View,
 } from 'react-native';
 
-
-const { width: screenWidth } = Dimensions.get('window');
 
 const ONBOARDING_SCREENS = [
   {
@@ -69,8 +64,6 @@ export default function OnboardingScreen() {
   const styles = createStyles(colorScheme ?? 'light');
   
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [slideAnim] = useState(new Animated.Value(0));
-  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     dispatch(loadUser());
@@ -82,28 +75,26 @@ export default function OnboardingScreen() {
     }
   }, [isAuthenticated]);
 
-  const animateToNext = (direction: 'next' | 'previous') => {
-    if (isAnimating) return;
-    
-    setIsAnimating(true);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
-    const targetValue = direction === 'next' ? -screenWidth : screenWidth;
-    
-    Animated.timing(slideAnim, {
-      toValue: targetValue,
-      duration: 300,
-      useNativeDriver: true,
-    }).start(() => {
-      setCurrentIndex(direction === 'next' ? currentIndex + 1 : currentIndex - 1);
-      slideAnim.setValue(0);
-      setIsAnimating(false);
-    });
+
+  const goToNext = () => {
+    const newIndex = currentIndex + 1;
+    if (newIndex < ONBOARDING_SCREENS.length) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      setCurrentIndex(newIndex);
+    }
+  };
+
+  const goToPrevious = () => {
+    const newIndex = currentIndex - 1;
+    if (newIndex >= 0) {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+      setCurrentIndex(newIndex);
+    }
   };
 
   const handleNext = () => {
     if (currentIndex < ONBOARDING_SCREENS.length - 1) {
-      animateToNext('next');
+      goToNext();
     } else {
       handleGetStarted();
     }
@@ -111,7 +102,7 @@ export default function OnboardingScreen() {
 
   const handlePrevious = () => {
     if (currentIndex > 0) {
-      animateToNext('previous');
+      goToPrevious();
     }
   };
 
@@ -130,30 +121,13 @@ export default function OnboardingScreen() {
     router.push('/auth');
   };
 
-  const panGesture = Gesture.Pan()
-    .onUpdate((event) => {
-      if (isAnimating) return;
-      slideAnim.setValue(event.translationX);
-    })
-    .onEnd((event) => {
-      if (isAnimating) return;
-      
-      const threshold = screenWidth * 0.3;
-      const translation = event.translationX;
-      
-      if (translation > threshold && currentIndex > 0) {
-        animateToNext('previous');
-      } else if (translation < -threshold && currentIndex < ONBOARDING_SCREENS.length - 1) {
-        animateToNext('next');
-      } else {
-        Animated.spring(slideAnim, {
-          toValue: 0,
-          useNativeDriver: true,
-        }).start();
-      }
-    });
+
 
   if (isLoading) {
+    return <OnboardingSkeleton />;
+  }
+
+  if (currentIndex < 0 || currentIndex >= ONBOARDING_SCREENS.length) {
     return <OnboardingSkeleton />;
   }
 
@@ -163,8 +137,7 @@ export default function OnboardingScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.background}>
-        <GestureDetector gesture={panGesture}>
-          <Animated.View style={[styles.content, { transform: [{ translateX: slideAnim }] }]}>
+        <View style={styles.content}>
           {/* Progress Indicator */}
           <View style={styles.progressContainer}>
             <View style={styles.progressBar}>
@@ -299,8 +272,7 @@ export default function OnboardingScreen() {
               </View>
             )}
           </View>
-          </Animated.View>
-        </GestureDetector>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -312,6 +284,7 @@ const createStyles = (colorScheme: 'light' | 'dark') => {
   return StyleSheet.create({
     container: {
       flex: 1,
+      backgroundColor: colors.primary,
     },
     background: {
       flex: 1,
@@ -342,11 +315,15 @@ const createStyles = (colorScheme: 'light' | 'dark') => {
       top: Spacing.xl,
       right: Spacing.xxl,
       zIndex: 1,
+      padding: Spacing.sm,
+      marginTop: -Spacing.md,
+
     },
     skipText: {
       ...Typography.caption,
       color: colors.surface,
-      opacity: 0.8,
+      fontSize: 16,
+      opacity: 1,
       fontWeight: '500',
     },
     mainContent: {
