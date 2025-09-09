@@ -35,7 +35,7 @@ export const Typography = {
   },
   body: {
     fontSize: 16,
-    lineHeight: 24, // 1.5
+    lineHeight: 18, // 1.25
     fontWeight: '400' as const,
   },
   caption: {

@@ -1,42 +1,50 @@
 import * as Haptics from 'expo-haptics';
-
-import {
-  Spacing,
-  Typography,
-} from '@/constants';
-import {
-  BorderRadius,
-  Colors,
-  Elevation,
-} from '@/constants/Colors';
-import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
-import { useEffect, useRef, useState } from 'react';
 import {
   Alert,
   Animated,
   KeyboardAvoidingView,
   Platform,
-  SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
   TextInput,
   TouchableOpacity,
-  View,
-} from 'react-native';
-
-import { UIText } from '@/content';
-import { useColorScheme } from '@/hooks/useColorScheme';
+  View
+  } from 'react-native';
+import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
+import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { RootState } from '@/store/store';
 import { router } from 'expo-router';
+import { UIText } from '@/content';
+import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { useColorScheme } from '@/hooks/useColorScheme';
+import { useEffect, useRef, useState } from 'react';
+
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+} from '@/constants/Colors';
+import {
+  Spacing,
+  Typography,
+} from '@/constants';
+
 
 export default function AuthScreen() {
-  const [isLogin, setIsLogin] = useState(true);
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState({
+  const [isLogin, setIsLogin] = useState<boolean>(true);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false);
+  const [formData, setFormData] = useState<
+  {
+    username: string;
+    email: string;
+    password: string;
+    confirmPassword: string;
+    full_name: string;
+  }>({
     username: '',
     email: '',
     password: '',
@@ -47,7 +55,7 @@ export default function AuthScreen() {
   const dispatch = useAppDispatch();
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  const { isLoading, error, isAuthenticated } = useAppSelector((state) => state.auth);
+  const { isLoading, error, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
 
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -164,12 +172,8 @@ export default function AuthScreen() {
   };
 
   return (
-    <LinearGradient
-      colors={['#DBEAFE', '#BFDBFE', '#93C5FD']}
-      style={styles.container}
-    >
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-      <SafeAreaView style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.primary }]}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
         <KeyboardAvoidingView 
           style={styles.container} 
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -182,23 +186,15 @@ export default function AuthScreen() {
             <View style={styles.header}>
               <View style={styles.headerContent}>
                 <View style={styles.logoContainer}>
-                  <Text style={styles.logoIcon}>🏥</Text>
+                  <Ionicons name="medkit-sharp" size={45} color={colors.surface} />
                 </View>
-                <Text style={styles.headerTitle}>
+                <Text style={[styles.headerTitle, { color: colors.surface }]}>
                   {isLogin ? 'Welcome Back!' : 'Join HealthAI'}
                 </Text>
-                <Text style={styles.headerSubtitle}>
-                  {isLogin 
-                    ? 'Sign in to continue your health journey' 
-                    : 'Start your personalized health journey today'
-                  }
-                </Text>
+               
               </View>
             </View>
-          <LinearGradient
-            colors={['#FFFFFF', '#F1F5F9', '#E2E8F0']}
-            style={styles.formCard}
-          >
+          <View style={[styles.formCard, { backgroundColor: colors.surface }]}>
             <Animated.View 
               style={[
                 styles.formContent,
@@ -215,7 +211,7 @@ export default function AuthScreen() {
                 borderColor: colors.background,
                 backgroundColor: colors.background 
               }]}>
-                <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>👤</Text>
+                <Ionicons name="person-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { color: colors.text }]}
                   placeholder={UIText.auth.enterUsername}
@@ -235,7 +231,7 @@ export default function AuthScreen() {
                     borderColor: colors.background,
                     backgroundColor: colors.background 
                   }]}>
-                    <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>👨‍⚕️</Text>
+                    <Ionicons name="person-add-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
                       placeholder={UIText.auth.enterFullName}
@@ -252,7 +248,7 @@ export default function AuthScreen() {
                     borderColor: colors.background,
                     backgroundColor: colors.background 
                   }]}>
-                    <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>📧</Text>
+                    <Ionicons name="mail-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                     <TextInput
                       style={[styles.input, { color: colors.text }]}
                       placeholder={UIText.auth.enterEmail}
@@ -273,7 +269,7 @@ export default function AuthScreen() {
                 borderColor: colors.background,
                 backgroundColor: colors.background 
               }]}>
-                <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>🔐</Text>
+                <Ionicons name="lock-closed-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, { color: colors.text }]}
                   placeholder={UIText.auth.enterPassword}
@@ -287,9 +283,11 @@ export default function AuthScreen() {
                   onPress={() => setShowPassword(!showPassword)}
                   style={styles.eyeIcon}
                 >
-                  <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>
-                    {showPassword ? '👁️' : '🙈'}
-                  </Text>
+                  <Ionicons 
+                    name={showPassword ? "eye-outline" : "eye-off-outline"} 
+                    size={20} 
+                    color={colors.textSecondary} 
+                  />
                 </TouchableOpacity>
               </View>
               {!isLogin && (
@@ -306,7 +304,7 @@ export default function AuthScreen() {
                   borderColor: colors.background,
                   backgroundColor: colors.background 
                 }]}>
-                  <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>🔐</Text>
+                  <Ionicons name="lock-closed-outline" size={20} color={colors.textSecondary} style={styles.inputIcon} />
                   <TextInput
                     style={[styles.input, { color: colors.text }]}
                     placeholder={UIText.auth.confirmPassword}
@@ -320,9 +318,11 @@ export default function AuthScreen() {
                     onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                     style={styles.eyeIcon}
                   >
-                    <Text style={[styles.inputIcon, { color: colors.textSecondary }]}>
-                      {showConfirmPassword ? '👁️' : '🙈'}
-                    </Text>
+                    <Ionicons 
+                      name={showConfirmPassword ? "eye-outline" : "eye-off-outline"} 
+                      size={20} 
+                      color={colors.textSecondary} 
+                    />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -330,19 +330,28 @@ export default function AuthScreen() {
 
             <TouchableOpacity 
               style={[
-                styles.submitButton, 
-                { backgroundColor: colors.primary },
+                styles.submitButton,
                 isLoading && styles.submitButtonDisabled
               ]} 
               onPress={handleSubmit}
               disabled={isLoading}
             >
-              <Text style={[styles.submitButtonText, { color: colors.surface }]}>
-                {isLoading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
-              </Text>
-              <Text style={[styles.submitButtonIcon, { color: colors.surface }]}>
-                {isLogin ? '→' : '✨'}
-              </Text>
+              <LinearGradient
+                colors={[colors.gradientStart, colors.gradientEnd]}
+                start={{ x: 1, y: 0 }}
+                end={{ x: 0, y: 1 }}
+                style={styles.submitButtonGradient}
+              >
+                <Text style={[styles.submitButtonText, { color: colors.surface }]}>
+                  {isLoading ? 'Loading...' : (isLogin ? 'Sign In' : 'Create Account')}
+                </Text>
+                <Ionicons 
+                  name={isLogin ? "arrow-forward" : "sparkles"} 
+                  size={20} 
+                  color={colors.surface} 
+                  style={styles.submitButtonIcon}
+                />
+              </LinearGradient>
             </TouchableOpacity>
 
             {isLogin && (
@@ -364,21 +373,21 @@ export default function AuthScreen() {
                 style={[styles.socialButton, { backgroundColor: '#1877F2' }]}
                 onPress={() => handleSocialLogin('Facebook')}
               >
-                <Text style={styles.socialButtonText}>📘</Text>
+                <FontAwesome5 name="facebook" size={24} color="white" />
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={[styles.socialButton, { backgroundColor: '#DB4437' }]}
                 onPress={() => handleSocialLogin('Google')}
               >
-                <Text style={styles.socialButtonText}>🔍</Text>
+                <FontAwesome5 name="google" size={24} color="white" />
               </TouchableOpacity>
               
               <TouchableOpacity 
                 style={[styles.socialButton, { backgroundColor: '#1DA1F2' }]}
                 onPress={() => handleSocialLogin('Twitter')}
               >
-                <Text style={styles.socialButtonText}>🐦</Text>
+                <FontAwesome5 name="twitter" size={24} color="white" />
               </TouchableOpacity>
             </View>
 
@@ -395,17 +404,18 @@ export default function AuthScreen() {
                 </Text>
               </Text>
             </TouchableOpacity>
-          </LinearGradient>
+          </View>
           </ScrollView>
         </KeyboardAvoidingView>
-      </SafeAreaView>
-    </LinearGradient>
+
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingTop: Spacing.md,
   },
   header: {
     paddingTop: Spacing.xxl,
@@ -416,32 +426,27 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   logoContainer: {
-    width: 90,
-    height: 90,
-    borderRadius: 45,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: Spacing.lg,
     ...Elevation.card,
   },
-  logoIcon: {
-    fontSize: 45,
-    color: '#3B82F6',
-  },
   headerTitle: {
     ...Typography.pageTitle,
-    color: '#1E293B',
     textAlign: 'center',
     marginBottom: Spacing.sm,
     fontWeight: '700',
   },
   headerSubtitle: {
     ...Typography.body,
-    color: '#64748B',
     textAlign: 'center',
     lineHeight: Typography.body.lineHeight,
     paddingHorizontal: Spacing.md,
+    opacity: 0.9,
   },
   scrollView: {
     flex: 1,
@@ -453,10 +458,10 @@ const styles = StyleSheet.create({
   },
   formCard: {
     borderRadius: BorderRadius.xl,
-    padding: Spacing.xl,
+    padding: Spacing.lg,
     marginTop: -Spacing.xl,
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+    borderColor: 'rgba(255, 255, 255, 0.2)',
     ...Elevation.card,
   },
   formContent: {
@@ -476,16 +481,19 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: BorderRadius.lg,
     paddingHorizontal: Spacing.md,
-    minHeight: 56,
+    minHeight: 60,
   },
   inputIcon: {
-    fontSize: 20,
     marginRight: Spacing.sm,
   },
   input: {
     flex: 1,
     paddingVertical: Spacing.md,
+    paddingHorizontal: 0,
     ...Typography.body,
+    lineHeight: Typography.body.lineHeight,
+    textAlignVertical: 'center',
+    includeFontPadding: false,
   },
   eyeIcon: {
     padding: Spacing.sm,
@@ -496,15 +504,19 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   submitButton: {
+    borderRadius: BorderRadius.lg,
+    marginTop: Spacing.md,
+    marginBottom: Spacing.lg,
+    minHeight: 56,
+    ...Elevation.modal,
+  },
+  submitButtonGradient: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: BorderRadius.lg,
     paddingVertical: Spacing.lg,
-    marginTop: Spacing.md,
-    marginBottom: Spacing.lg,
     minHeight: 56,
-    ...Elevation.modal,
   },
   submitButtonDisabled: {
     opacity: 0.7,
@@ -515,8 +527,7 @@ const styles = StyleSheet.create({
     marginRight: Spacing.sm,
   },
   submitButtonIcon: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    marginLeft: Spacing.xs,
   },
   forgotPasswordButton: {
     alignItems: 'center',
@@ -547,15 +558,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   socialButton: {
-    width: 70,
-    height: 70,
+    width: 60,
+    height: 60,
     borderRadius: BorderRadius.xl,
     justifyContent: 'center',
     alignItems: 'center',
     ...Elevation.card,
-  },
-  socialButtonText: {
-    fontSize: 24,
   },
   switchContainer: {
     alignItems: 'center',

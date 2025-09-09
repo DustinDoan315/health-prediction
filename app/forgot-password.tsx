@@ -1,19 +1,10 @@
-import { UIText } from '@/content';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import { UIText } from '@/content';
+import { useColorScheme } from '@/hooks/useColorScheme';
 import { useRef, useState } from 'react';
 
-import {
-  Spacing,
-  Typography,
-} from '@/constants';
-import {
-  BorderRadius,
-  Colors,
-  Elevation,
-} from '@/constants/Colors';
 import {
   Alert,
   Animated,
@@ -27,10 +18,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+} from '@/constants/Colors';
+import {
+  Spacing,
+  Typography,
+} from '@/constants';
 
 
 export default function ForgotPasswordScreen() {
-  const [selectedOption, setSelectedOption] = useState('2fa');
+  const [selectedOption, setSelectedOption] = useState('email');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   
   const colorScheme = useColorScheme();
@@ -61,20 +61,6 @@ export default function ForgotPasswordScreen() {
 
   const handleOptionSelect = (option: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    
-    Animated.sequence([
-      Animated.timing(fadeAnim, {
-        toValue: 0.7,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 100,
-        useNativeDriver: true,
-      }),
-    ]).start();
-    
     setSelectedOption(option);
   };
 
@@ -115,13 +101,6 @@ export default function ForgotPasswordScreen() {
       subtitle: 'Reset password via email.',
       icon: '📧',
       color: '#6B7280',
-    },
-    {
-      id: '2fa',
-      title: 'Send via 2FA',
-      subtitle: 'Reset password via 2FA.',
-      icon: '🔒',
-      color: colors.primary,
     },
     {
       id: 'google',
@@ -170,7 +149,7 @@ export default function ForgotPasswordScreen() {
                     <Text style={styles.backButtonText}>←</Text>
                   </TouchableOpacity>
                   <Text style={styles.headerTitle}>{UIText.forgotPassword.title}</Text>
-                  <Text style={styles.headerSubtitle}>{UIText.forgotPassword.subtitle}</Text>
+                 
                 </View>
               </View>
 
@@ -204,7 +183,7 @@ export default function ForgotPasswordScreen() {
                       {option.subtitle}
                     </Text>
                   </View>
-                  <Text style={[styles.optionArrow, { color: colors.textSecondary }]}>→</Text>
+                 
                 </View>
               </TouchableOpacity>
             ))}
@@ -297,9 +276,8 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
-    paddingTop: Spacing.xxl,
+    marginVertical: Spacing.md,
     paddingBottom: Spacing.xl,
-    paddingHorizontal: Spacing.lg,
   },
   headerContent: {
     alignItems: 'center',
@@ -322,16 +300,10 @@ const styles = StyleSheet.create({
   },
   headerTitle: {
     ...Typography.pageTitle,
-    color: '#1E293B',
+    color: Colors.light.text,
     textAlign: 'center',
     marginBottom: Spacing.sm,
     fontWeight: '700',
-  },
-  headerSubtitle: {
-    ...Typography.body,
-    color: '#64748B',
-    textAlign: 'center',
-    lineHeight: Typography.body.lineHeight,
   },
   scrollView: {
     flex: 1,
