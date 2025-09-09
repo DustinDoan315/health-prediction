@@ -4,7 +4,6 @@ import Constants from 'expo-constants';
 import * as WebBrowser from 'expo-web-browser';
 import { Platform } from 'react-native';
 
-
 // Configure WebBrowser for better UX
 WebBrowser.maybeCompleteAuthSession();
 
@@ -39,23 +38,23 @@ export class SocialAuthService {
   async signInWithGoogle(): Promise<SocialAuthResult> {
     try {
       const clientId = Constants.expoConfig?.extra?.googleClientId;
-      const redirectUri = 'https://auth.expo.io/@dustindoan/health-prediction/';
-      
+      const redirectUri = 'https://auth.expo.io/@dustindoan/health-prediction';
+
       console.log('Google OAuth Debug Info:');
       console.log('Client ID:', clientId);
       console.log('Redirect URI:', redirectUri);
-      
+
       if (!clientId) {
         throw new Error('Google Client ID is not configured');
       }
 
-      // Create the OAuth request using authorization code flow
+      // Create the OAuth request using implicit flow (better for mobile)
       const request = new AuthSession.AuthRequest({
         clientId,
-        scopes: ['openid', 'email'],
-        responseType: AuthSession.ResponseType.Code,
+        scopes: ['openid', 'email', 'profile'],
+        responseType: AuthSession.ResponseType.Token,
         redirectUri,
-        usePKCE: true,
+        usePKCE: false,
       });
 
       // Start the authentication flow
@@ -64,42 +63,45 @@ export class SocialAuthService {
       });
 
       if (result.type === 'success') {
-        // Exchange authorization code for tokens
-        const tokenResponse = await AuthSession.exchangeCodeAsync(
-          {
-            clientId,
-            code: result.params.code as string,
-            redirectUri,
-            extraParams: {
-              code_verifier: request.codeChallenge || '',
-            },
-          },
-          {
-            tokenEndpoint: 'https://oauth2.googleapis.com/token',
-          }
-        );
+        console.log('Google OAuth success, fetching user info...');
+
+        const accessToken = result.params.access_token;
+        if (!accessToken) {
+          throw new Error('No access token received from Google');
+        }
 
         // Get user info from Google
         const userInfoResponse = await fetch(
-          `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${tokenResponse.accessToken}`
+          `https://www.googleapis.com/oauth2/v2/userinfo?access_token=${accessToken}`
         );
+
+        if (!userInfoResponse.ok) {
+          throw new Error(
+            `Failed to fetch user info: ${userInfoResponse.status}`
+          );
+        }
+
         const userInfo = await userInfoResponse.json();
+        console.log('User info fetched successfully:', userInfo);
 
         return {
           provider: AuthProvider.GOOGLE,
           email: userInfo.email,
           fullName: userInfo.name || '',
-          idToken: tokenResponse.idToken,
+          idToken: result.params.id_token,
           providerId: userInfo.id,
         };
       } else if (result.type === 'cancel') {
         throw new Error('Google sign-in was cancelled');
       } else {
-        throw new Error('Google sign-in failed');
+        console.error('Google OAuth failed:', result);
+        throw new Error(`Google sign-in failed: ${result.type}`);
       }
     } catch (error) {
       console.error('Google sign-in error:', error);
-      throw new Error(`Google sign-in failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      throw new Error(
+        `Google sign-in failed: ${error instanceof Error ? error.message : 'Unknown error'}`
+      );
     }
   }
 
@@ -118,6 +120,8 @@ export class SocialAuthService {
         throw new Error('Apple Authentication is not available on this device');
       }
 
+      console.log('Starting Apple Sign-In...');
+
       // Perform Apple authentication
       const credential = await AppleAuthentication.signInAsync({
         requestedScopes: [
@@ -126,10 +130,24 @@ export class SocialAuthService {
         ],
       });
 
+      console.log('Apple Sign-In credential received:', {
+        user: credential.user,
+        email: credential.email ? 'provided' : 'not provided',
+        fullName: credential.fullName ? 'provided' : 'not provided',
+        identityToken: credential.identityToken ? 'provided' : 'not provided',
+        authorizationCode: credential.authorizationCode
+          ? 'provided'
+          : 'not provided',
+      });
+
       // Apple provides name only on first sign-in
       const fullName = credential.fullName
         ? `${credential.fullName.givenName || ''} ${credential.fullName.familyName || ''}`.trim()
         : '';
+
+      if (!credential.user) {
+        throw new Error('No user ID received from Apple');
+      }
 
       return {
         provider: AuthProvider.APPLE,
@@ -141,7 +159,7 @@ export class SocialAuthService {
       };
     } catch (error: any) {
       console.error('Apple sign-in error:', error);
-      
+
       if (error.code === 'ERR_CANCELED') {
         throw new Error('Apple sign-in was cancelled');
       } else if (error.code === 'ERR_INVALID_RESPONSE') {
@@ -150,8 +168,14 @@ export class SocialAuthService {
         throw new Error('Apple sign-in not handled');
       } else if (error.code === 'ERR_UNKNOWN') {
         throw new Error('Unknown Apple sign-in error');
+      } else if (error.message?.includes('1000')) {
+        throw new Error(
+          'Apple Sign-In configuration error. Please check entitlements and bundle identifier.'
+        );
       } else {
-        throw new Error(`Apple sign-in failed: ${error.message || 'Unknown error'}`);
+        throw new Error(
+          `Apple sign-in failed: ${error.message || 'Unknown error'}`
+        );
       }
     }
   }
@@ -177,7 +201,7 @@ export class SocialAuthService {
     if (Platform.OS !== 'ios') {
       return false;
     }
-    
+
     try {
       return await AppleAuthentication.isAvailableAsync();
     } catch {

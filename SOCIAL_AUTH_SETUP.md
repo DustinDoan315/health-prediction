@@ -25,6 +25,8 @@ This guide will help you configure Google and Apple authentication for your heal
      - `https://auth.expo.io/@dustindoan/health-prediction`
    - Add authorized JavaScript origins:
      - `https://auth.expo.io`
+   - **Important**: Make sure to enable "Implicit grant" in the OAuth consent screen
+   - **Note**: The redirect URI must match exactly: `https://auth.expo.io/@dustindoan/health-prediction`
 5. Copy the Client ID: `821673513998-m4skbebrifdunff61k1nd61ca2ukmc8t.apps.googleusercontent.com`
 
 ### 2. Configure app.json
