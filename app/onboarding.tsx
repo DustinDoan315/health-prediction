@@ -1,18 +1,17 @@
 import * as Haptics from 'expo-haptics';
 import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
-    } from '@/constants';
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+  } from '@/constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { loadUser } from '@/store/slices/authSlice';
 import { OnboardingSkeleton } from '@/components/screens/onboarding';
 import { router } from 'expo-router';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useEffect, useState } from 'react';
 
 import {
@@ -60,8 +59,8 @@ const ONBOARDING_SCREENS = [
 export default function OnboardingScreen() {
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme ?? 'light');
+  const { isDark } = useAppSelector((state) => state.theme);
+  const styles = createStyles(isDark ? 'dark' : 'light');
   
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -148,7 +147,7 @@ export default function OnboardingScreen() {
                     styles.progressDot,
                     {
                       backgroundColor: index <= currentIndex 
-                        ? Colors[colorScheme ?? 'light'].surface 
+                        ? Colors[isDark ? 'dark' : 'light'].surface 
                         : 'rgba(255, 255, 255, 0.3)',
                     },
                   ]}
@@ -210,8 +209,8 @@ export default function OnboardingScreen() {
                   style={styles.primaryButton}
                 >
                   <LinearGradient
-                    colors={[Colors[colorScheme ?? 'light'].gradientStart,
-                      Colors[colorScheme ?? 'light'].gradientEnd]}
+                    colors={[Colors[isDark ? 'dark' : 'light'].gradientStart,
+                      Colors[isDark ? 'dark' : 'light'].gradientEnd]}
                     start={{ x: 1, y: 0 }}
                     end={{ x: 0, y: 1 }}
                     style={styles.gradientButton}
@@ -258,8 +257,8 @@ export default function OnboardingScreen() {
                   style={styles.nextButton}
                 >
                   <LinearGradient
-                    colors={[Colors[colorScheme ?? 'light'].gradientStart,
-                      Colors[colorScheme ?? 'light'].gradientEnd]}
+                    colors={[Colors[isDark ? 'dark' : 'light'].gradientStart,
+                      Colors[isDark ? 'dark' : 'light'].gradientEnd]}
                     start={{ x: 1, y: 0 }}
                     end={{ x: 0, y: 1 }}
                     style={styles.gradientButton}

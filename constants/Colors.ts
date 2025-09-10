@@ -27,6 +27,18 @@ const healthNeutral = '#6B7280';
 const gradientStart = primary;
 const gradientEnd = secondary;
 
+// Mood-based gradient colors
+const moodGreatGradient = ['#1DB954', '#10B981'];
+const moodGoodGradient = ['#6C63FF', '#8B85FF'];
+const moodOkayGradient = ['#FFC107', '#F59E0B'];
+const moodBadGradient = ['#FF5252', '#EF4444'];
+
+// Dark mode mood gradients
+const moodGreatGradientDark = ['#22C55E', '#34D399'];
+const moodGoodGradientDark = ['#8B85FF', '#A78BFA'];
+const moodOkayGradientDark = ['#FCD34D', '#FBBF24'];
+const moodBadGradientDark = ['#F87171', '#FCA5A5'];
+
 export const Colors = {
   light: {
     // Brand colors
@@ -59,6 +71,12 @@ export const Colors = {
     // Gradient
     gradientStart,
     gradientEnd,
+    
+    // Mood gradients
+    moodGreatGradient,
+    moodGoodGradient,
+    moodOkayGradient,
+    moodBadGradient,
   },
   dark: {
     // Brand colors (adjusted for dark mode)
@@ -91,6 +109,12 @@ export const Colors = {
     // Gradient
     gradientStart: '#33BFFF',
     gradientEnd: '#8B85FF',
+    
+    // Mood gradients
+    moodGreatGradient: moodGreatGradientDark,
+    moodGoodGradient: moodGoodGradientDark,
+    moodOkayGradient: moodOkayGradientDark,
+    moodBadGradient: moodBadGradientDark,
   },
 };
 

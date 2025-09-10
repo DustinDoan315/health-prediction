@@ -1,11 +1,11 @@
 import {
-    ActionTiles,
-    HomeHeader,
-    HomeScreenSkeleton,
-    MetricsGrid,
-    MoodCard,
-    PrimaryCTA
-    } from '@/components/screens/home';
+  ActionTiles,
+  HomeHeader,
+  HomeScreenSkeleton,
+  MetricsGrid,
+  MoodCard,
+  UserStatusCard
+  } from '@/components/screens/home';
 import { Colors } from '@/constants';
 import { useHomeScreen } from '@/hooks';
 import {
@@ -62,13 +62,22 @@ export default function HomeScreen() {
           isDark={isDark}
         />
 
-        <ActionTiles isDark={isDark} />
+        <UserStatusCard 
+          mood={mood} 
+          isDark={isDark} 
+          isNewUser={!stats || Object.keys(stats).length === 0}
+          userStats={stats}
+        />
+
+        <ActionTiles 
+          isDark={isDark} 
+          mood={mood} 
+          isNewUser={!stats || Object.keys(stats).length === 0}
+        />
 
         {stats && (
           <MetricsGrid stats={stats} isDark={isDark} />
         )}
-
-        <PrimaryCTA isDark={isDark} />
       </ScrollView>
     </SafeAreaView>
   );

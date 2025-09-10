@@ -1,14 +1,14 @@
-import { ErrorBoundary, ThemeProvider } from '@/components';
-import { initSentry } from '@/services';
 import { AppInitializer } from '@/src/core/AppInitializer';
-import { store } from '@/store/store';
-import { useFonts } from 'expo-font';
+import { ErrorBoundary, ThemeProvider } from '@/components';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { initSentry } from '@/services';
+import { Provider } from 'react-redux';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { store } from '@/store/store';
 import { useEffect } from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useFonts } from 'expo-font';
 import 'react-native-reanimated';
-import { Provider } from 'react-redux';
 
 
 
@@ -50,11 +50,11 @@ function AppContent() {
 export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
-      <ErrorBoundary>
-        <Provider store={store}>
+      <Provider store={store}>
+        <ErrorBoundary>
           <AppContent />
-        </Provider>
-      </ErrorBoundary>
+        </ErrorBoundary>
+      </Provider>
     </GestureHandlerRootView>
   );
 }

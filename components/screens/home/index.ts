@@ -6,4 +6,5 @@ export { HomeScreenSkeleton } from './HomeScreenSkeleton';
 export { default as MetricsGrid } from './MetricsGrid';
 export { default as MoodCard } from './MoodCard';
 export { default as PrimaryCTA } from './PrimaryCTA';
+export { default as UserStatusCard } from './UserStatusCard';
 
