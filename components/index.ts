@@ -24,5 +24,6 @@ export * from './ProfileScreenSkeleton';
 export * from './Skeleton';
 export * from './ThemedText';
 export * from './ThemedView';
+export * from './ThemeProvider';
 export * from './WelcomeScreenSkeleton';
 

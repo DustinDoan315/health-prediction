@@ -1,12 +1,11 @@
 import {
-    Spacing,
-    Typography,
-} from '@/constants';
-import {
     BorderRadius,
     Colors,
 } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import {
+    Spacing,
+    Typography,
+} from '@/constants';
 import {
     StyleSheet,
     Text,
@@ -14,6 +13,7 @@ import {
     View
 } from 'react-native';
 
+import { useAppSelector } from '@/hooks';
 
 interface ConfidenceBadgeProps {
   confidence: number; // 0-100
@@ -28,8 +28,8 @@ export function ConfidenceBadge({
   onPress,
   showDetails = false,
 }: ConfidenceBadgeProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
 
   const getRiskColor = () => {
     switch (riskLevel) {

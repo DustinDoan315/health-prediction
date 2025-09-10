@@ -11,24 +11,23 @@ import { loadUser } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useEffect } from 'react';
 import { WelcomeScreenSkeleton } from '@/components/WelcomeScreenSkeleton';
 
 import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 
 export default function WelcomeScreen() {
   const dispatch = useAppDispatch();
   const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
-  const colorScheme = useColorScheme();
-  const styles = createStyles(colorScheme ?? 'light');
+  const { isDark } = useAppSelector((state) => state.theme);
+  const styles = createStyles(isDark ? 'dark' : 'light');
 
   useEffect(() => {
     // Check if user is already authenticated
@@ -103,8 +102,8 @@ export default function WelcomeScreen() {
               accessibilityHint="Navigate to authentication screen"
             >
               <LinearGradient
-                colors={[Colors[colorScheme ?? 'light'].gradientStart,
-                  Colors[colorScheme ?? 'light'].gradientEnd]}
+                colors={[Colors[isDark ? 'dark' : 'light'].gradientStart,
+                  Colors[isDark ? 'dark' : 'light'].gradientEnd]}
                 start={{ x: 1, y: 0 }}
                 end={{ x: 0, y: 1 }}
                 style={styles.button}

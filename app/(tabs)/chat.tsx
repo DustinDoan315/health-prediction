@@ -1,8 +1,5 @@
-import { UIText } from '@/content';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { AIChatResponse, apiService } from '@/services/api';
 import * as Haptics from 'expo-haptics';
-import { useCallback, useRef, useState } from 'react';
+import { AIChatResponse, apiService } from '@/services/api';
 import {
   Animated,
   FlatList,
@@ -14,17 +11,20 @@ import {
   TextInput,
   TouchableOpacity,
   View
-} from 'react-native';
+  } from 'react-native';
+import { UIText } from '@/content';
+import { useAppSelector } from '@/hooks';
+import { useCallback, useRef, useState } from 'react';
 
 import {
-  Spacing,
-  Typography,
-} from '@/constants';
-import {
-  BorderRadius,
-  Colors,
-  Elevation,
+    BorderRadius,
+    Colors,
+    Elevation,
 } from '@/constants/Colors';
+import {
+    Spacing,
+    Typography,
+} from '@/constants';
 
 
 interface ChatMessage {
@@ -36,8 +36,8 @@ interface ChatMessage {
 }
 
 export default function ChatScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       id: '1',
@@ -274,7 +274,7 @@ export default function ChatScreen() {
             <View style={styles.quickQuestionsGrid}>
               {quickQuestions.map((question, index) => (
                 <TouchableOpacity
-                  key={`quick-${index}`}
+                  key={`quick-${question.slice(0, 10)}-${index}`}
                   style={[styles.quickQuestionButton, { backgroundColor: colors.background }]}
                   onPress={() => handleQuickQuestion(question)}
                   activeOpacity={0.7}

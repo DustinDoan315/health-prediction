@@ -1,36 +1,36 @@
+import * as Haptics from 'expo-haptics';
+import { logoutUser } from '@/store/slices/authSlice';
+import { router } from 'expo-router';
+import { setThemeMode } from '@/store/slices/themeSlice';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { logoutUser } from '@/store/slices/authSlice';
-import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
 
 import {
-  Spacing,
-  Typography,
-} from '@/constants';
+    Alert,
+    Platform,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
+    BorderRadius,
+    Colors,
+    Elevation,
 } from '@/constants/Colors';
 import {
-  Alert,
-  Platform,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+    Spacing,
+    Typography,
+} from '@/constants';
 
 
 export default function SettingsScreen() {
   const dispatch = useAppDispatch();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
   const { user } = useAppSelector((state) => state.auth);
+  const { isDark, mode } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
 
 
 
@@ -56,6 +56,11 @@ export default function SettingsScreen() {
   const handleSettingPress = (onPress: () => void) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onPress();
+  };
+
+  const handleThemeChange = (newMode: 'light' | 'dark' | 'system') => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    dispatch(setThemeMode(newMode));
   };
 
   const settingsOptions = [
@@ -96,6 +101,23 @@ export default function SettingsScreen() {
     {
       title: 'App',
       items: [
+        {
+          title: 'Theme',
+          subtitle: mode === 'system' ? 'Follow system' : mode === 'dark' ? 'Dark mode' : 'Light mode',
+          icon: isDark ? '🌙' : '☀️',
+          onPress: () => {
+            Alert.alert(
+              'Choose Theme',
+              'Select your preferred theme',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Light', onPress: () => handleThemeChange('light') },
+                { text: 'Dark', onPress: () => handleThemeChange('dark') },
+                { text: 'System', onPress: () => handleThemeChange('system') },
+              ]
+            );
+          },
+        },
         {
           title: 'Privacy & Security',
           subtitle: 'Manage your privacy settings',
@@ -150,11 +172,11 @@ export default function SettingsScreen() {
 
         {/* Settings Options */}
         {settingsOptions.map((section, sectionIndex) => (
-          <View key={sectionIndex} style={styles.section}>
+          <View key={`section-${sectionIndex}`} style={styles.section}>
             <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
             {section.items.map((item, itemIndex) => (
               <TouchableOpacity
-                key={itemIndex}
+                key={`item-${sectionIndex}-${itemIndex}`}
                 style={[styles.settingItem, { backgroundColor: colors.surface }]}
                 onPress={() => handleSettingPress(item.onPress)}
               >

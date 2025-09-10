@@ -1,22 +1,22 @@
-import {
-  Spacing,
-  Typography,
-} from '@/constants';
-import {
-  BorderRadius,
-  Colors,
-  Elevation,
-} from '@/constants/Colors';
+import { captureException } from '@/services';
 import { Component, ReactNode } from 'react';
 import {
   StyleSheet,
   Text,
   TouchableOpacity,
   View
-} from 'react-native';
+  } from 'react-native';
+import { useAppSelector } from '@/hooks';
+import {
+    BorderRadius,
+    Colors,
+    Elevation,
+} from '@/constants/Colors';
+import {
+    Spacing,
+    Typography,
+} from '@/constants';
 
-import { useColorScheme } from '@/hooks/useColorScheme';
-import { captureException } from '@/services';
 
 interface Props {
   children: ReactNode;
@@ -65,8 +65,8 @@ interface ErrorFallbackProps {
 }
 
 function ErrorFallback({ onRetry }: ErrorFallbackProps) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>

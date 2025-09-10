@@ -1,36 +1,36 @@
+import * as Haptics from 'expo-haptics';
+
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+} from '@/constants';
 import { HomeScreenSkeleton, MetricCard } from '@/components';
 import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
-} from '@/constants';
-import { UIText } from '@/content';
-import { useAppDispatch, useAppSelector, useColorScheme } from '@/hooks';
-import { fetchHealthStats, fetchPredictions } from '@/store/slices';
-import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+  Platform,
+  RefreshControl,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { fetchHealthStats, fetchPredictions, toggleTheme } from '@/store/slices';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { useCallback, useEffect, useState } from 'react';
 
-import {
-    Platform,
-    RefreshControl,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-} from 'react-native';
-
+import { UIText } from '@/content';
+import { router } from 'expo-router';
 
 export default function HomeScreen() {
   const dispatch = useAppDispatch();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
   const { user, isAuthenticated, isLoading: authLoading } = useAppSelector((state) => state.auth);
   const { stats, isLoading: healthLoading, statsLoaded, predictionsLoaded } = useAppSelector((state) => state.health);
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
   
   const [mood, setMood] = useState<'great' | 'good' | 'okay' | 'bad' | null>(null);
 
@@ -67,6 +67,11 @@ export default function HomeScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setMood(selectedMood);
   }, []);
+
+  const handleToggleTheme = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    dispatch(toggleTheme());
+  }, [dispatch]);
 
   const onRefresh = useCallback(async () => {
     if (isAuthenticated && user) {
@@ -114,6 +119,14 @@ export default function HomeScreen() {
               }}
             >
               <Text style={[styles.searchIcon, { color: colors.textSecondary }]}>{UIText.common.search}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              style={[styles.themeButton, { backgroundColor: colors.surface }]}
+              onPress={handleToggleTheme}
+            >
+              <Text style={[styles.themeIcon, { color: colors.textSecondary }]}>
+                {isDark ? '☀️' : '🌙'}
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity 
               style={[styles.profilePic, { backgroundColor: colors.primary }]}
@@ -295,6 +308,17 @@ const styles = StyleSheet.create({
     ...Elevation.card,
   },
   searchIcon: {
+    fontSize: 20,
+  },
+  themeButton: {
+    width: 44,
+    height: 44,
+    borderRadius: BorderRadius.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Elevation.card,
+  },
+  themeIcon: {
     fontSize: 20,
   },
   profilePic: {

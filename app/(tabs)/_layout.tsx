@@ -1,17 +1,17 @@
-import { HapticTab } from '@/components';
-import { IconSymbol } from '@/components/ui/IconSymbol';
 import TabBarBackground from '@/components/ui/TabBarBackground';
 import { Colors } from '@/constants';
-import { UIText } from '@/content';
-import { useAppSelector, useColorScheme } from '@/hooks';
-import { router, Tabs } from 'expo-router';
-import { useEffect } from 'react';
+import { HapticTab } from '@/components';
+import { IconSymbol } from '@/components/ui/IconSymbol';
 import { Platform } from 'react-native';
+import { router, Tabs } from 'expo-router';
+import { UIText } from '@/content';
+import { useAppSelector } from '@/hooks';
+import { useEffect } from 'react';
 
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
   const { isAuthenticated } = useAppSelector(state => state.auth);
+  const { isDark } = useAppSelector((state) => state.theme);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -26,7 +26,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].primary,
+        tabBarActiveTintColor: Colors[isDark ? 'dark' : 'light'].primary,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,

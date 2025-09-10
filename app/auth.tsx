@@ -25,7 +25,6 @@ import { router } from 'expo-router';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useAuthViewModel } from '@/src/presentation/viewmodels/AuthViewModel';
-import { useColorScheme } from '@/hooks/useColorScheme';
 import { useEffect, useRef, useState } from 'react';
 
 import {
@@ -59,8 +58,8 @@ export default function AuthScreen() {
   });
 
   const dispatch = useAppDispatch();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
   const { isLoading, error, isAuthenticated } = useAppSelector((state: RootState) => state.auth);
   
   // Use ViewModel for social authentication

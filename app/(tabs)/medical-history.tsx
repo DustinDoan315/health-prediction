@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import { AnimatedCard, MedicalHistorySkeleton } from '@/components';
 import {
   BorderRadius,
@@ -5,35 +6,34 @@ import {
   Elevation,
   Spacing,
   Typography
-} from '@/constants';
-import { UIText } from '@/content';
-import { useAppDispatch, useAppSelector, useColorScheme } from '@/hooks';
-import { HealthPrediction } from '@/services';
+  } from '@/constants';
 import { fetchPredictions } from '@/store/slices';
-import * as Haptics from 'expo-haptics';
-import { router } from 'expo-router';
+import { HealthPrediction } from '@/services';
 import {
   memo,
   useCallback,
   useEffect,
   useState
-} from 'react';
+  } from 'react';
+import { router } from 'expo-router';
+import { UIText } from '@/content';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 
 import {
-  FlatList,
-  Platform,
-  RefreshControl,
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    FlatList,
+    Platform,
+    RefreshControl,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 
 const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: HealthPrediction; onPress: (prediction: HealthPrediction) => void }) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
 
   const getRiskColor = useCallback((riskLevel: string) => {
     switch (riskLevel) {
@@ -118,8 +118,8 @@ const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: H
 
 export default function MedicalHistoryScreen() {
   const dispatch = useAppDispatch();
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
   const { predictions, isLoading, predictionsLoaded } = useAppSelector((state) => state.health);
   const [refreshing, setRefreshing] = useState(false);
 

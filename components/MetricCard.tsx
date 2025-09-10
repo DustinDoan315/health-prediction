@@ -1,20 +1,20 @@
+import React from 'react';
 import {
-    Spacing,
-    Typography,
-} from '@/constants';
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View
+  } from 'react-native';
+import { useAppSelector } from '@/hooks';
 import {
     BorderRadius,
     Colors,
     Elevation,
 } from '@/constants/Colors';
-import { useColorScheme } from '@/hooks/useColorScheme';
-import React from 'react';
 import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View
-} from 'react-native';
+    Spacing,
+    Typography,
+} from '@/constants';
 
 
 interface MetricCardProps {
@@ -40,8 +40,8 @@ export function MetricCard({
   subtitle,
   icon,
 }: Readonly<MetricCardProps>) {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
 
   const getStatusColor = () => {
     switch (status) {

@@ -1,15 +1,15 @@
-import { DataSourceRow } from '@/components';
-import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
-} from '@/constants';
-import { useAppDispatch, useAppSelector, useColorScheme } from '@/hooks';
-import { logoutUser } from '@/store/slices';
 import * as Haptics from 'expo-haptics';
+import {
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
+  } from '@/constants';
+import { DataSourceRow } from '@/components';
+import { logoutUser } from '@/store/slices';
 import { router } from 'expo-router';
+import { useAppDispatch, useAppSelector } from '@/hooks';
 import { useEffect, useState } from 'react';
 
 import {
@@ -24,8 +24,8 @@ import {
 
 
 export default function ProfileScreen() {
-  const colorScheme = useColorScheme();
-  const colors = Colors[colorScheme ?? 'light'];
+  const { isDark } = useAppSelector((state) => state.theme);
+  const colors = Colors[isDark ? 'dark' : 'light'];
   const dispatch = useAppDispatch();
   const { user, isAuthenticated } = useAppSelector((state) => state.auth);
   

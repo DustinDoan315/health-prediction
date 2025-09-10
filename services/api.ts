@@ -1,9 +1,10 @@
-import * as SecureStore from 'expo-secure-store';
 import axios, { AxiosInstance, AxiosResponse } from 'axios';
+import { STORAGE_KEYS } from '@/src/core/services/StorageKeys';
+import { storageService } from '@/src/core/services';
+
 
 // API Configuration
 const BASE_URL = 'https://elf-fluent-morally.ngrok-free.app/api/v1';
-const TOKEN_KEY = 'auth_token';
 
 // Types
 export interface User {
@@ -96,7 +97,7 @@ export interface AIChatResponse {
 
 // Create axios instance
 class ApiService {
-  private api: AxiosInstance;
+  private readonly api: AxiosInstance;
 
   constructor() {
     this.api = axios.create({
@@ -110,14 +111,14 @@ class ApiService {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
       async (config) => {
-        const token = await SecureStore.getItemAsync(TOKEN_KEY);
+        const token = storageService.getItem(STORAGE_KEYS.AUTH_TOKEN);
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
         return config;
       },
       (error) => {
-        return Promise.reject(error);
+        return Promise.reject(error instanceof Error ? error : new Error('Request configuration failed'));
       }
     );
 
@@ -127,9 +128,9 @@ class ApiService {
       async (error) => {
         if (error.response?.status === 401) {
           // Token expired, remove it
-          await SecureStore.deleteItemAsync(TOKEN_KEY);
+          storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
         }
-        return Promise.reject(error);
+        return Promise.reject(error instanceof Error ? error : new Error('Request failed'));
       }
     );
   }
@@ -143,7 +144,7 @@ class ApiService {
   async login(data: LoginRequest): Promise<LoginResponse> {
     const response: AxiosResponse<LoginResponse> = await this.api.post('/auth/login', data);
     // Store token securely
-    await SecureStore.setItemAsync(TOKEN_KEY, response.data.access_token);
+    storageService.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.access_token);
     return response.data;
   }
 
@@ -157,7 +158,7 @@ class ApiService {
       await this.api.post('/auth/logout');
     } finally {
       // Always remove token from storage
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
+      storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     }
   }
 
@@ -218,7 +219,7 @@ class ApiService {
 
   // Token management
   async getStoredToken(): Promise<string | null> {
-    return await SecureStore.getItemAsync(TOKEN_KEY);
+    return storageService.getItem(STORAGE_KEYS.AUTH_TOKEN) || null;
   }
 
   async isAuthenticated(): Promise<boolean> {
