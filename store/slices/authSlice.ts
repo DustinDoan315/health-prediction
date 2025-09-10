@@ -1,10 +1,10 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
   apiService,
   LoginRequest,
   RegisterRequest,
   User
-} from '../../services/api';
+  } from '../../services/api';
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 
 interface AuthState {
   user: User | null;
@@ -75,6 +75,27 @@ export const logoutUser = createAsyncThunk(
   }
 );
 
+export const loginTestAccount = createAsyncThunk(
+  'auth/loginTestAccount',
+  async (_, { rejectWithValue }) => {
+    const mockUser = {
+      id: 1,
+      username: 'dustin',
+      email: 'dustin@test.com',
+      full_name: 'Dustin Test User',
+      is_active: true,
+      created_at: new Date().toISOString()
+    };
+    
+    const mockLoginResponse = {
+      access_token: 'test_token_' + Date.now(),
+      token_type: 'bearer'
+    };
+    
+    return { user: mockUser, loginResponse: mockLoginResponse };
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -134,6 +155,21 @@ const authSlice = createSlice({
         state.isAuthenticated = false;
         state.user = null;
         state.error = null;
+      })
+      // Test account login
+      .addCase(loginTestAccount.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(loginTestAccount.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuthenticated = true;
+        state.user = action.payload.user;
+        state.error = null;
+      })
+      .addCase(loginTestAccount.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       });
   },
 });

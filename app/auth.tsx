@@ -12,7 +12,12 @@ import {
   TouchableOpacity,
   View
   } from 'react-native';
-import { clearError, loginUser, registerUser } from '@/store/slices/authSlice';
+import {
+  clearError,
+  loginTestAccount,
+  loginUser,
+  registerUser
+  } from '@/store/slices/authSlice';
 import { FontAwesome5, Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { RootState } from '@/store/store';
@@ -379,6 +384,18 @@ export default function AuthScreen() {
             </TouchableOpacity>
 
             {isLogin && (
+              <TouchableOpacity 
+                style={[styles.testAccountButton, { borderColor: colors.primary }]} 
+                onPress={() => dispatch(loginTestAccount())}
+                disabled={isLoading || authViewModel.state.isLoading}
+              >
+                <Text style={[styles.testAccountText, { color: colors.primary }]}>
+                  Login with Test Account (dustin | 123456)
+                </Text>
+              </TouchableOpacity>
+            )}
+
+            {isLogin && (
               <TouchableOpacity style={styles.forgotPasswordButton} onPress={handleForgotPassword}>
                 <Text style={[styles.forgotPasswordText, { color: colors.primary }]}>
                   Forgot Password?
@@ -549,6 +566,20 @@ const styles = StyleSheet.create({
   },
   submitButtonIcon: {
     marginLeft: Spacing.xs,
+  },
+  testAccountButton: {
+    alignItems: 'center',
+    marginBottom: Spacing.md,
+    paddingVertical: Spacing.md,
+    paddingHorizontal: Spacing.lg,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    backgroundColor: 'transparent',
+  },
+  testAccountText: {
+    ...Typography.body,
+    fontWeight: '500',
+    textAlign: 'center',
   },
   forgotPasswordButton: {
     alignItems: 'center',
