@@ -1,6 +1,6 @@
 import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Elevation } from '@/constants/Colors';
 import { ProactiveTipMessage } from '@/src/domain/entities/ChatMessage';
+import { LinearGradient } from 'expo-linear-gradient';
 import React from 'react';
 import {
   Animated,
@@ -135,15 +135,22 @@ const ProactiveTipCard: React.FC<ProactiveTipCardProps> = ({
       </View>
 
       {message.actionButton && (
-        <TouchableOpacity
-          style={[styles.actionButton, { backgroundColor: colors.primary }]}
-          onPress={() => onActionPress(message.actionButton!.action)}
-          activeOpacity={0.8}
+        <LinearGradient
+          colors={[colors.primary, colors.secondary]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.actionButton}
         >
-          <Text style={[styles.actionButtonText, { color: colors.surface }]}>
-            {message.actionButton.text}
-          </Text>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionButtonInner}
+            onPress={() => onActionPress(message.actionButton!.action)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.actionButtonText}>
+              {message.actionButton.text}
+            </Text>
+          </TouchableOpacity>
+        </LinearGradient>
       )}
     </Animated.View>
   );
@@ -151,10 +158,13 @@ const ProactiveTipCard: React.FC<ProactiveTipCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginVertical: Spacing.xs,
-    ...Elevation.card,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    marginVertical: Spacing.sm,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
   header: {
     flexDirection: 'row',
@@ -162,12 +172,16 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.md,
   },
   iconContainer: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   icon: {
     fontSize: 20,
@@ -211,13 +225,21 @@ const styles = StyleSheet.create({
     lineHeight: Typography.body.lineHeight,
   },
   actionButton: {
+    borderRadius: BorderRadius.lg,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  actionButtonInner: {
     padding: Spacing.md,
-    borderRadius: BorderRadius.md,
     alignItems: 'center',
+    borderRadius: BorderRadius.lg,
   },
   actionButtonText: {
     ...Typography.body,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: 'white',
   },
 });
 

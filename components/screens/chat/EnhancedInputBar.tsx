@@ -1,6 +1,6 @@
 import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Elevation } from '@/constants/Colors';
 import * as DocumentPicker from 'expo-document-picker';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 
 import {
@@ -171,10 +171,7 @@ const EnhancedInputBar: React.FC<EnhancedInputBarProps> = ({
 
       <View style={styles.inputWrapper}>
         <TouchableOpacity
-          style={[
-            styles.attachmentToggle,
-            { backgroundColor: colors.background },
-          ]}
+          style={[styles.attachmentToggle, { backgroundColor: colors.primary }]}
           onPress={toggleAttachments}
           activeOpacity={0.7}
         >
@@ -201,23 +198,36 @@ const EnhancedInputBar: React.FC<EnhancedInputBarProps> = ({
           blurOnSubmit={false}
         />
 
-        <TouchableOpacity
-          style={[
-            styles.sendButton,
-            { backgroundColor: colors.primary },
-            (!inputText.trim() || isLoading) && [
+        {inputText.trim() && !isLoading ? (
+          <LinearGradient
+            colors={[colors.primary, colors.secondary]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.sendButton}
+          >
+            <TouchableOpacity
+              style={styles.sendButtonInner}
+              onPress={onSend}
+              activeOpacity={0.8}
+            >
+              <Text style={styles.sendButtonText}>→</Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        ) : (
+          <TouchableOpacity
+            style={[
+              styles.sendButton,
               styles.sendButtonDisabled,
               { backgroundColor: colors.textSecondary },
-            ],
-          ]}
-          onPress={onSend}
-          disabled={!inputText.trim() || isLoading}
-          activeOpacity={0.7}
-        >
-          <Text style={[styles.sendButtonText, { color: colors.surface }]}>
-            →
-          </Text>
-        </TouchableOpacity>
+            ]}
+            disabled={true}
+            activeOpacity={0.7}
+          >
+            <Text style={[styles.sendButtonText, { color: colors.surface }]}>
+              →
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {isRecording && (
@@ -267,21 +277,25 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   attachmentToggle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: Spacing.md,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 3,
   },
   attachmentToggleIcon: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     color: 'white',
   },
   textInput: {
     flex: 1,
-    borderWidth: 1,
+    borderWidth: 2,
     borderRadius: BorderRadius.xl,
     paddingHorizontal: Spacing.lg,
     paddingVertical: Spacing.md,
@@ -289,21 +303,39 @@ const styles = StyleSheet.create({
     maxHeight: 120,
     marginRight: Spacing.md,
     textAlignVertical: 'center',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 4,
+    elevation: 1,
   },
   sendButton: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+    width: 48,
+    height: 48,
+    borderRadius: 24,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Elevation.card,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  sendButtonInner: {
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 24,
   },
   sendButtonDisabled: {
-    ...Elevation.card,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   sendButtonText: {
     fontSize: 20,
     fontWeight: 'bold',
+    color: 'white',
   },
   recordingIndicator: {
     flexDirection: 'row',

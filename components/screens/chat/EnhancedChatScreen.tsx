@@ -1,8 +1,9 @@
 import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors, Elevation } from '@/constants/Colors';
+import { Colors } from '@/constants/Colors';
 import { UIText } from '@/content';
 import { useAppSelector } from '@/hooks';
 import { ChatMessage } from '@/src/domain/entities/ChatMessage';
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useCallback, useRef, useState } from 'react';
 import {
   Animated,
@@ -69,6 +70,7 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
 
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const messageAnimations = useRef<Map<string, Animated.Value>>(new Map());
 
@@ -76,9 +78,10 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
     const animation = new Animated.Value(0);
     messageAnimations.current.set(messageId, animation);
 
-    Animated.timing(animation, {
+    Animated.spring(animation, {
       toValue: 1,
-      duration: 300,
+      tension: 100,
+      friction: 8,
       useNativeDriver: true,
     }).start();
 
@@ -99,9 +102,15 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
+    setIsTyping(true);
 
     createMessageAnimation(userMessage.id);
     onSendMessage(inputText.trim());
+
+    setTimeout(() => {
+      setIsTyping(false);
+      setIsLoading(false);
+    }, 2000);
   }, [inputText, isLoading, onSendMessage, createMessageAnimation]);
 
   const handleSymptomCheckerAnswer = useCallback(
@@ -251,36 +260,51 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
                         outputRange: [20, 0],
                       }),
                     },
+                    {
+                      scale: animation.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.95, 1],
+                      }),
+                    },
                   ],
                 },
               ]}
             >
-              <View
-                style={[
-                  styles.messageBubble,
-                  item.isUser
-                    ? [styles.userBubble, { backgroundColor: colors.primary }]
-                    : [styles.aiBubble, { backgroundColor: colors.surface }],
-                ]}
-              >
-                <Text
-                  style={[
-                    styles.messageText,
-                    item.isUser
-                      ? [styles.userText, { color: colors.surface }]
-                      : [styles.aiText, { color: colors.text }],
-                  ]}
-                >
-                  {item.text}
-                </Text>
+              <View style={styles.messageWrapper}>
+                {item.isUser ? (
+                  <LinearGradient
+                    colors={[colors.primary, colors.secondary]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
+                    style={[styles.messageBubble, styles.userBubble]}
+                  >
+                    <Text style={[styles.messageText, styles.userText]}>
+                      {item.text}
+                    </Text>
+                  </LinearGradient>
+                ) : (
+                  <LinearGradient
+                    colors={[colors.surface, colors.background]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 0, y: 1 }}
+                    style={[styles.messageBubble, styles.aiBubble]}
+                  >
+                    <Text
+                      style={[
+                        styles.messageText,
+                        styles.aiText,
+                        { color: colors.text },
+                      ]}
+                    >
+                      {item.text}
+                    </Text>
+                  </LinearGradient>
+                )}
                 <Text
                   style={[
                     styles.timestamp,
                     item.isUser
-                      ? [
-                          styles.userTimestamp,
-                          { color: 'rgba(255, 255, 255, 0.7)' },
-                        ]
+                      ? [styles.userTimestamp, { color: colors.textSecondary }]
                       : [styles.aiTimestamp, { color: colors.textSecondary }],
                   ]}
                 >
@@ -491,61 +515,56 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
     <SafeAreaView
       style={[styles.container, { backgroundColor: colors.background }]}
     >
-      <View
-        style={[
-          styles.header,
-          {
-            backgroundColor: colors.surface,
-            borderBottomColor: colors.background,
-          },
-        ]}
+      <LinearGradient
+        colors={[colors.primary, colors.secondary]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.header}
       >
-        <Text style={[styles.headerTitle, { color: colors.text }]}>
-          {UIText.chat.title}
-        </Text>
-        <View style={styles.statusContainer}>
-          <View
-            style={[styles.statusDot, { backgroundColor: colors.healthGood }]}
-          />
-          <Text style={[styles.statusText, { color: colors.healthGood }]}>
-            {UIText.chat.online}
-          </Text>
+        <View style={styles.headerContent}>
+          <Text style={styles.headerTitle}>{UIText.chat.title}</Text>
+          <View style={styles.statusContainer}>
+            <View style={styles.statusDot} />
+            <Text style={styles.statusText}>{UIText.chat.online}</Text>
+          </View>
         </View>
-      </View>
+      </LinearGradient>
 
       <KeyboardAvoidingView
         style={styles.chatContainer}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 20}
       >
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderMessage}
-          keyExtractor={item => item.id}
-          style={styles.messagesList}
-          contentContainerStyle={[
-            styles.messagesContent,
-            { paddingBottom: Platform.OS === 'ios' ? 20 : 10 },
-          ]}
-          onContentSizeChange={() => {
-            setTimeout(
-              () => flatListRef.current?.scrollToEnd({ animated: true }),
-              100
-            );
-          }}
-          onLayout={() => {
-            setTimeout(
-              () => flatListRef.current?.scrollToEnd({ animated: false }),
-              100
-            );
-          }}
-          showsVerticalScrollIndicator={false}
-          maintainVisibleContentPosition={{
-            minIndexForVisible: 0,
-            autoscrollToTopThreshold: 10,
-          }}
-        />
+        <View style={styles.backgroundPattern}>
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={item => item.id}
+            style={styles.messagesList}
+            contentContainerStyle={[
+              styles.messagesContent,
+              { paddingBottom: Platform.OS === 'ios' ? 20 : 10 },
+            ]}
+            onContentSizeChange={() => {
+              setTimeout(
+                () => flatListRef.current?.scrollToEnd({ animated: true }),
+                100
+              );
+            }}
+            onLayout={() => {
+              setTimeout(
+                () => flatListRef.current?.scrollToEnd({ animated: false }),
+                100
+              );
+            }}
+            showsVerticalScrollIndicator={false}
+            maintainVisibleContentPosition={{
+              minIndexForVisible: 0,
+              autoscrollToTopThreshold: 10,
+            }}
+          />
+        </View>
 
         {messages.length <= 2 && !isLoading && (
           <View
@@ -571,7 +590,9 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
                   onPress={() => handleQuickAction(action.action)}
                   activeOpacity={0.7}
                 >
-                  <Text style={styles.quickActionIcon}>{action.icon}</Text>
+                  <View style={styles.quickActionIconContainer}>
+                    <Text style={styles.quickActionIcon}>{action.icon}</Text>
+                  </View>
                   <Text
                     style={[styles.quickActionText, { color: colors.primary }]}
                   >
@@ -580,6 +601,30 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
                 </TouchableOpacity>
               ))}
             </View>
+          </View>
+        )}
+
+        {isTyping && (
+          <View
+            style={[
+              styles.typingIndicator,
+              { backgroundColor: colors.surface },
+            ]}
+          >
+            <View style={styles.typingDots}>
+              <Animated.View
+                style={[styles.typingDot, { backgroundColor: colors.primary }]}
+              />
+              <Animated.View
+                style={[styles.typingDot, { backgroundColor: colors.primary }]}
+              />
+              <Animated.View
+                style={[styles.typingDot, { backgroundColor: colors.primary }]}
+              />
+            </View>
+            <Text style={[styles.typingText, { color: colors.textSecondary }]}>
+              AI is typing...
+            </Text>
           </View>
         )}
 
@@ -604,34 +649,53 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   header: {
+    paddingTop: Spacing.lg,
+    paddingBottom: Spacing.md,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.md,
-    borderBottomWidth: 1,
   },
   headerTitle: {
     ...Typography.h3,
-    fontWeight: '600',
+    fontWeight: '700',
+    color: 'white',
+    textShadowColor: 'rgba(0, 0, 0, 0.1)',
+    textShadowOffset: { width: 0, height: 1 },
+    textShadowRadius: 2,
   },
   statusContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.lg,
   },
   statusDot: {
     width: 8,
     height: 8,
     borderRadius: 4,
+    backgroundColor: 'white',
     marginRight: Spacing.xs,
   },
   statusText: {
     ...Typography.caption,
-    fontWeight: '500',
+    fontWeight: '600',
+    color: 'white',
   },
   chatContainer: {
     flex: 1,
+  },
+  backgroundPattern: {
+    flex: 1,
+    position: 'relative',
   },
   messagesList: {
     flex: 1,
@@ -642,7 +706,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
   },
   messageContainer: {
-    marginBottom: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   userMessage: {
     alignItems: 'flex-end',
@@ -650,38 +714,54 @@ const styles = StyleSheet.create({
   aiMessage: {
     alignItems: 'flex-start',
   },
+  messageWrapper: {
+    maxWidth: '85%',
+  },
   messageBubble: {
-    maxWidth: '80%',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
+    elevation: 4,
   },
   userBubble: {
     borderBottomRightRadius: BorderRadius.sm,
+    shadowColor: '#6C63FF',
+    shadowOpacity: 0.25,
+    marginBottom: Spacing.xs,
   },
   aiBubble: {
     borderBottomLeftRadius: BorderRadius.sm,
-    ...Elevation.card,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    marginBottom: Spacing.xs,
   },
   messageText: {
     ...Typography.body,
-    lineHeight: Typography.body.lineHeight,
+    lineHeight: Typography.body.lineHeight * 1.2,
+    fontWeight: '500',
   },
   userText: {
-    // Color set dynamically
+    color: 'white',
   },
   aiText: {
     // Color set dynamically
   },
   timestamp: {
     ...Typography.caption,
-    marginTop: Spacing.xs,
+    fontSize: 11,
+    opacity: 0.7,
+    fontWeight: '500',
   },
   userTimestamp: {
     textAlign: 'right',
+    marginTop: Spacing.xs,
   },
   aiTimestamp: {
-    // Color set dynamically
+    textAlign: 'left',
+    marginTop: Spacing.xs,
   },
   quickActionsContainer: {
     paddingHorizontal: Spacing.lg,
@@ -699,18 +779,58 @@ const styles = StyleSheet.create({
   },
   quickActionButton: {
     padding: Spacing.md,
-    borderRadius: BorderRadius.lg,
+    borderRadius: BorderRadius.xl,
     alignItems: 'center',
     minWidth: 80,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  quickActionIconContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(108, 99, 255, 0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: Spacing.sm,
   },
   quickActionIcon: {
-    fontSize: 24,
-    marginBottom: Spacing.xs,
+    fontSize: 20,
   },
   quickActionText: {
     ...Typography.caption,
-    fontWeight: '500',
+    fontWeight: '600',
     textAlign: 'center',
+  },
+  typingIndicator: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.sm,
+    borderRadius: BorderRadius.xl,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  typingDots: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: Spacing.sm,
+  },
+  typingDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    marginHorizontal: 2,
+  },
+  typingText: {
+    ...Typography.caption,
+    fontStyle: 'italic',
   },
 });
 

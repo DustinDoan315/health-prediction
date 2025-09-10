@@ -1,5 +1,4 @@
 import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Elevation } from '@/constants/Colors';
 import { HealthDataMessage } from '@/src/domain/entities/ChatMessage';
 import React from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
@@ -132,10 +131,13 @@ const HealthDataCard: React.FC<HealthDataCardProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.md,
-    marginVertical: Spacing.xs,
-    ...Elevation.card,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    marginVertical: Spacing.sm,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 12,
+    elevation: 4,
   },
   header: {
     flexDirection: 'row',
@@ -148,9 +150,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   riskBadge: {
-    paddingHorizontal: Spacing.sm,
-    paddingVertical: Spacing.xs,
-    borderRadius: BorderRadius.sm,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.lg,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 2,
   },
   riskText: {
     ...Typography.caption,

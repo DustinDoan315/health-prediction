@@ -53,7 +53,7 @@ export default function TabLayout() {
           },
         }),
         tabBarIconStyle: {
-          marginTop: 4,
+          marginTop: 30,
         },
         tabBarLabelStyle: {
           fontSize: 12,
