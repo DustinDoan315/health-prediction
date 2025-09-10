@@ -111,7 +111,7 @@ class ApiService {
     // Request interceptor to add auth token
     this.api.interceptors.request.use(
       async (config) => {
-        const token = storageService.getItem(STORAGE_KEYS.AUTH_TOKEN);
+        const token = await storageService.getItem(STORAGE_KEYS.AUTH_TOKEN);
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
         }
@@ -128,7 +128,7 @@ class ApiService {
       async (error) => {
         if (error.response?.status === 401) {
           // Token expired, remove it
-          storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+          await storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
         }
         return Promise.reject(error instanceof Error ? error : new Error('Request failed'));
       }
@@ -144,7 +144,7 @@ class ApiService {
   async login(data: LoginRequest): Promise<LoginResponse> {
     const response: AxiosResponse<LoginResponse> = await this.api.post('/auth/login', data);
     // Store token securely
-    storageService.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.access_token);
+    await storageService.setItem(STORAGE_KEYS.AUTH_TOKEN, response.data.access_token);
     return response.data;
   }
 
@@ -158,7 +158,7 @@ class ApiService {
       await this.api.post('/auth/logout');
     } finally {
       // Always remove token from storage
-      storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
+      await storageService.removeItem(STORAGE_KEYS.AUTH_TOKEN);
     }
   }
 
@@ -219,7 +219,8 @@ class ApiService {
 
   // Token management
   async getStoredToken(): Promise<string | null> {
-    return storageService.getItem(STORAGE_KEYS.AUTH_TOKEN) || null;
+    const token = await storageService.getItem(STORAGE_KEYS.AUTH_TOKEN);
+    return token || null;
   }
 
   async isAuthenticated(): Promise<boolean> {

@@ -35,18 +35,18 @@ const defaultSettings: AppSettings = {
 
 class AppSettingsService {
   async getSettings(): Promise<AppSettings> {
-    const settings = storageService.getObject<AppSettings>(STORAGE_KEYS.APP_SETTINGS);
+    const settings = await storageService.getObject<AppSettings>(STORAGE_KEYS.APP_SETTINGS);
     return settings || defaultSettings;
   }
 
   async updateSettings(settings: Partial<AppSettings>): Promise<void> {
     const currentSettings = await this.getSettings();
     const updatedSettings = { ...currentSettings, ...settings };
-    storageService.setObject(STORAGE_KEYS.APP_SETTINGS, updatedSettings);
+    await storageService.setObject(STORAGE_KEYS.APP_SETTINGS, updatedSettings);
   }
 
   async resetSettings(): Promise<void> {
-    storageService.setObject(STORAGE_KEYS.APP_SETTINGS, defaultSettings);
+    await storageService.setObject(STORAGE_KEYS.APP_SETTINGS, defaultSettings);
   }
 
   async getNotificationSettings() {

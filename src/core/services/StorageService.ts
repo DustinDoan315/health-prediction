@@ -1,37 +1,29 @@
-import { MMKV } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 class StorageService {
-  private storage: MMKV;
-
-  constructor() {
-    this.storage = new MMKV({
-      id: 'health-prediction-storage',
-      encryptionKey: 'health-prediction-key-2024',
-    });
+  async setItem(key: string, value: string): Promise<void> {
+    await AsyncStorage.setItem(key, value);
   }
 
-  setItem(key: string, value: string): void {
-    this.storage.set(key, value);
+  async getItem(key: string): Promise<string | undefined> {
+    const value = await AsyncStorage.getItem(key);
+    return value || undefined;
   }
 
-  getItem(key: string): string | undefined {
-    return this.storage.getString(key);
+  async removeItem(key: string): Promise<void> {
+    await AsyncStorage.removeItem(key);
   }
 
-  removeItem(key: string): void {
-    this.storage.delete(key);
+  async clear(): Promise<void> {
+    await AsyncStorage.clear();
   }
 
-  clear(): void {
-    this.storage.clearAll();
+  async setObject<T>(key: string, value: T): Promise<void> {
+    await AsyncStorage.setItem(key, JSON.stringify(value));
   }
 
-  setObject<T>(key: string, value: T): void {
-    this.storage.set(key, JSON.stringify(value));
-  }
-
-  getObject<T>(key: string): T | undefined {
-    const value = this.storage.getString(key);
+  async getObject<T>(key: string): Promise<T | undefined> {
+    const value = await AsyncStorage.getItem(key);
     if (value) {
       try {
         return JSON.parse(value) as T;
@@ -43,20 +35,25 @@ class StorageService {
     return undefined;
   }
 
-  setBoolean(key: string, value: boolean): void {
-    this.storage.set(key, value);
+  async setBoolean(key: string, value: boolean): Promise<void> {
+    await AsyncStorage.setItem(key, value.toString());
   }
 
-  getBoolean(key: string): boolean | undefined {
-    return this.storage.getBoolean(key);
+  async getBoolean(key: string): Promise<boolean | undefined> {
+    const value = await AsyncStorage.getItem(key);
+    if (value === null) return undefined;
+    return value === 'true';
   }
 
-  setNumber(key: string, value: number): void {
-    this.storage.set(key, value);
+  async setNumber(key: string, value: number): Promise<void> {
+    await AsyncStorage.setItem(key, value.toString());
   }
 
-  getNumber(key: string): number | undefined {
-    return this.storage.getNumber(key);
+  async getNumber(key: string): Promise<number | undefined> {
+    const value = await AsyncStorage.getItem(key);
+    if (value === null) return undefined;
+    const parsed = parseFloat(value);
+    return isNaN(parsed) ? undefined : parsed;
   }
 }
 

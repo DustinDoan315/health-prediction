@@ -1,18 +1,18 @@
 import * as Haptics from 'expo-haptics';
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
-  } from '@/constants';
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
+    } from '@/constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { loadUser } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 import { useEffect } from 'react';
-import { WelcomeScreenSkeleton } from '@/components/WelcomeScreenSkeleton';
+import { WelcomeScreenSkeleton } from '@/components/screens/welcome';
 
 import {
     SafeAreaView,

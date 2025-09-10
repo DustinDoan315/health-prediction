@@ -1,7 +1,7 @@
-import { Skeleton } from '@/components/Skeleton';
 import { Colors, Spacing } from '@/constants';
-import { useColorScheme } from '@/hooks/useColorScheme';
+import { Skeleton } from '@/components/shared';
 import { StyleSheet, View } from 'react-native';
+import { useColorScheme } from '@/hooks/useColorScheme';
 
 
 export function OnboardingSkeleton() {

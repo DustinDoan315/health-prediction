@@ -1,14 +1,14 @@
 import * as Haptics from 'expo-haptics';
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
-  } from '@/constants';
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
+    } from '@/constants';
 import { LinearGradient } from 'expo-linear-gradient';
 import { loadUser } from '@/store/slices/authSlice';
-import { OnboardingSkeleton } from '@/components/OnboardingSkeleton';
+import { OnboardingSkeleton } from '@/components/screens/onboarding';
 import { router } from 'expo-router';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
@@ -16,11 +16,11 @@ import { useColorScheme } from '@/hooks/useColorScheme';
 import { useEffect, useState } from 'react';
 
 import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    SafeAreaView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 

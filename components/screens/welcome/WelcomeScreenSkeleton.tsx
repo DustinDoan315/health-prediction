@@ -1,7 +1,7 @@
 import { Colors, Spacing } from '@/constants';
-import { useColorScheme } from '@/hooks';
+import { Skeleton } from '@/components/shared';
 import { StyleSheet, View } from 'react-native';
-import { Skeleton } from './Skeleton';
+import { useColorScheme } from '@/hooks';
 
 
 export function WelcomeScreenSkeleton() {
