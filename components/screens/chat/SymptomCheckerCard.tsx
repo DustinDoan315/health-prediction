@@ -1,15 +1,14 @@
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { Elevation } from '@/constants/Colors';
+import { SymptomCheckerMessage } from '@/src/domain/entities/ChatMessage';
 import React, { useState } from 'react';
 import {
   Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-  } from 'react-native';
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
-import { SymptomCheckerMessage } from '@/src/domain/entities/ChatMessage';
-
+  View,
+} from 'react-native';
 
 interface SymptomCheckerCardProps {
   message: SymptomCheckerMessage;
@@ -19,14 +18,16 @@ interface SymptomCheckerCardProps {
   onComplete: () => void;
 }
 
-const SymptomCheckerCard: React.FC<SymptomCheckerCardProps> = ({ 
-  message, 
-  colors, 
-  animationValue, 
-  onAnswer, 
-  onComplete 
+const SymptomCheckerCard: React.FC<SymptomCheckerCardProps> = ({
+  message,
+  colors,
+  animationValue,
+  onAnswer,
+  onComplete,
 }) => {
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<string, string>
+  >({});
 
   const handleAnswerSelect = (questionId: string, answer: string) => {
     setSelectedAnswers(prev => ({ ...prev, [questionId]: answer }));
@@ -37,37 +38,43 @@ const SymptomCheckerCard: React.FC<SymptomCheckerCardProps> = ({
   const progress = (message.currentStep / message.totalSteps) * 100;
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
         { backgroundColor: colors.surface },
         animationValue && {
           opacity: animationValue,
-          transform: [{
-            scale: animationValue.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.95, 1],
-            }),
-          }],
+          transform: [
+            {
+              scale: animationValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.95, 1],
+              }),
+            },
+          ],
         },
       ]}
     >
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>Symptom Assessment</Text>
+        <Text style={[styles.title, { color: colors.text }]}>
+          Symptom Assessment
+        </Text>
         <Text style={[styles.progress, { color: colors.textSecondary }]}>
           {message.currentStep} of {message.totalSteps}
         </Text>
       </View>
 
-      <View style={[styles.progressBar, { backgroundColor: colors.background }]}>
-        <View 
+      <View
+        style={[styles.progressBar, { backgroundColor: colors.background }]}
+      >
+        <View
           style={[
-            styles.progressFill, 
-            { 
+            styles.progressFill,
+            {
               backgroundColor: colors.primary,
               width: `${progress}%`,
-            }
-          ]} 
+            },
+          ]}
         />
       </View>
 
@@ -76,31 +83,33 @@ const SymptomCheckerCard: React.FC<SymptomCheckerCardProps> = ({
           <Text style={[styles.question, { color: colors.text }]}>
             {currentQuestion.question}
           </Text>
-          
+
           <View style={styles.optionsContainer}>
             {currentQuestion.options.map((option, index) => (
               <TouchableOpacity
                 key={`${currentQuestion.id}-${option}-${index}`}
                 style={[
                   styles.optionButton,
-                  { 
+                  {
                     backgroundColor: colors.background,
-                    borderColor: selectedAnswers[currentQuestion.id] === option 
-                      ? colors.primary 
-                      : colors.background,
-                  }
+                    borderColor:
+                      selectedAnswers[currentQuestion.id] === option
+                        ? colors.primary
+                        : colors.background,
+                  },
                 ]}
                 onPress={() => handleAnswerSelect(currentQuestion.id, option)}
                 activeOpacity={0.7}
               >
-                <Text 
+                <Text
                   style={[
                     styles.optionText,
-                    { 
-                      color: selectedAnswers[currentQuestion.id] === option 
-                        ? colors.primary 
-                        : colors.text 
-                    }
+                    {
+                      color:
+                        selectedAnswers[currentQuestion.id] === option
+                          ? colors.primary
+                          : colors.text,
+                    },
                   ]}
                 >
                   {option}
@@ -131,7 +140,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginVertical: Spacing.xs,
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   header: {
     flexDirection: 'row',

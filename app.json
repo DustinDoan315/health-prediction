@@ -40,6 +40,13 @@
         }
       ],
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow $(PRODUCT_NAME) to access your photos to upload images.",
+          "cameraPermission": "Allow $(PRODUCT_NAME) to access your camera to take photos."
+        }
+      ],
+      [
         "@sentry/react-native/expo",
         {
           "url": "https://sentry.io/",

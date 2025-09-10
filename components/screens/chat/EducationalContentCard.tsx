@@ -1,15 +1,14 @@
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { Elevation } from '@/constants/Colors';
+import { EducationalContentMessage } from '@/src/domain/entities/ChatMessage';
 import React, { useState } from 'react';
 import {
   Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-  } from 'react-native';
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
-import { EducationalContentMessage } from '@/src/domain/entities/ChatMessage';
-
+  View,
+} from 'react-native';
 
 interface EducationalContentCardProps {
   message: EducationalContentMessage;
@@ -19,33 +18,43 @@ interface EducationalContentCardProps {
   onLearnMore: () => void;
 }
 
-const EducationalContentCard: React.FC<EducationalContentCardProps> = ({ 
-  message, 
-  colors, 
-  animationValue, 
-  onQuizAnswer, 
-  onLearnMore 
+const EducationalContentCard: React.FC<EducationalContentCardProps> = ({
+  message,
+  colors,
+  animationValue,
+  onQuizAnswer,
+  onLearnMore,
 }) => {
   const [selectedAnswer, setSelectedAnswer] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'nutrition': return '🥗';
-      case 'exercise': return '🏃‍♂️';
-      case 'mental-health': return '🧠';
-      case 'prevention': return '🛡️';
-      default: return '📚';
+      case 'nutrition':
+        return '🥗';
+      case 'exercise':
+        return '🏃‍♂️';
+      case 'mental-health':
+        return '🧠';
+      case 'prevention':
+        return '🛡️';
+      default:
+        return '📚';
     }
   };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
-      case 'nutrition': return colors.healthGood;
-      case 'exercise': return colors.primary;
-      case 'mental-health': return colors.secondary;
-      case 'prevention': return colors.warning;
-      default: return colors.textSecondary;
+      case 'nutrition':
+        return colors.healthGood;
+      case 'exercise':
+        return colors.primary;
+      case 'mental-health':
+        return colors.secondary;
+      case 'prevention':
+        return colors.warning;
+      default:
+        return colors.textSecondary;
     }
   };
 
@@ -58,27 +67,36 @@ const EducationalContentCard: React.FC<EducationalContentCardProps> = ({
   const isCorrect = selectedAnswer === message.quiz?.correctAnswer;
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
         { backgroundColor: colors.surface },
         animationValue && {
           opacity: animationValue,
-          transform: [{
-            scale: animationValue.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.95, 1],
-            }),
-          }],
+          transform: [
+            {
+              scale: animationValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.95, 1],
+              }),
+            },
+          ],
         },
       ]}
     >
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: getCategoryColor(message.category) + '20' }]}>
+        <View
+          style={[
+            styles.iconContainer,
+            { backgroundColor: getCategoryColor(message.category) + '20' },
+          ]}
+        >
           <Text style={styles.icon}>{getCategoryIcon(message.category)}</Text>
         </View>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: colors.text }]}>{message.title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>
+            {message.title}
+          </Text>
           <Text style={[styles.category, { color: colors.textSecondary }]}>
             {message.category.replace('-', ' ').toUpperCase()}
           </Text>
@@ -86,56 +104,81 @@ const EducationalContentCard: React.FC<EducationalContentCardProps> = ({
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.contentText, { color: colors.text }]}>{message.content}</Text>
+        <Text style={[styles.contentText, { color: colors.text }]}>
+          {message.content}
+        </Text>
       </View>
 
       {message.quiz && (
         <View style={styles.quizContainer}>
-          <Text style={[styles.quizTitle, { color: colors.text }]}>Quick Quiz</Text>
-          <Text style={[styles.quizQuestion, { color: colors.text }]}>{message.quiz.question}</Text>
-          
+          <Text style={[styles.quizTitle, { color: colors.text }]}>
+            Quick Quiz
+          </Text>
+          <Text style={[styles.quizQuestion, { color: colors.text }]}>
+            {message.quiz.question}
+          </Text>
+
           <View style={styles.quizOptions}>
             {message.quiz.options.map((option, index) => (
               <TouchableOpacity
                 key={`quiz-${option}-${index}`}
                 style={[
                   styles.quizOption,
-                  { 
+                  {
                     backgroundColor: colors.background,
-                    borderColor: selectedAnswer === index 
-                      ? (isCorrect ? colors.healthGood : colors.error)
-                      : colors.background,
-                  }
+                    borderColor:
+                      selectedAnswer === index
+                        ? isCorrect
+                          ? colors.healthGood
+                          : colors.error
+                        : colors.background,
+                  },
                 ]}
                 onPress={() => handleQuizAnswer(index)}
                 activeOpacity={0.7}
                 disabled={showResult}
               >
-                <Text 
+                <Text
                   style={[
                     styles.quizOptionText,
-                    { 
-                      color: selectedAnswer === index 
-                        ? (isCorrect ? colors.healthGood : colors.error)
-                        : colors.text 
-                    }
+                    {
+                      color:
+                        selectedAnswer === index
+                          ? isCorrect
+                            ? colors.healthGood
+                            : colors.error
+                          : colors.text,
+                    },
                   ]}
                 >
                   {option}
                 </Text>
                 {showResult && selectedAnswer === index && (
-                  <Text style={styles.resultIcon}>
-                    {isCorrect ? '✓' : '✗'}
-                  </Text>
+                  <Text style={styles.resultIcon}>{isCorrect ? '✓' : '✗'}</Text>
                 )}
               </TouchableOpacity>
             ))}
           </View>
 
           {showResult && (
-            <View style={[styles.resultContainer, { backgroundColor: (isCorrect ? colors.healthGood : colors.error) + '20' }]}>
-              <Text style={[styles.resultText, { color: isCorrect ? colors.healthGood : colors.error }]}>
-                {isCorrect ? 'Correct! 🎉' : `Incorrect. The right answer is: ${message.quiz.options[message.quiz.correctAnswer]}`}
+            <View
+              style={[
+                styles.resultContainer,
+                {
+                  backgroundColor:
+                    (isCorrect ? colors.healthGood : colors.error) + '20',
+                },
+              ]}
+            >
+              <Text
+                style={[
+                  styles.resultText,
+                  { color: isCorrect ? colors.healthGood : colors.error },
+                ]}
+              >
+                {isCorrect
+                  ? 'Correct! 🎉'
+                  : `Incorrect. The right answer is: ${message.quiz.options[message.quiz.correctAnswer]}`}
               </Text>
             </View>
           )}
@@ -147,7 +190,9 @@ const EducationalContentCard: React.FC<EducationalContentCardProps> = ({
         onPress={onLearnMore}
         activeOpacity={0.8}
       >
-        <Text style={[styles.learnMoreText, { color: colors.surface }]}>Learn More</Text>
+        <Text style={[styles.learnMoreText, { color: colors.surface }]}>
+          Learn More
+        </Text>
       </TouchableOpacity>
     </Animated.View>
   );
@@ -158,7 +203,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginVertical: Spacing.xs,
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   header: {
     flexDirection: 'row',

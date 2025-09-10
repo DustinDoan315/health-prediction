@@ -1,15 +1,14 @@
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { Elevation } from '@/constants/Colors';
+import { MedicationReminderMessage } from '@/src/domain/entities/ChatMessage';
 import React from 'react';
 import {
   Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-  } from 'react-native';
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
-import { MedicationReminderMessage } from '@/src/domain/entities/ChatMessage';
-
+  View,
+} from 'react-native';
 
 interface MedicationReminderCardProps {
   message: MedicationReminderMessage;
@@ -19,72 +18,108 @@ interface MedicationReminderCardProps {
   onSnooze: (reminderId: string) => void;
 }
 
-const MedicationReminderCard: React.FC<MedicationReminderCardProps> = ({ 
-  message, 
-  colors, 
-  animationValue, 
-  onMarkComplete, 
-  onSnooze 
+const MedicationReminderCard: React.FC<MedicationReminderCardProps> = ({
+  message,
+  colors,
+  animationValue,
+  onMarkComplete,
+  onSnooze,
 }) => {
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
         { backgroundColor: colors.surface },
         animationValue && {
           opacity: animationValue,
-          transform: [{
-            translateX: animationValue.interpolate({
-              inputRange: [0, 1],
-              outputRange: [-20, 0],
-            }),
-          }],
+          transform: [
+            {
+              translateX: animationValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [-20, 0],
+              }),
+            },
+          ],
         },
       ]}
     >
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: colors.primary }]}>
+        <View
+          style={[styles.iconContainer, { backgroundColor: colors.primary }]}
+        >
           <Text style={styles.icon}>💊</Text>
         </View>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: colors.text }]}>Medication Reminder</Text>
-          <Text style={[styles.time, { color: colors.textSecondary }]}>{message.time}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>
+            Medication Reminder
+          </Text>
+          <Text style={[styles.time, { color: colors.textSecondary }]}>
+            {message.time}
+          </Text>
         </View>
         {message.isCompleted && (
-          <View style={[styles.completedBadge, { backgroundColor: colors.healthGood }]}>
+          <View
+            style={[
+              styles.completedBadge,
+              { backgroundColor: colors.healthGood },
+            ]}
+          >
             <Text style={styles.completedText}>✓</Text>
           </View>
         )}
       </View>
 
       <View style={styles.medicationInfo}>
-        <Text style={[styles.medicationName, { color: colors.text }]}>{message.medication}</Text>
-        <Text style={[styles.dosage, { color: colors.textSecondary }]}>{message.dosage}</Text>
+        <Text style={[styles.medicationName, { color: colors.text }]}>
+          {message.medication}
+        </Text>
+        <Text style={[styles.dosage, { color: colors.textSecondary }]}>
+          {message.dosage}
+        </Text>
       </View>
 
       {!message.isCompleted && (
         <View style={styles.actionButtons}>
           <TouchableOpacity
-            style={[styles.actionButton, styles.completeButton, { backgroundColor: colors.healthGood }]}
+            style={[
+              styles.actionButton,
+              styles.completeButton,
+              { backgroundColor: colors.healthGood },
+            ]}
             onPress={() => onMarkComplete(message.reminderId)}
             activeOpacity={0.8}
           >
-            <Text style={[styles.actionButtonText, { color: 'white' }]}>Mark Taken</Text>
+            <Text style={[styles.actionButtonText, { color: 'white' }]}>
+              Mark Taken
+            </Text>
           </TouchableOpacity>
-          
+
           <TouchableOpacity
-            style={[styles.actionButton, styles.snoozeButton, { backgroundColor: colors.background }]}
+            style={[
+              styles.actionButton,
+              styles.snoozeButton,
+              { backgroundColor: colors.background },
+            ]}
             onPress={() => onSnooze(message.reminderId)}
             activeOpacity={0.8}
           >
-            <Text style={[styles.actionButtonText, { color: colors.text }]}>Snooze 15min</Text>
+            <Text style={[styles.actionButtonText, { color: colors.text }]}>
+              Snooze 15min
+            </Text>
           </TouchableOpacity>
         </View>
       )}
 
       {message.isCompleted && (
-        <View style={[styles.completedMessage, { backgroundColor: colors.healthGood + '20' }]}>
-          <Text style={[styles.completedMessageText, { color: colors.healthGood }]}>
+        <View
+          style={[
+            styles.completedMessage,
+            { backgroundColor: colors.healthGood + '20' },
+          ]}
+        >
+          <Text
+            style={[styles.completedMessageText, { color: colors.healthGood }]}
+          >
             Medication taken successfully! 🎉
           </Text>
         </View>
@@ -98,7 +133,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginVertical: Spacing.xs,
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   header: {
     flexDirection: 'row',

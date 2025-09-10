@@ -1,15 +1,14 @@
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { Elevation } from '@/constants/Colors';
+import { ProactiveTipMessage } from '@/src/domain/entities/ChatMessage';
 import React from 'react';
 import {
   Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-  } from 'react-native';
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
-import { ProactiveTipMessage } from '@/src/domain/entities/ChatMessage';
-
+  View,
+} from 'react-native';
 
 interface ProactiveTipCardProps {
   message: ProactiveTipMessage;
@@ -19,71 +18,101 @@ interface ProactiveTipCardProps {
   onDismiss: () => void;
 }
 
-const ProactiveTipCard: React.FC<ProactiveTipCardProps> = ({ 
-  message, 
-  colors, 
-  animationValue, 
-  onActionPress, 
-  onDismiss 
+const ProactiveTipCard: React.FC<ProactiveTipCardProps> = ({
+  message,
+  colors,
+  animationValue,
+  onActionPress,
+  onDismiss,
 }) => {
   const getTipIcon = (tipType: string) => {
     switch (tipType) {
-      case 'reminder': return '⏰';
-      case 'alert': return '⚠️';
-      case 'suggestion': return '💡';
-      case 'achievement': return '🏆';
-      default: return '💬';
+      case 'reminder':
+        return '⏰';
+      case 'alert':
+        return '⚠️';
+      case 'suggestion':
+        return '💡';
+      case 'achievement':
+        return '🏆';
+      default:
+        return '💬';
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'high': return colors.error;
-      case 'medium': return colors.warning;
-      case 'low': return colors.primary;
-      default: return colors.textSecondary;
+      case 'high':
+        return colors.error;
+      case 'medium':
+        return colors.warning;
+      case 'low':
+        return colors.primary;
+      default:
+        return colors.textSecondary;
     }
   };
 
   const getTipBackgroundColor = (tipType: string) => {
     switch (tipType) {
-      case 'reminder': return colors.primary + '20';
-      case 'alert': return colors.error + '20';
-      case 'suggestion': return colors.warning + '20';
-      case 'achievement': return colors.healthGood + '20';
-      default: return colors.background;
+      case 'reminder':
+        return colors.primary + '20';
+      case 'alert':
+        return colors.error + '20';
+      case 'suggestion':
+        return colors.warning + '20';
+      case 'achievement':
+        return colors.healthGood + '20';
+      default:
+        return colors.background;
     }
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
-        { 
+        {
           backgroundColor: colors.surface,
           borderLeftColor: getPriorityColor(message.priority),
           borderLeftWidth: 4,
         },
         animationValue && {
           opacity: animationValue,
-          transform: [{
-            translateX: animationValue.interpolate({
-              inputRange: [0, 1],
-              outputRange: [30, 0],
-            }),
-          }],
+          transform: [
+            {
+              translateX: animationValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [30, 0],
+              }),
+            },
+          ],
         },
       ]}
     >
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: getTipBackgroundColor(message.tipType) }]}>
+        <View
+          style={[
+            styles.iconContainer,
+            { backgroundColor: getTipBackgroundColor(message.tipType) },
+          ]}
+        >
           <Text style={styles.icon}>{getTipIcon(message.tipType)}</Text>
         </View>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: colors.text }]}>{message.title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>
+            {message.title}
+          </Text>
           <View style={styles.priorityContainer}>
-            <View style={[styles.priorityDot, { backgroundColor: getPriorityColor(message.priority) }]} />
-            <Text style={[styles.priorityText, { color: colors.textSecondary }]}>
+            <View
+              style={[
+                styles.priorityDot,
+                { backgroundColor: getPriorityColor(message.priority) },
+              ]}
+            />
+            <Text
+              style={[styles.priorityText, { color: colors.textSecondary }]}
+            >
               {message.priority} priority
             </Text>
           </View>
@@ -93,12 +122,16 @@ const ProactiveTipCard: React.FC<ProactiveTipCardProps> = ({
           onPress={onDismiss}
           activeOpacity={0.7}
         >
-          <Text style={[styles.dismissText, { color: colors.textSecondary }]}>✕</Text>
+          <Text style={[styles.dismissText, { color: colors.textSecondary }]}>
+            ✕
+          </Text>
         </TouchableOpacity>
       </View>
 
       <View style={styles.content}>
-        <Text style={[styles.message, { color: colors.text }]}>{message.message}</Text>
+        <Text style={[styles.message, { color: colors.text }]}>
+          {message.message}
+        </Text>
       </View>
 
       {message.actionButton && (
@@ -121,7 +154,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginVertical: Spacing.xs,
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   header: {
     flexDirection: 'row',

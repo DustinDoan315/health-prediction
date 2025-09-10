@@ -1,6 +1,8 @@
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { Elevation } from '@/constants/Colors';
 import * as DocumentPicker from 'expo-document-picker';
-import * as ImagePicker from 'expo-image-picker';
 import React, { useRef, useState } from 'react';
+
 import {
   Alert,
   Animated,
@@ -8,12 +10,10 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View
-  } from 'react-native';
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
+  View,
+} from 'react-native';
 
-
+// import * as ImagePicker from 'expo-image-picker';
 
 interface EnhancedInputBarProps {
   inputText: string;
@@ -63,22 +63,30 @@ const EnhancedInputBar: React.FC<EnhancedInputBarProps> = ({
   };
 
   const handleImagePicker = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required', 'Please grant camera roll permissions to upload images.');
-      return;
-    }
+    // Temporarily disabled due to native module issues
+    Alert.alert(
+      'Coming Soon',
+      'Image picker functionality will be available soon.'
+    );
+    // const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    // if (status !== 'granted') {
+    //   Alert.alert(
+    //     'Permission required',
+    //     'Please grant camera roll permissions to upload images.'
+    //   );
+    //   return;
+    // }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
+    // const result = await ImagePicker.launchImageLibraryAsync({
+    //   mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    //   allowsEditing: true,
+    //   aspect: [4, 3],
+    //   quality: 0.8,
+    // });
 
-    if (!result.canceled && result.assets[0]) {
-      onImageUpload(result.assets[0].uri);
-    }
+    // if (!result.canceled && result.assets[0]) {
+    //   onImageUpload(result.assets[0].uri);
+    // }
   };
 
   const handleDocumentPicker = async () => {
@@ -93,55 +101,80 @@ const EnhancedInputBar: React.FC<EnhancedInputBarProps> = ({
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.surface, borderTopColor: colors.background }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: colors.surface, borderTopColor: colors.background },
+      ]}
+    >
       {showAttachments && (
-        <Animated.View 
+        <Animated.View
           style={[
             styles.attachmentPanel,
             { backgroundColor: colors.background },
             {
               opacity: attachmentAnimation,
-              transform: [{
-                translateY: attachmentAnimation.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [50, 0],
-                }),
-              }],
+              transform: [
+                {
+                  translateY: attachmentAnimation.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [50, 0],
+                  }),
+                },
+              ],
             },
           ]}
         >
           <TouchableOpacity
-            style={[styles.attachmentButton, { backgroundColor: colors.surface }]}
+            style={[
+              styles.attachmentButton,
+              { backgroundColor: colors.surface },
+            ]}
             onPress={handleImagePicker}
             activeOpacity={0.7}
           >
             <Text style={styles.attachmentIcon}>📷</Text>
-            <Text style={[styles.attachmentText, { color: colors.text }]}>Photo</Text>
+            <Text style={[styles.attachmentText, { color: colors.text }]}>
+              Photo
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.attachmentButton, { backgroundColor: colors.surface }]}
+            style={[
+              styles.attachmentButton,
+              { backgroundColor: colors.surface },
+            ]}
             onPress={handleDocumentPicker}
             activeOpacity={0.7}
           >
             <Text style={styles.attachmentIcon}>📄</Text>
-            <Text style={[styles.attachmentText, { color: colors.text }]}>Document</Text>
+            <Text style={[styles.attachmentText, { color: colors.text }]}>
+              Document
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
-            style={[styles.attachmentButton, { backgroundColor: colors.surface }]}
+            style={[
+              styles.attachmentButton,
+              { backgroundColor: colors.surface },
+            ]}
             onPress={handleVoicePress}
             activeOpacity={0.7}
           >
             <Text style={styles.attachmentIcon}>🎤</Text>
-            <Text style={[styles.attachmentText, { color: colors.text }]}>Voice</Text>
+            <Text style={[styles.attachmentText, { color: colors.text }]}>
+              Voice
+            </Text>
           </TouchableOpacity>
         </Animated.View>
       )}
 
       <View style={styles.inputWrapper}>
         <TouchableOpacity
-          style={[styles.attachmentToggle, { backgroundColor: colors.background }]}
+          style={[
+            styles.attachmentToggle,
+            { backgroundColor: colors.background },
+          ]}
           onPress={toggleAttachments}
           activeOpacity={0.7}
         >
@@ -149,11 +182,14 @@ const EnhancedInputBar: React.FC<EnhancedInputBarProps> = ({
         </TouchableOpacity>
 
         <TextInput
-          style={[styles.textInput, { 
-            borderColor: colors.background, 
-            backgroundColor: colors.background,
-            color: colors.text 
-          }]}
+          style={[
+            styles.textInput,
+            {
+              borderColor: colors.background,
+              backgroundColor: colors.background,
+              color: colors.text,
+            },
+          ]}
           value={inputText}
           onChangeText={setInputText}
           placeholder="Type your message..."
@@ -167,22 +203,31 @@ const EnhancedInputBar: React.FC<EnhancedInputBarProps> = ({
 
         <TouchableOpacity
           style={[
-            styles.sendButton, 
+            styles.sendButton,
             { backgroundColor: colors.primary },
-            (!inputText.trim() || isLoading) && [styles.sendButtonDisabled, { backgroundColor: colors.textSecondary }]
+            (!inputText.trim() || isLoading) && [
+              styles.sendButtonDisabled,
+              { backgroundColor: colors.textSecondary },
+            ],
           ]}
           onPress={onSend}
           disabled={!inputText.trim() || isLoading}
           activeOpacity={0.7}
         >
-          <Text style={[styles.sendButtonText, { color: colors.surface }]}>→</Text>
+          <Text style={[styles.sendButtonText, { color: colors.surface }]}>
+            →
+          </Text>
         </TouchableOpacity>
       </View>
 
       {isRecording && (
-        <View style={[styles.recordingIndicator, { backgroundColor: colors.error }]}>
+        <View
+          style={[styles.recordingIndicator, { backgroundColor: colors.error }]}
+        >
           <View style={styles.recordingDot} />
-          <Text style={[styles.recordingText, { color: colors.surface }]}>Recording...</Text>
+          <Text style={[styles.recordingText, { color: colors.surface }]}>
+            Recording...
+          </Text>
         </View>
       )}
     </View>
@@ -251,10 +296,10 @@ const styles = StyleSheet.create({
     borderRadius: 22,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   sendButtonDisabled: {
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   sendButtonText: {
     fontSize: 20,

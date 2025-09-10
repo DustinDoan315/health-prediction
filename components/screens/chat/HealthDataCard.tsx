@@ -1,14 +1,8 @@
-import React from 'react';
-import {
-  Animated,
-  StyleSheet,
-  Text,
-  View
-  } from 'react-native';
 import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
+import { Elevation } from '@/constants/Colors';
 import { HealthDataMessage } from '@/src/domain/entities/ChatMessage';
-
+import React from 'react';
+import { Animated, StyleSheet, Text, View } from 'react-native';
 
 interface HealthDataCardProps {
   message: HealthDataMessage;
@@ -16,75 +10,118 @@ interface HealthDataCardProps {
   animationValue?: Animated.Value;
 }
 
-const HealthDataCard: React.FC<HealthDataCardProps> = ({ message, colors, animationValue }) => {
+const HealthDataCard: React.FC<HealthDataCardProps> = ({
+  message,
+  colors,
+  animationValue,
+}) => {
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case 'good': return colors.healthGood;
-      case 'warning': return colors.warning;
-      case 'critical': return colors.error;
-      default: return colors.textSecondary;
+      case 'good':
+        return colors.healthGood;
+      case 'warning':
+        return colors.warning;
+      case 'critical':
+        return colors.error;
+      default:
+        return colors.textSecondary;
     }
   };
 
   const getTrendIcon = (trend?: string) => {
     switch (trend) {
-      case 'up': return '📈';
-      case 'down': return '📉';
-      case 'stable': return '➡️';
-      default: return '';
+      case 'up':
+        return '📈';
+      case 'down':
+        return '📉';
+      case 'stable':
+        return '➡️';
+      default:
+        return '';
     }
   };
 
   const getRiskColor = (riskLevel?: string) => {
     switch (riskLevel) {
-      case 'low': return colors.healthGood;
-      case 'medium': return colors.warning;
-      case 'high': return colors.error;
-      default: return colors.textSecondary;
+      case 'low':
+        return colors.healthGood;
+      case 'medium':
+        return colors.warning;
+      case 'high':
+        return colors.error;
+      default:
+        return colors.textSecondary;
     }
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
         { backgroundColor: colors.surface },
         animationValue && {
           opacity: animationValue,
-          transform: [{
-            translateY: animationValue.interpolate({
-              inputRange: [0, 1],
-              outputRange: [20, 0],
-            }),
-          }],
+          transform: [
+            {
+              translateY: animationValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [20, 0],
+              }),
+            },
+          ],
         },
       ]}
     >
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>{message.title}</Text>
+        <Text style={[styles.title, { color: colors.text }]}>
+          {message.title}
+        </Text>
         {message.riskLevel && (
-          <View style={[styles.riskBadge, { backgroundColor: getRiskColor(message.riskLevel) }]}>
-            <Text style={styles.riskText}>{message.riskLevel.toUpperCase()}</Text>
+          <View
+            style={[
+              styles.riskBadge,
+              { backgroundColor: getRiskColor(message.riskLevel) },
+            ]}
+          >
+            <Text style={styles.riskText}>
+              {message.riskLevel.toUpperCase()}
+            </Text>
           </View>
         )}
       </View>
-      
+
       <View style={styles.dataContainer}>
         {message.data.map((item, index) => (
           <View key={`${item.metric}-${index}`} style={styles.dataRow}>
             <View style={styles.metricInfo}>
-              <Text style={[styles.metricName, { color: colors.text }]}>{item.metric}</Text>
+              <Text style={[styles.metricName, { color: colors.text }]}>
+                {item.metric}
+              </Text>
               <View style={styles.valueContainer}>
                 <Text style={[styles.value, { color: colors.text }]}>
-                  {item.value} {item.unit && <Text style={[styles.unit, { color: colors.textSecondary }]}>{item.unit}</Text>}
+                  {item.value}{' '}
+                  {item.unit && (
+                    <Text
+                      style={[styles.unit, { color: colors.textSecondary }]}
+                    >
+                      {item.unit}
+                    </Text>
+                  )}
                 </Text>
                 {item.trend && (
-                  <Text style={styles.trendIcon}>{getTrendIcon(item.trend)}</Text>
+                  <Text style={styles.trendIcon}>
+                    {getTrendIcon(item.trend)}
+                  </Text>
                 )}
               </View>
             </View>
             {item.status && (
-              <View style={[styles.statusIndicator, { backgroundColor: getStatusColor(item.status) }]} />
+              <View
+                style={[
+                  styles.statusIndicator,
+                  { backgroundColor: getStatusColor(item.status) },
+                ]}
+              />
             )}
           </View>
         ))}
@@ -98,7 +135,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginVertical: Spacing.xs,
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   header: {
     flexDirection: 'row',

@@ -1,15 +1,14 @@
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { Elevation } from '@/constants/Colors';
+import { GoalTrackingMessage } from '@/src/domain/entities/ChatMessage';
 import React from 'react';
 import {
   Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-  } from 'react-native';
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
-import { GoalTrackingMessage } from '@/src/domain/entities/ChatMessage';
-
+  View,
+} from 'react-native';
 
 interface GoalTrackingCardProps {
   message: GoalTrackingMessage;
@@ -19,44 +18,55 @@ interface GoalTrackingCardProps {
   onViewDetails: (goalId: string) => void;
 }
 
-const GoalTrackingCard: React.FC<GoalTrackingCardProps> = ({ 
-  message, 
-  colors, 
-  animationValue, 
-  onUpdateProgress, 
-  onViewDetails 
+const GoalTrackingCard: React.FC<GoalTrackingCardProps> = ({
+  message,
+  colors,
+  animationValue,
+  onUpdateProgress,
+  onViewDetails,
 }) => {
   const progressPercentage = (message.progress / message.goal.target) * 100;
   const isCompleted = message.progress >= message.goal.target;
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
         { backgroundColor: colors.surface },
         animationValue && {
           opacity: animationValue,
-          transform: [{
-            scale: animationValue.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.9, 1],
-            }),
-          }],
+          transform: [
+            {
+              scale: animationValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.9, 1],
+              }),
+            },
+          ],
         },
       ]}
     >
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: colors.primary }]}>
+        <View
+          style={[styles.iconContainer, { backgroundColor: colors.primary }]}
+        >
           <Text style={styles.icon}>🎯</Text>
         </View>
         <View style={styles.headerText}>
-          <Text style={[styles.title, { color: colors.text }]}>{message.goal.title}</Text>
+          <Text style={[styles.title, { color: colors.text }]}>
+            {message.goal.title}
+          </Text>
           <Text style={[styles.description, { color: colors.textSecondary }]}>
             {message.goal.description}
           </Text>
         </View>
         {isCompleted && (
-          <View style={[styles.completedBadge, { backgroundColor: colors.healthGood }]}>
+          <View
+            style={[
+              styles.completedBadge,
+              { backgroundColor: colors.healthGood },
+            ]}
+          >
             <Text style={styles.completedText}>✓</Text>
           </View>
         )}
@@ -72,15 +82,19 @@ const GoalTrackingCard: React.FC<GoalTrackingCardProps> = ({
           </Text>
         </View>
 
-        <View style={[styles.progressBar, { backgroundColor: colors.background }]}>
-          <View 
+        <View
+          style={[styles.progressBar, { backgroundColor: colors.background }]}
+        >
+          <View
             style={[
-              styles.progressFill, 
-              { 
-                backgroundColor: isCompleted ? colors.healthGood : colors.primary,
+              styles.progressFill,
+              {
+                backgroundColor: isCompleted
+                  ? colors.healthGood
+                  : colors.primary,
                 width: `${Math.min(progressPercentage, 100)}%`,
-              }
-            ]} 
+              },
+            ]}
           />
         </View>
 
@@ -93,25 +107,46 @@ const GoalTrackingCard: React.FC<GoalTrackingCardProps> = ({
 
       <View style={styles.actionButtons}>
         <TouchableOpacity
-          style={[styles.actionButton, styles.updateButton, { backgroundColor: colors.primary }]}
-          onPress={() => onUpdateProgress(message.goal.id, message.progress + 1)}
+          style={[
+            styles.actionButton,
+            styles.updateButton,
+            { backgroundColor: colors.primary },
+          ]}
+          onPress={() =>
+            onUpdateProgress(message.goal.id, message.progress + 1)
+          }
           activeOpacity={0.8}
         >
-          <Text style={[styles.actionButtonText, { color: colors.surface }]}>+1 Progress</Text>
+          <Text style={[styles.actionButtonText, { color: colors.surface }]}>
+            +1 Progress
+          </Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity
-          style={[styles.actionButton, styles.detailsButton, { backgroundColor: colors.background }]}
+          style={[
+            styles.actionButton,
+            styles.detailsButton,
+            { backgroundColor: colors.background },
+          ]}
           onPress={() => onViewDetails(message.goal.id)}
           activeOpacity={0.8}
         >
-          <Text style={[styles.actionButtonText, { color: colors.text }]}>View Details</Text>
+          <Text style={[styles.actionButtonText, { color: colors.text }]}>
+            View Details
+          </Text>
         </TouchableOpacity>
       </View>
 
       {isCompleted && (
-        <View style={[styles.completedMessage, { backgroundColor: colors.healthGood + '20' }]}>
-          <Text style={[styles.completedMessageText, { color: colors.healthGood }]}>
+        <View
+          style={[
+            styles.completedMessage,
+            { backgroundColor: colors.healthGood + '20' },
+          ]}
+        >
+          <Text
+            style={[styles.completedMessageText, { color: colors.healthGood }]}
+          >
             🎉 Goal completed! Great job!
           </Text>
         </View>
@@ -125,7 +160,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginVertical: Spacing.xs,
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   header: {
     flexDirection: 'row',

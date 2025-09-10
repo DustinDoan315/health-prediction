@@ -1,15 +1,14 @@
+import { BorderRadius, Spacing, Typography } from '@/constants';
+import { Elevation } from '@/constants/Colors';
+import { VoiceMessage } from '@/src/domain/entities/ChatMessage';
 import React, { useState } from 'react';
 import {
   Animated,
   StyleSheet,
   Text,
   TouchableOpacity,
-  View
-  } from 'react-native';
-import { BorderRadius, Spacing, Typography } from '@/constants';
-import { Colors } from '@/constants/Colors';
-import { VoiceMessage } from '@/src/domain/entities/ChatMessage';
-
+  View,
+} from 'react-native';
 
 interface VoiceMessageCardProps {
   message: VoiceMessage;
@@ -20,13 +19,13 @@ interface VoiceMessageCardProps {
   onRetry: () => void;
 }
 
-const VoiceMessageCard: React.FC<VoiceMessageCardProps> = ({ 
-  message, 
-  colors, 
-  animationValue, 
-  onPlay, 
-  onStop, 
-  onRetry 
+const VoiceMessageCard: React.FC<VoiceMessageCardProps> = ({
+  message,
+  colors,
+  animationValue,
+  onPlay,
+  onStop,
+  onRetry,
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [waveformAnimation] = useState(new Animated.Value(0));
@@ -34,7 +33,7 @@ const VoiceMessageCard: React.FC<VoiceMessageCardProps> = ({
   const handlePlay = () => {
     setIsPlaying(true);
     onPlay();
-    
+
     Animated.loop(
       Animated.sequence([
         Animated.timing(waveformAnimation, {
@@ -66,23 +65,27 @@ const VoiceMessageCard: React.FC<VoiceMessageCardProps> = ({
   };
 
   return (
-    <Animated.View 
+    <Animated.View
       style={[
         styles.container,
         { backgroundColor: colors.surface },
         animationValue && {
           opacity: animationValue,
-          transform: [{
-            translateY: animationValue.interpolate({
-              inputRange: [0, 1],
-              outputRange: [10, 0],
-            }),
-          }],
+          transform: [
+            {
+              translateY: animationValue.interpolate({
+                inputRange: [0, 1],
+                outputRange: [10, 0],
+              }),
+            },
+          ],
         },
       ]}
     >
       <View style={styles.header}>
-        <View style={[styles.iconContainer, { backgroundColor: colors.primary }]}>
+        <View
+          style={[styles.iconContainer, { backgroundColor: colors.primary }]}
+        >
           <Text style={styles.icon}>🎤</Text>
         </View>
         <View style={styles.headerText}>
@@ -99,15 +102,28 @@ const VoiceMessageCard: React.FC<VoiceMessageCardProps> = ({
 
       {message.isRecording && (
         <View style={styles.recordingContainer}>
-          <View style={[styles.recordingIndicator, { backgroundColor: colors.error }]} />
-          <Text style={[styles.recordingText, { color: colors.error }]}>Recording...</Text>
+          <View
+            style={[
+              styles.recordingIndicator,
+              { backgroundColor: colors.error },
+            ]}
+          />
+          <Text style={[styles.recordingText, { color: colors.error }]}>
+            Recording...
+          </Text>
         </View>
       )}
 
       {message.transcript && (
         <View style={styles.transcriptContainer}>
-          <Text style={[styles.transcriptLabel, { color: colors.textSecondary }]}>Transcript:</Text>
-          <Text style={[styles.transcriptText, { color: colors.text }]}>{message.transcript}</Text>
+          <Text
+            style={[styles.transcriptLabel, { color: colors.textSecondary }]}
+          >
+            Transcript:
+          </Text>
+          <Text style={[styles.transcriptText, { color: colors.text }]}>
+            {message.transcript}
+          </Text>
         </View>
       )}
 
@@ -115,11 +131,16 @@ const VoiceMessageCard: React.FC<VoiceMessageCardProps> = ({
         {message.audioUrl ? (
           <View style={styles.playbackControls}>
             <TouchableOpacity
-              style={[styles.controlButton, { backgroundColor: colors.primary }]}
+              style={[
+                styles.controlButton,
+                { backgroundColor: colors.primary },
+              ]}
               onPress={isPlaying ? handleStop : handlePlay}
               activeOpacity={0.8}
             >
-              <Text style={[styles.controlButtonText, { color: colors.surface }]}>
+              <Text
+                style={[styles.controlButtonText, { color: colors.surface }]}
+              >
                 {isPlaying ? '⏹️' : '▶️'}
               </Text>
             </TouchableOpacity>
@@ -150,11 +171,16 @@ const VoiceMessageCard: React.FC<VoiceMessageCardProps> = ({
               Audio processing failed
             </Text>
             <TouchableOpacity
-              style={[styles.retryButton, { backgroundColor: colors.background }]}
+              style={[
+                styles.retryButton,
+                { backgroundColor: colors.background },
+              ]}
               onPress={onRetry}
               activeOpacity={0.8}
             >
-              <Text style={[styles.retryButtonText, { color: colors.text }]}>Retry</Text>
+              <Text style={[styles.retryButtonText, { color: colors.text }]}>
+                Retry
+              </Text>
             </TouchableOpacity>
           </View>
         )}
@@ -168,7 +194,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     padding: Spacing.md,
     marginVertical: Spacing.xs,
-    ...Colors.Elevation.card,
+    ...Elevation.card,
   },
   header: {
     flexDirection: 'row',
