@@ -1,28 +1,28 @@
 import * as Haptics from 'expo-haptics';
 import { logoutUser } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
-import { setThemeMode } from '@/store/slices/themeSlice';
+import { setThemeModeAsync } from '@/store/slices';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
 
 import {
-    Alert,
-    Platform,
-    SafeAreaView,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Alert,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 import {
-    BorderRadius,
-    Colors,
-    Elevation,
+  BorderRadius,
+  Colors,
+  Elevation,
 } from '@/constants/Colors';
 import {
-    Spacing,
-    Typography,
+  Spacing,
+  Typography,
 } from '@/constants';
 
 
@@ -60,7 +60,7 @@ export default function SettingsScreen() {
 
   const handleThemeChange = (newMode: 'light' | 'dark' | 'system') => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    dispatch(setThemeMode(newMode));
+    dispatch(setThemeModeAsync(newMode));
   };
 
   const settingsOptions = [

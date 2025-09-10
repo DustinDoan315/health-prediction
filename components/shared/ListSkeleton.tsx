@@ -1,7 +1,7 @@
 import { BorderRadius, Colors, Spacing } from '@/constants';
-import { useColorScheme } from '@/hooks';
-import { StyleSheet, View } from 'react-native';
 import { Skeleton } from './Skeleton';
+import { StyleSheet, View } from 'react-native';
+import { useColorScheme } from '@/hooks';
 
 
 interface IListSkeletonProps {

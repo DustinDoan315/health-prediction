@@ -1,7 +1,4 @@
-/**
- * Home Screen Components
- * All components specific to the home screen
- */
+
 
 export { default as ActionTiles } from './ActionTiles';
 export { default as HomeHeader } from './HomeHeader';

@@ -1,7 +1,4 @@
-/**
- * Error Messages
- * Centralized error messages for consistent error handling
- */
+
 
 export const ErrorMessages = {
   // Authentication Errors

@@ -1,7 +1,4 @@
-/**
- * Spacing system for consistent layout
- * Based on 4px grid system
- */
+
 export const Spacing = {
   xs: 4,
   sm: 8,

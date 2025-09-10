@@ -1,7 +1,4 @@
-/**
- * Static Content
- * Static content like disclaimers, legal text, and informational content
- */
+
 
 export const StaticContent = {
   // Disclaimers

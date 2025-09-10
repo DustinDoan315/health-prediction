@@ -1,7 +1,4 @@
-/**
- * Shared Components
- * Reusable components used across multiple screens
- */
+
 
 export * from './AnimatedCard';
 export * from './CardSkeleton';

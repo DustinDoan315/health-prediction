@@ -1,4 +1,4 @@
-import { fetchHealthStats, fetchPredictions, toggleTheme } from '@/store/slices';
+import { fetchHealthStats, fetchPredictions, toggleThemeAsync } from '@/store/slices';
 import { MoodValue } from '@/components/screens/home/MoodCard';
 import { useAppDispatch, useAppSelector } from './redux';
 import { useCallback, useEffect, useState } from 'react';
@@ -29,8 +29,8 @@ export const useHomeScreen = () => {
   }, []);
 
   const handleToggleTheme = useCallback(() => {
-    dispatch(toggleTheme());
-  }, [dispatch]);
+    dispatch(toggleThemeAsync(isDark ? 'dark' : 'light'));
+  }, [dispatch, isDark]);
 
   const onRefresh = useCallback(async () => {
     if (isAuthenticated && user) {

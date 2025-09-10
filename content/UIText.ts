@@ -1,8 +1,4 @@
-/**
- * UI Text Content
- * Centralized text content for all user interface elements
- * Structured for easy i18n implementation
- */
+
 
 export const UIText = {
   // Navigation & Headers

@@ -1,7 +1,4 @@
-/**
- * Typography system for consistent text styling
- * Medical-grade typography with large, readable numerics
- */
+
 export const Typography = {
   h1: {
     fontSize: 32,

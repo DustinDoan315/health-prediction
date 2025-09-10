@@ -1,9 +1,3 @@
-/**
- * Health Prediction App - Tokenized Color System
- * Ensures contrast ≥ 4.5:1 for accessibility
- * Uses semantic colors for health-related UI elements
- */
-
 // Primary brand colors
 const primary = '#6C63FF';
 const secondary = '#00B0FF';
