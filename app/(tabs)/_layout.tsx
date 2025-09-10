@@ -1,17 +1,16 @@
-import TabBarBackground from '@/components/ui/TabBarBackground';
-import { Colors } from '@/constants';
 import { HapticTab } from '@/components/shared';
 import { IconSymbol } from '@/components/ui/IconSymbol';
-import { Platform } from 'react-native';
-import { router, Tabs } from 'expo-router';
+import TabBarBackground from '@/components/ui/TabBarBackground';
+import { Colors } from '@/constants';
 import { UIText } from '@/content';
 import { useAppSelector } from '@/hooks';
+import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
-
+import { Platform } from 'react-native';
 
 export default function TabLayout() {
   const { isAuthenticated } = useAppSelector(state => state.auth);
-  const { isDark } = useAppSelector((state) => state.theme);
+  const { isDark } = useAppSelector(state => state.theme);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -27,26 +26,30 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarActiveTintColor: Colors[isDark ? 'dark' : 'light'].primary,
+        tabBarInactiveTintColor:
+          Colors[isDark ? 'dark' : 'light'].textSecondary,
         headerShown: false,
         tabBarButton: HapticTab,
         tabBarBackground: TabBarBackground,
         tabBarStyle: Platform.select({
           ios: {
-            position: 'absolute',
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 90,
-            paddingBottom: 30,
+            height: 85,
+            paddingBottom: 25,
             elevation: 0,
-            shadowOpacity: 0.1,
+            shadowOpacity: isDark ? 0.2 : 0.08,
             shadowRadius: 8,
             shadowOffset: { width: 0, height: -2 },
+            backgroundColor: Colors[isDark ? 'dark' : 'light'].surface,
+            borderTopWidth: 1,
+            borderTopColor: isDark ? '#374151' : '#E5E7EB',
           },
           default: {
             height: 65,
             paddingBottom: 10,
             elevation: 8,
+            backgroundColor: Colors[isDark ? 'dark' : 'light'].surface,
+            borderTopWidth: 1,
+            borderTopColor: isDark ? '#374151' : '#E5E7EB',
           },
         }),
         tabBarIconStyle: {
@@ -57,16 +60,17 @@ export default function TabLayout() {
           fontWeight: '500',
           marginTop: 2,
         },
-      }}>
+      }}
+    >
       <Tabs.Screen
         name="index"
         options={{
           title: UIText.navigation.home,
           tabBarIcon: ({ color, focused }) => (
-            <IconSymbol 
-              size={focused ? 30 : 26} 
-              name="house.fill" 
-              color={color} 
+            <IconSymbol
+              size={focused ? 30 : 26}
+              name="house.fill"
+              color={color}
             />
           ),
         }}
@@ -76,10 +80,10 @@ export default function TabLayout() {
         options={{
           title: UIText.navigation.chat,
           tabBarIcon: ({ color, focused }) => (
-            <IconSymbol 
-              size={focused ? 30 : 26} 
-              name="message.fill" 
-              color={color} 
+            <IconSymbol
+              size={focused ? 30 : 26}
+              name="message.fill"
+              color={color}
             />
           ),
         }}
@@ -89,10 +93,10 @@ export default function TabLayout() {
         options={{
           title: UIText.navigation.history,
           tabBarIcon: ({ color, focused }) => (
-            <IconSymbol 
-              size={focused ? 30 : 26} 
-              name="list.bullet" 
-              color={color} 
+            <IconSymbol
+              size={focused ? 30 : 26}
+              name="list.bullet"
+              color={color}
             />
           ),
         }}
@@ -102,10 +106,10 @@ export default function TabLayout() {
         options={{
           title: UIText.navigation.settings,
           tabBarIcon: ({ color, focused }) => (
-            <IconSymbol 
-              size={focused ? 30 : 26} 
-              name="gearshape.fill" 
-              color={color} 
+            <IconSymbol
+              size={focused ? 30 : 26}
+              name="gearshape.fill"
+              color={color}
             />
           ),
         }}

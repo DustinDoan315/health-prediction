@@ -1,55 +1,65 @@
-import * as Haptics from 'expo-haptics';
 import { AnimatedCard, MedicalHistorySkeleton } from '@/components';
+import { UIText } from '@/content';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { HealthPrediction } from '@/services';
+import { fetchPredictions } from '@/store/slices';
+import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
+import { memo, useCallback, useEffect, useState } from 'react';
+
 import {
   BorderRadius,
   Colors,
   Elevation,
   Spacing,
-  Typography
-  } from '@/constants';
-import { fetchPredictions } from '@/store/slices';
-import { HealthPrediction } from '@/services';
+  Typography,
+} from '@/constants';
 import {
-  memo,
-  useCallback,
-  useEffect,
-  useState
-  } from 'react';
-import { router } from 'expo-router';
-import { UIText } from '@/content';
-import { useAppDispatch, useAppSelector } from '@/hooks';
-
-import {
-    FlatList,
-    Platform,
-    RefreshControl,
-    SafeAreaView,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  FlatList,
+  RefreshControl,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
-
-const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: HealthPrediction; onPress: (prediction: HealthPrediction) => void }) {
-  const { isDark } = useAppSelector((state) => state.theme);
+const PredictionItem = memo(function PredictionItem({
+  item,
+  onPress,
+}: {
+  item: HealthPrediction;
+  onPress: (prediction: HealthPrediction) => void;
+}) {
+  const { isDark } = useAppSelector(state => state.theme);
   const colors = Colors[isDark ? 'dark' : 'light'];
 
-  const getRiskColor = useCallback((riskLevel: string) => {
-    switch (riskLevel) {
-      case 'low': return colors.healthGood;
-      case 'medium': return colors.healthWatch;
-      case 'high': return colors.healthAttention;
-      default: return colors.healthNeutral;
-    }
-  }, [colors]);
+  const getRiskColor = useCallback(
+    (riskLevel: string) => {
+      switch (riskLevel) {
+        case 'low':
+          return colors.healthGood;
+        case 'medium':
+          return colors.healthWatch;
+        case 'high':
+          return colors.healthAttention;
+        default:
+          return colors.healthNeutral;
+      }
+    },
+    [colors]
+  );
 
   const getRiskIcon = useCallback((riskLevel: string) => {
     switch (riskLevel) {
-      case 'low': return '✅';
-      case 'medium': return '⚠️';
-      case 'high': return '❌';
-      default: return '❓';
+      case 'low':
+        return '✅';
+      case 'medium':
+        return '⚠️';
+      case 'high':
+        return '❌';
+      default:
+        return '❓';
     }
   }, []);
 
@@ -59,11 +69,15 @@ const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: H
   };
 
   return (
-    <AnimatedCard 
-      style={[styles.predictionCard, { backgroundColor: colors.surface }] as any}
+    <AnimatedCard
+      style={
+        [styles.predictionCard, { backgroundColor: colors.surface }] as any
+      }
       onPress={handlePress}
     >
-      <View style={[styles.cardHeader, { borderBottomColor: colors.background }]}>
+      <View
+        style={[styles.cardHeader, { borderBottomColor: colors.background }]}
+      >
         <View style={styles.dateContainer}>
           <Text style={[styles.dateText, { color: colors.text }]}>
             {new Date(item.created_at).toLocaleDateString()}
@@ -72,32 +86,59 @@ const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: H
             {new Date(item.created_at).toLocaleTimeString()}
           </Text>
         </View>
-        <View style={[styles.riskBadge, { backgroundColor: getRiskColor(item.risk_level) }]}>
+        <View
+          style={[
+            styles.riskBadge,
+            { backgroundColor: getRiskColor(item.risk_level) },
+          ]}
+        >
           <Text style={styles.riskIcon}>{getRiskIcon(item.risk_level)}</Text>
-          <Text style={[styles.riskText, { color: colors.surface }]}>{item.risk_level.toUpperCase()}</Text>
+          <Text style={[styles.riskText, { color: colors.surface }]}>
+            {item.risk_level.toUpperCase()}
+          </Text>
         </View>
       </View>
 
       <View style={styles.cardContent}>
         <View style={styles.statsRow}>
           <View style={styles.statItem}>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>BMI</Text>
-            <Text style={[styles.statValue, { color: colors.text }]}>{item.bmi.toFixed(1)}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+              BMI
+            </Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>
+              {item.bmi.toFixed(1)}
+            </Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>{UIText.medicalHistory.riskScore}</Text>
-            <Text style={[styles.statValue, { color: colors.text }]}>{(item.risk_score * 100).toFixed(0)}%</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+              {UIText.medicalHistory.riskScore}
+            </Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>
+              {(item.risk_score * 100).toFixed(0)}%
+            </Text>
           </View>
           <View style={styles.statItem}>
-            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>Age</Text>
-            <Text style={[styles.statValue, { color: colors.text }]}>{item.age}</Text>
+            <Text style={[styles.statLabel, { color: colors.textSecondary }]}>
+              Age
+            </Text>
+            <Text style={[styles.statValue, { color: colors.text }]}>
+              {item.age}
+            </Text>
           </View>
         </View>
 
         {item.recommendations && item.recommendations.length > 0 && (
           <View style={styles.recommendationsContainer}>
-            <Text style={[styles.recommendationsTitle, { color: colors.text }]}>{UIText.medicalHistory.topRecommendation}</Text>
-            <Text style={[styles.recommendationText, { color: colors.textSecondary }]} numberOfLines={2}>
+            <Text style={[styles.recommendationsTitle, { color: colors.text }]}>
+              {UIText.medicalHistory.topRecommendation}
+            </Text>
+            <Text
+              style={[
+                styles.recommendationText,
+                { color: colors.textSecondary },
+              ]}
+              numberOfLines={2}
+            >
               {item.recommendations[0]}
             </Text>
           </View>
@@ -105,10 +146,14 @@ const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: H
       </View>
 
       <View style={styles.cardFooter}>
-        <Text style={[styles.viewDetailsText, { color: colors.primary }]}>{UIText.medicalHistory.viewDetails}</Text>
+        <Text style={[styles.viewDetailsText, { color: colors.primary }]}>
+          {UIText.medicalHistory.viewDetails}
+        </Text>
         {item.ai_powered && (
           <View style={[styles.aiTag, { backgroundColor: colors.primary }]}>
-            <Text style={[styles.aiTagText, { color: colors.surface }]}>AI</Text>
+            <Text style={[styles.aiTagText, { color: colors.surface }]}>
+              AI
+            </Text>
           </View>
         )}
       </View>
@@ -118,9 +163,11 @@ const PredictionItem = memo(function PredictionItem({ item, onPress }: { item: H
 
 export default function MedicalHistoryScreen() {
   const dispatch = useAppDispatch();
-  const { isDark } = useAppSelector((state) => state.theme);
+  const { isDark } = useAppSelector(state => state.theme);
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const { predictions, isLoading, predictionsLoaded } = useAppSelector((state) => state.health);
+  const { predictions, isLoading, predictionsLoaded } = useAppSelector(
+    state => state.health
+  );
   const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
@@ -139,7 +186,7 @@ export default function MedicalHistoryScreen() {
   const handlePredictionPress = useCallback((prediction: HealthPrediction) => {
     router.push({
       pathname: '/prediction-result',
-      params: { predictionId: prediction.id.toString() }
+      params: { predictionId: prediction.id.toString() },
     });
   }, []);
 
@@ -148,39 +195,53 @@ export default function MedicalHistoryScreen() {
     router.push('/health-prediction');
   }, []);
 
-  const renderPredictionItem = useCallback(({ item }: { item: HealthPrediction }) => (
-    <PredictionItem item={item} onPress={handlePredictionPress} />
-  ), [handlePredictionPress]);
+  const renderPredictionItem = useCallback(
+    ({ item }: { item: HealthPrediction }) => (
+      <PredictionItem item={item} onPress={handlePredictionPress} />
+    ),
+    [handlePredictionPress]
+  );
 
-  const keyExtractor = useCallback((item: HealthPrediction) => item.id.toString(), []);
+  const keyExtractor = useCallback(
+    (item: HealthPrediction) => item.id.toString(),
+    []
+  );
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyEmoji}>📊</Text>
-      <Text style={[styles.emptyTitle, { color: colors.text }]}>{UIText.medicalHistory.emptyTitle}</Text>
+      <Text style={[styles.emptyTitle, { color: colors.text }]}>
+        {UIText.medicalHistory.emptyTitle}
+      </Text>
       <Text style={[styles.emptySubtitle, { color: colors.textSecondary }]}>
         Start tracking your health by creating your first assessment
       </Text>
-      <TouchableOpacity 
+      <TouchableOpacity
         style={[styles.emptyButton, { backgroundColor: colors.primary }]}
         onPress={handleAddPrediction}
       >
-        <Text style={[styles.emptyButtonText, { color: colors.surface }]}>{UIText.medicalHistory.createAssessment}</Text>
+        <Text style={[styles.emptyButtonText, { color: colors.surface }]}>
+          {UIText.medicalHistory.createAssessment}
+        </Text>
       </TouchableOpacity>
     </View>
   );
 
-
-
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
       <View style={[styles.header, { backgroundColor: colors.surface }]}>
-        <Text style={[styles.headerTitle, { color: colors.text }]}>Health History</Text>
-        <TouchableOpacity 
+        <Text style={[styles.headerTitle, { color: colors.text }]}>
+          Health History
+        </Text>
+        <TouchableOpacity
           style={[styles.addButton, { backgroundColor: colors.primary }]}
           onPress={handleAddPrediction}
         >
-          <Text style={[styles.addButtonText, { color: colors.surface }]}>+</Text>
+          <Text style={[styles.addButtonText, { color: colors.surface }]}>
+            +
+          </Text>
         </TouchableOpacity>
       </View>
 
@@ -193,7 +254,7 @@ export default function MedicalHistoryScreen() {
           keyExtractor={keyExtractor}
           contentContainerStyle={[
             styles.listContainer,
-            predictions.length === 0 && styles.emptyListContainer
+            predictions.length === 0 && styles.emptyListContainer,
           ]}
           refreshControl={
             <RefreshControl
@@ -223,7 +284,6 @@ export default function MedicalHistoryScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: Platform.OS === 'ios' ? 90 : 65,
   },
   header: {
     flexDirection: 'row',

@@ -47,31 +47,31 @@ export const Colors = {
     success,
     warning,
     error,
-    
+
     // Surface colors
     surface,
     background,
-    
+
     // Text colors
     text: textPrimary,
     textSecondary,
-    
+
     // Legacy support
     tint: primary,
     icon: textSecondary,
     tabIconDefault: textSecondary,
     tabIconSelected: primary,
-    
+
     // Health semantic colors
     healthGood,
     healthWatch,
     healthAttention,
     healthNeutral,
-    
+
     // Gradient
     gradientStart,
     gradientEnd,
-    
+
     // Mood gradients
     moodGreatGradient,
     moodGoodGradient,
@@ -85,31 +85,31 @@ export const Colors = {
     success: '#22C55E',
     warning: '#FCD34D',
     error: '#F87171',
-    
+
     // Surface colors
     surface: surfaceDark,
     background: backgroundDark,
-    
+
     // Text colors
     text: textPrimaryDark,
-    textSecondary: textSecondaryDark,
-    
+    textSecondary: '#E5E7EB',
+
     // Legacy support
     tint: '#8B85FF',
-    icon: textSecondaryDark,
-    tabIconDefault: textSecondaryDark,
+    icon: '#E5E7EB',
+    tabIconDefault: '#E5E7EB',
     tabIconSelected: '#8B85FF',
-    
+
     // Health semantic colors (adjusted for dark mode)
     healthGood: '#34D399',
     healthWatch: '#FBBF24',
     healthAttention: '#F87171',
     healthNeutral: '#9CA3AF',
-    
+
     // Gradient
     gradientStart: '#33BFFF',
     gradientEnd: '#8B85FF',
-    
+
     // Mood gradients
     moodGreatGradient: moodGreatGradientDark,
     moodGoodGradient: moodGoodGradientDark,
@@ -117,7 +117,6 @@ export const Colors = {
     moodBadGradient: moodBadGradientDark,
   },
 };
-
 
 // Border radius system
 export const BorderRadius = {

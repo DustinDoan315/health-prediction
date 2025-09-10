@@ -217,8 +217,8 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
     [createMessageAnimation]
   );
 
-  const handleProactiveDismiss = useCallback(() => {
-    console.log('Dismissing proactive tip');
+  const handleProactiveDismiss = useCallback((messageId: string) => {
+    setMessages(prev => prev.filter(msg => msg.id !== messageId));
   }, []);
 
   const handleQuizAnswer = useCallback((questionId: string, answer: number) => {
@@ -354,7 +354,7 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
               colors={colors}
               animationValue={animation}
               onActionPress={handleProactiveAction}
-              onDismiss={handleProactiveDismiss}
+              onDismiss={() => handleProactiveDismiss(item.id)}
             />
           );
 
@@ -602,7 +602,6 @@ const EnhancedChatScreen: React.FC<EnhancedChatScreenProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingBottom: Platform.OS === 'ios' ? 90 : 65,
   },
   header: {
     flexDirection: 'row',

@@ -4,18 +4,16 @@ import {
   HomeScreenSkeleton,
   MetricsGrid,
   MoodCard,
-  UserStatusCard
-  } from '@/components/screens/home';
+  UserStatusCard,
+} from '@/components/screens/home';
 import { Colors } from '@/constants';
 import { useHomeScreen } from '@/hooks';
 import {
-  Platform,
   RefreshControl,
   SafeAreaView,
   ScrollView,
   StyleSheet,
 } from 'react-native';
-
 
 export default function HomeScreen() {
   const {
@@ -37,9 +35,11 @@ export default function HomeScreen() {
   const colors = Colors[isDark ? 'dark' : 'light'];
 
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView 
-        style={styles.scrollView} 
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <ScrollView
+        style={styles.scrollView}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -50,34 +50,32 @@ export default function HomeScreen() {
           />
         }
       >
-        <HomeHeader 
+        <HomeHeader
           userName={userName}
           isDark={isDark}
           onToggleTheme={handleToggleTheme}
         />
 
-        <MoodCard 
+        <MoodCard
           selectedMood={mood}
           onMoodSelect={handleMoodSelect}
           isDark={isDark}
         />
 
-        <UserStatusCard 
-          mood={mood} 
-          isDark={isDark} 
+        <UserStatusCard
+          mood={mood}
+          isDark={isDark}
           isNewUser={!stats || Object.keys(stats).length === 0}
           userStats={stats}
         />
 
-        <ActionTiles 
-          isDark={isDark} 
-          mood={mood} 
+        <ActionTiles
+          isDark={isDark}
+          mood={mood}
           isNewUser={!stats || Object.keys(stats).length === 0}
         />
 
-        {stats && (
-          <MetricsGrid stats={stats} isDark={isDark} />
-        )}
+        {stats && <MetricsGrid stats={stats} isDark={isDark} />}
       </ScrollView>
     </SafeAreaView>
   );
@@ -89,6 +87,5 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingBottom: Platform.OS === 'ios' ? 100 : 80,
   },
 });

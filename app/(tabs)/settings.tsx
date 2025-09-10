@@ -1,13 +1,14 @@
-import * as Haptics from 'expo-haptics';
-import { logoutUser } from '@/store/slices/authSlice';
-import { router } from 'expo-router';
-import { setThemeModeAsync } from '@/store/slices';
+import { Spacing, Typography } from '@/constants';
+import { BorderRadius, Colors, Elevation } from '@/constants/Colors';
 import { UIText } from '@/content';
 import { useAppDispatch, useAppSelector } from '@/hooks/redux';
+import { setThemeModeAsync } from '@/store/slices';
+import { logoutUser } from '@/store/slices/authSlice';
+import * as Haptics from 'expo-haptics';
+import { router } from 'expo-router';
 
 import {
   Alert,
-  Platform,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -15,42 +16,26 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import {
-  BorderRadius,
-  Colors,
-  Elevation,
-} from '@/constants/Colors';
-import {
-  Spacing,
-  Typography,
-} from '@/constants';
-
 
 export default function SettingsScreen() {
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
-  const { isDark, mode } = useAppSelector((state) => state.theme);
+  const { user } = useAppSelector(state => state.auth);
+  const { isDark, mode } = useAppSelector(state => state.theme);
   const colors = Colors[isDark ? 'dark' : 'light'];
-
-
 
   const handleLogout = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Logout',
-          style: 'destructive',
-          onPress: () => {
-            dispatch(logoutUser());
-            router.replace('/welcome');
-          },
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: () => {
+          dispatch(logoutUser());
+          router.replace('/welcome');
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleSettingPress = (onPress: () => void) => {
@@ -77,7 +62,11 @@ export default function SettingsScreen() {
           title: 'Notification Preferences',
           subtitle: 'Manage your notification settings',
           icon: '🔔',
-          onPress: () => Alert.alert('Coming Soon', 'Notification settings will be available soon'),
+          onPress: () =>
+            Alert.alert(
+              'Coming Soon',
+              'Notification settings will be available soon'
+            ),
         },
       ],
     },
@@ -88,13 +77,15 @@ export default function SettingsScreen() {
           title: 'Export Health Data',
           subtitle: 'Download your health predictions',
           icon: '📊',
-          onPress: () => Alert.alert('Coming Soon', 'Data export will be available soon'),
+          onPress: () =>
+            Alert.alert('Coming Soon', 'Data export will be available soon'),
         },
         {
           title: 'Health Goals',
           subtitle: 'Set and track your health goals',
           icon: '🎯',
-          onPress: () => Alert.alert('Coming Soon', 'Health goals will be available soon'),
+          onPress: () =>
+            Alert.alert('Coming Soon', 'Health goals will be available soon'),
         },
       ],
     },
@@ -103,69 +94,106 @@ export default function SettingsScreen() {
       items: [
         {
           title: 'Theme',
-          subtitle: mode === 'system' ? 'Follow system' : mode === 'dark' ? 'Dark mode' : 'Light mode',
+          subtitle:
+            mode === 'system'
+              ? 'Follow system'
+              : mode === 'dark'
+                ? 'Dark mode'
+                : 'Light mode',
           icon: isDark ? '🌙' : '☀️',
           onPress: () => {
-            Alert.alert(
-              'Choose Theme',
-              'Select your preferred theme',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Light', onPress: () => handleThemeChange('light') },
-                { text: 'Dark', onPress: () => handleThemeChange('dark') },
-                { text: 'System', onPress: () => handleThemeChange('system') },
-              ]
-            );
+            Alert.alert('Choose Theme', 'Select your preferred theme', [
+              { text: 'Cancel', style: 'cancel' },
+              { text: 'Light', onPress: () => handleThemeChange('light') },
+              { text: 'Dark', onPress: () => handleThemeChange('dark') },
+              { text: 'System', onPress: () => handleThemeChange('system') },
+            ]);
           },
         },
         {
           title: 'Privacy & Security',
           subtitle: 'Manage your privacy settings',
           icon: '🔒',
-          onPress: () => Alert.alert('Coming Soon', 'Privacy settings will be available soon'),
+          onPress: () =>
+            Alert.alert(
+              'Coming Soon',
+              'Privacy settings will be available soon'
+            ),
         },
         {
           title: 'Language',
           subtitle: 'Choose your preferred language',
           icon: '🌐',
-          onPress: () => Alert.alert('Coming Soon', 'Language selection will be available soon'),
+          onPress: () =>
+            Alert.alert(
+              'Coming Soon',
+              'Language selection will be available soon'
+            ),
         },
         {
           title: 'About',
           subtitle: 'App version and information',
           icon: 'ℹ️',
-          onPress: () => Alert.alert('About', 'Health Prediction App v1.0.0\nBuilt with React Native & Expo'),
+          onPress: () =>
+            Alert.alert(
+              'About',
+              'Health Prediction App v1.0.0\nBuilt with React Native & Expo'
+            ),
         },
       ],
     },
   ];
 
-
-
   return (
-    <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]}>
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+    <SafeAreaView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+      >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>{UIText.settings.title}</Text>
+          <Text style={[styles.headerTitle, { color: colors.text }]}>
+            {UIText.settings.title}
+          </Text>
         </View>
 
         {/* Profile Section */}
         <View style={styles.profileSection}>
-          <View style={[styles.profileCard, { backgroundColor: colors.surface }]}>
-            <View style={[styles.profilePic, { backgroundColor: colors.primary }]}>
-              <Text style={[styles.profileEmoji, { color: colors.surface }]}>👩‍⚕️</Text>
+          <View
+            style={[styles.profileCard, { backgroundColor: colors.surface }]}
+          >
+            <View
+              style={[styles.profilePic, { backgroundColor: colors.primary }]}
+            >
+              <Text style={[styles.profileEmoji, { color: colors.surface }]}>
+                👩‍⚕️
+              </Text>
             </View>
             <View style={styles.profileInfo}>
-              <Text style={[styles.profileName, { color: colors.text }]}>{user?.full_name || 'User'}</Text>
-              <Text style={[styles.profileEmail, { color: colors.textSecondary }]}>{user?.email || 'user@example.com'}</Text>
-              <Text style={[styles.profileStatus, { color: colors.primary }]}>{UIText.settings.member}</Text>
+              <Text style={[styles.profileName, { color: colors.text }]}>
+                {user?.full_name || 'User'}
+              </Text>
+              <Text
+                style={[styles.profileEmail, { color: colors.textSecondary }]}
+              >
+                {user?.email || 'user@example.com'}
+              </Text>
+              <Text style={[styles.profileStatus, { color: colors.primary }]}>
+                {UIText.settings.member}
+              </Text>
             </View>
-            <TouchableOpacity 
-              style={[styles.editButton, { backgroundColor: colors.background }]}
+            <TouchableOpacity
+              style={[
+                styles.editButton,
+                { backgroundColor: colors.background },
+              ]}
               onPress={() => router.push('/profile' as any)}
             >
-              <Text style={[styles.editIcon, { color: colors.textSecondary }]}>✏️</Text>
+              <Text style={[styles.editIcon, { color: colors.textSecondary }]}>
+                ✏️
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -173,21 +201,44 @@ export default function SettingsScreen() {
         {/* Settings Options */}
         {settingsOptions.map((section, sectionIndex) => (
           <View key={`section-${sectionIndex}`} style={styles.section}>
-            <Text style={[styles.sectionTitle, { color: colors.text }]}>{section.title}</Text>
+            <Text style={[styles.sectionTitle, { color: colors.text }]}>
+              {section.title}
+            </Text>
             {section.items.map((item, itemIndex) => (
               <TouchableOpacity
                 key={`item-${sectionIndex}-${itemIndex}`}
-                style={[styles.settingItem, { backgroundColor: colors.surface }]}
+                style={[
+                  styles.settingItem,
+                  { backgroundColor: colors.surface },
+                ]}
                 onPress={() => handleSettingPress(item.onPress)}
               >
-                <View style={[styles.settingIcon, { backgroundColor: colors.background }]}>
+                <View
+                  style={[
+                    styles.settingIcon,
+                    { backgroundColor: colors.background },
+                  ]}
+                >
                   <Text style={styles.settingEmoji}>{item.icon}</Text>
                 </View>
                 <View style={styles.settingContent}>
-                  <Text style={[styles.settingTitle, { color: colors.text }]}>{item.title}</Text>
-                  <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{item.subtitle}</Text>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>
+                    {item.title}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.settingSubtitle,
+                      { color: colors.textSecondary },
+                    ]}
+                  >
+                    {item.subtitle}
+                  </Text>
                 </View>
-                <Text style={[styles.settingArrow, { color: colors.textSecondary }]}>›</Text>
+                <Text
+                  style={[styles.settingArrow, { color: colors.textSecondary }]}
+                >
+                  ›
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -195,25 +246,47 @@ export default function SettingsScreen() {
 
         {/* Logout Button */}
         <View style={styles.section}>
-          <TouchableOpacity 
-            style={[styles.logoutButton, { backgroundColor: colors.surface, borderColor: colors.error }]} 
+          <TouchableOpacity
+            style={[
+              styles.logoutButton,
+              { backgroundColor: colors.surface, borderColor: colors.error },
+            ]}
             onPress={handleLogout}
           >
-            <View style={[styles.settingIcon, { backgroundColor: colors.error }]}>
-              <Text style={[styles.settingEmoji, { color: colors.surface }]}>🚪</Text>
+            <View
+              style={[styles.settingIcon, { backgroundColor: colors.error }]}
+            >
+              <Text style={[styles.settingEmoji, { color: colors.surface }]}>
+                🚪
+              </Text>
             </View>
             <View style={styles.settingContent}>
-              <Text style={[styles.settingTitle, { color: colors.error }]}>{UIText.settings.logout}</Text>
-              <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>{UIText.settings.logoutSubtitle}</Text>
+              <Text style={[styles.settingTitle, { color: colors.error }]}>
+                {UIText.settings.logout}
+              </Text>
+              <Text
+                style={[
+                  styles.settingSubtitle,
+                  { color: colors.textSecondary },
+                ]}
+              >
+                {UIText.settings.logoutSubtitle}
+              </Text>
             </View>
-            <Text style={[styles.settingArrow, { color: colors.error }]}>›</Text>
+            <Text style={[styles.settingArrow, { color: colors.error }]}>
+              ›
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* App Info */}
         <View style={styles.footer}>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>{UIText.settings.appName}</Text>
-          <Text style={[styles.footerText, { color: colors.textSecondary }]}>{UIText.settings.version}</Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+            {UIText.settings.appName}
+          </Text>
+          <Text style={[styles.footerText, { color: colors.textSecondary }]}>
+            {UIText.settings.version}
+          </Text>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -226,7 +299,6 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    paddingBottom: Platform.OS === 'ios' ? 100 : 80,
   },
   header: {
     paddingHorizontal: Spacing.lg,
