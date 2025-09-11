@@ -1,27 +1,27 @@
 import {
-    BorderRadius,
-    Colors,
-    Elevation,
-    Spacing,
-    Typography
+  BorderRadius,
+  Colors,
+  Elevation,
+  Spacing,
+  Typography
 } from '@/constants';
 import { UIText } from '@/content';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import {
-    memo,
-    useCallback,
-    useEffect,
-    useRef
+  memo,
+  useCallback,
+  useEffect,
+  useRef
 } from 'react';
 
 import {
-    Animated,
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
+  Animated,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
 } from 'react-native';
 
 
@@ -494,7 +494,7 @@ ActionTiles.displayName = 'ActionTiles';
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: Spacing.lg,
-    marginTop: Spacing.xl,
+    marginVertical: Spacing.xl,
   },
   sectionTitle: {
     ...Typography.h3,

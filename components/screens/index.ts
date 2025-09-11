@@ -17,3 +17,6 @@ export * from './welcome';
 
 // Prediction Result Screen
 export * from './prediction-result';
+
+// Medical History Screen
+export * from './medical-history';

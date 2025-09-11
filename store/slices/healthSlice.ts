@@ -1,20 +1,156 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import {
-    apiService,
-    HealthPrediction,
-    HealthPredictionRequest,
-    HealthStats
+  apiService,
+  HealthPrediction,
+  HealthPredictionRequest,
+  HealthStats
 } from '../../services/api';
 
+// Mock data for development
+const mockPredictions: HealthPrediction[] = [
+  {
+    id: 1,
+    user_id: 1,
+    age: 28,
+    height_cm: 175,
+    weight_kg: 70,
+    bmi: 22.9,
+    systolic_bp: 120,
+    diastolic_bp: 80,
+    cholesterol: 180,
+    glucose: 95,
+    smoking: false,
+    exercise_hours_per_week: 5,
+    risk_score: 0.15,
+    risk_level: 'low',
+    recommendations: [
+      'Maintain your current exercise routine of 5 hours per week',
+      'Continue with your healthy diet and avoid processed foods',
+      'Consider adding more cardiovascular exercises to your routine',
+      'Schedule regular health check-ups annually'
+    ],
+    ai_powered: true,
+    created_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+  },
+  {
+    id: 2,
+    user_id: 1,
+    age: 28,
+    height_cm: 175,
+    weight_kg: 72,
+    bmi: 23.5,
+    systolic_bp: 125,
+    diastolic_bp: 82,
+    cholesterol: 190,
+    glucose: 98,
+    smoking: false,
+    exercise_hours_per_week: 3,
+    risk_score: 0.25,
+    risk_level: 'medium',
+    recommendations: [
+      'Increase your exercise routine to at least 4-5 hours per week',
+      'Monitor your blood pressure regularly',
+      'Consider reducing sodium intake in your diet',
+      'Maintain a consistent sleep schedule of 7-8 hours'
+    ],
+    ai_powered: true,
+    created_at: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+  },
+  {
+    id: 3,
+    user_id: 1,
+    age: 28,
+    height_cm: 175,
+    weight_kg: 75,
+    bmi: 24.5,
+    systolic_bp: 130,
+    diastolic_bp: 85,
+    cholesterol: 200,
+    glucose: 105,
+    smoking: false,
+    exercise_hours_per_week: 2,
+    risk_score: 0.35,
+    risk_level: 'medium',
+    recommendations: [
+      'Significantly increase your physical activity to 5+ hours per week',
+      'Focus on cardiovascular exercises like running, cycling, or swimming',
+      'Consider consulting a nutritionist for dietary improvements',
+      'Monitor your blood glucose levels more frequently'
+    ],
+    ai_powered: false,
+    created_at: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(), // 1 week ago
+  },
+  {
+    id: 4,
+    user_id: 1,
+    age: 28,
+    height_cm: 175,
+    weight_kg: 78,
+    bmi: 25.5,
+    systolic_bp: 135,
+    diastolic_bp: 88,
+    cholesterol: 220,
+    glucose: 110,
+    smoking: false,
+    exercise_hours_per_week: 1,
+    risk_score: 0.45,
+    risk_level: 'high',
+    recommendations: [
+      'Immediately increase physical activity to 6+ hours per week',
+      'Consider working with a personal trainer for structured exercise',
+      'Implement a strict low-carb, high-protein diet',
+      'Schedule a consultation with a healthcare provider',
+      'Monitor blood pressure and glucose levels daily'
+    ],
+    ai_powered: true,
+    created_at: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString(), // 10 days ago
+  },
+  {
+    id: 5,
+    user_id: 1,
+    age: 28,
+    height_cm: 175,
+    weight_kg: 68,
+    bmi: 22.2,
+    systolic_bp: 115,
+    diastolic_bp: 75,
+    cholesterol: 170,
+    glucose: 90,
+    smoking: false,
+    exercise_hours_per_week: 6,
+    risk_score: 0.08,
+    risk_level: 'low',
+    recommendations: [
+      'Excellent health metrics! Keep up the great work',
+      'Continue your current exercise routine',
+      'Maintain your balanced diet',
+      'Consider adding meditation or stress management techniques'
+    ],
+    ai_powered: true,
+    created_at: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(), // 2 weeks ago
+  },
+];
+
+const mockStats: HealthStats = {
+  total_predictions: 5,
+  risk_distribution: {
+    low: 2,
+    medium: 2,
+    high: 1,
+  },
+  average_risk_score: 0.26,
+  ai_usage_percentage: 80,
+};
+
 const initialState: HealthState = {
-  predictions: [],
+  predictions: mockPredictions,
   currentPrediction: null,
-  stats: null,
+  stats: mockStats,
   isLoading: false,
   error: null,
   lastFetchTime: null,
-  predictionsLoaded: false,
-  statsLoaded: false,
+  predictionsLoaded: true,
+  statsLoaded: true,
 };
 
 interface HealthState {

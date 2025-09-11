@@ -1,7 +1,7 @@
-import { BorderRadius, Colors, Spacing } from '@/constants';
-import { ScrollView, StyleSheet, View } from 'react-native';
 import { Skeleton } from '@/components/shared';
+import { BorderRadius, Colors, Spacing } from '@/constants';
 import { useColorScheme } from '@/hooks';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 
 export function ProfileScreenSkeleton() {

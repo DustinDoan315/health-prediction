@@ -1,7 +1,6 @@
-import React from 'react';
 import { Colors } from '@/constants/Colors';
-import { DefaultTheme, ThemeProvider as RNThemeProvider } from '@react-navigation/native';
 import { useAppSelector } from '@/hooks';
+import { DefaultTheme, ThemeProvider as RNThemeProvider } from '@react-navigation/native';
 
 
 const CustomTheme = {

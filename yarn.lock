@@ -6111,7 +6111,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"expo-linear-gradient@npm:~15.0.6":
+"expo-linear-gradient@npm:^15.0.6":
   version: 15.0.6
   resolution: "expo-linear-gradient@npm:15.0.6"
   peerDependencies:
@@ -6955,7 +6955,7 @@ __metadata:
     expo-haptics: ~15.0.6
     expo-image: ~3.0.7
     expo-image-picker: ~17.0.7
-    expo-linear-gradient: ~15.0.6
+    expo-linear-gradient: ^15.0.6
     expo-linking: ~8.0.7
     expo-router: ~6.0.0
     expo-secure-store: ~15.0.6

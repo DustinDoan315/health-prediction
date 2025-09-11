@@ -8,6 +8,7 @@ import { router, Tabs } from 'expo-router';
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
 
+
 export default function TabLayout() {
   const { isAuthenticated } = useAppSelector(state => state.auth);
   const { isDark } = useAppSelector(state => state.theme);
@@ -53,7 +54,7 @@ export default function TabLayout() {
           },
         }),
         tabBarIconStyle: {
-          marginTop: 30,
+          marginTop: 45,
         },
         tabBarLabelStyle: {
           fontSize: 12,

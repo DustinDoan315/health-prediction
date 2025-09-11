@@ -10,10 +10,11 @@ import { Colors } from '@/constants';
 import { useHomeScreen } from '@/hooks';
 import {
   RefreshControl,
-  SafeAreaView,
   ScrollView,
   StyleSheet,
+  View,
 } from 'react-native';
+
 
 export default function HomeScreen() {
   const {
@@ -35,7 +36,7 @@ export default function HomeScreen() {
   const colors = Colors[isDark ? 'dark' : 'light'];
 
   return (
-    <SafeAreaView
+    <View
       style={[styles.container, { backgroundColor: colors.background }]}
     >
       <ScrollView
@@ -77,15 +78,17 @@ export default function HomeScreen() {
 
         {stats && <MetricsGrid stats={stats} isDark={isDark} />}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+   
   },
   scrollView: {
     flex: 1,
+    paddingVertical: 45,
   },
 });
