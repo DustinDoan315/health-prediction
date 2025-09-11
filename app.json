@@ -3,6 +3,7 @@
     "name": "health-prediction",
     "slug": "health-prediction",
     "version": "1.0.1",
+    "sdkVersion": "54.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "healthprediction",
@@ -53,7 +54,10 @@
           "organization": "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",
           "project": "health-prediction"
         }
-      ]
+      ],
+      "expo-font",
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

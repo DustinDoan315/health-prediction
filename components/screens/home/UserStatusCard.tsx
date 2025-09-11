@@ -1,20 +1,14 @@
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
-  } from '@/constants';
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
+} from '@/constants';
 import { LinearGradient } from 'expo-linear-gradient';
-import { memo, useEffect } from 'react';
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withSpring,
-    withTiming,
-} from 'react-native-reanimated';
+import { memo, useEffect, useRef } from 'react';
 import {
+    Animated,
     StyleSheet,
     Text,
     View,
@@ -33,12 +27,10 @@ interface UserStatusCardProps {
 const UserStatusCard = memo<UserStatusCardProps>(({ mood, isDark, isNewUser, userStats }) => {
   const colors = Colors[isDark ? 'dark' : 'light'];
   
-  const fadeAnim = useSharedValue(1);
-  const scaleAnim = useSharedValue(1);
-  const slideAnim = useSharedValue(0);
-  const contentOpacity = useSharedValue(1);
-  const liftAnim = useSharedValue(0);
-  const shadowOpacity = useSharedValue(0.12);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
+  const scaleAnim = useRef(new Animated.Value(0.8)).current;
+  const slideAnim = useRef(new Animated.Value(50)).current;
+  const contentOpacity = useRef(new Animated.Value(0)).current;
 
   const getMoodGradient = () => {
     switch (mood) {
@@ -129,65 +121,47 @@ const UserStatusCard = memo<UserStatusCardProps>(({ mood, isDark, isNewUser, use
   const gradientColors = getMoodGradient();
 
   useEffect(() => {
-    // Lift up animation sequence
-    liftAnim.value = withSequence(
-      withTiming(-8, { duration: 200 }), // Lift up
-      withSpring(-12, { damping: 15, stiffness: 200 }), // Bounce higher
-      withSpring(-8, { damping: 20, stiffness: 300 }) // Settle
-    );
-    
-    // Shadow animation - deeper shadow when lifted
-    shadowOpacity.value = withSequence(
-      withTiming(0.24, { duration: 200 }),
-      withSpring(0.32, { damping: 15, stiffness: 200 }),
-      withSpring(0.24, { damping: 20, stiffness: 300 })
-    );
-    
-    // Crossfade effect for content changes
-    contentOpacity.value = withSequence(
-      withTiming(0, { duration: 200 }),
-      withTiming(1, { duration: 300 })
-    );
-    
-    // Smooth entrance animation
-    fadeAnim.value = withTiming(1, { duration: 400 });
-    scaleAnim.value = withSpring(1, { 
-      damping: 20, 
-      stiffness: 300,
-      mass: 0.8
-    });
-    slideAnim.value = withSpring(0, { 
-      damping: 20, 
-      stiffness: 300,
-      mass: 0.8
-    });
+    Animated.parallel([
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 400,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        tension: 300,
+        friction: 20,
+        useNativeDriver: true,
+      }),
+      Animated.spring(slideAnim, {
+        toValue: 0,
+        tension: 300,
+        friction: 20,
+        useNativeDriver: true,
+      }),
+      Animated.timing(contentOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, [mood]);
 
-  const animatedStyle = useAnimatedStyle(() => ({
-    opacity: fadeAnim.value,
-    transform: [
-      { scale: scaleAnim.value },
-      { translateY: slideAnim.value + liftAnim.value }
-    ],
-    shadowOpacity: shadowOpacity.value,
-    shadowOffset: { width: 0, height: Math.abs(liftAnim.value) + 8 },
-    shadowRadius: Math.abs(liftAnim.value) + 16,
-    elevation: Math.abs(liftAnim.value) + 8,
-  }));
-
-  const contentAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: contentOpacity.value,
-  }));
-
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View style={{
+      opacity: fadeAnim,
+      transform: [
+        { scale: scaleAnim },
+        { translateY: slideAnim }
+      ],
+    }}>
       <LinearGradient
         colors={gradientColors as [string, string]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.container}
       >
-        <Animated.View style={[styles.content, contentAnimatedStyle]}>
+        <Animated.View style={[styles.content, { opacity: contentOpacity }]}>
           <Text style={styles.emoji}>{content.emoji}</Text>
           <Text style={styles.title}>
             {content.title}

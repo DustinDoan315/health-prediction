@@ -1,15 +1,8 @@
 import { BorderRadius, Colors } from '@/constants';
-import React, { useEffect } from 'react';
-import { StyleSheet, ViewStyle } from 'react-native';
-import Animated, {
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withTiming,
-} from 'react-native-reanimated';
-
 import { useColorScheme } from '@/hooks';
+import { useEffect, useRef } from 'react';
+import { Animated, StyleSheet, ViewStyle } from 'react-native';
+
 
 interface ISkeletonProps {
   width?: number | string;
@@ -28,27 +21,28 @@ export function Skeleton({
 }: ISkeletonProps) {
   const colorScheme = useColorScheme();
   const colors = Colors[colorScheme ?? 'light'];
-  const shimmerOpacity = useSharedValue(0.3);
+  const shimmerOpacity = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
-    shimmerOpacity.value = withRepeat(
-      withTiming(1, { duration: 1000 }),
-      -1,
-      true
-    );
-  }, [shimmerOpacity]);
-
-  const animatedStyle = useAnimatedStyle(() => {
-    const opacity = interpolate(
-      shimmerOpacity.value,
-      [0.3, 1, 0.3],
-      [0.3, 0.7, 0.3]
-    );
-
-    return {
-      opacity,
+    const startAnimation = () => {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(shimmerOpacity, {
+            toValue: 0.7,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+          Animated.timing(shimmerOpacity, {
+            toValue: 0.3,
+            duration: 1000,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
     };
-  });
+
+    startAnimation();
+  }, [shimmerOpacity]);
 
   const skeletonStyle: ViewStyle[] = [
     styles.skeleton,
@@ -63,13 +57,13 @@ export function Skeleton({
 
   if (children) {
     return (
-      <Animated.View style={[skeletonStyle, animatedStyle]}>
+      <Animated.View style={[skeletonStyle, { opacity: shimmerOpacity }]}>
         {children}
       </Animated.View>
     );
   }
 
-  return <Animated.View style={[skeletonStyle, animatedStyle]} />;
+  return <Animated.View style={[skeletonStyle, { opacity: shimmerOpacity }]} />;
 }
 
 const styles = StyleSheet.create({

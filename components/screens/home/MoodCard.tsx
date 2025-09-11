@@ -1,22 +1,16 @@
-import * as Haptics from 'expo-haptics';
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
-  } from '@/constants';
-import { memo, useCallback } from 'react';
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
+} from '@/constants';
 import { UIText } from '@/content';
+import * as Haptics from 'expo-haptics';
+import { memo, useCallback, useRef } from 'react';
 
-import Animated, {
-    useAnimatedStyle,
-    useSharedValue,
-    withSequence,
-    withSpring,
-    withTiming,
-} from 'react-native-reanimated';
 import {
+    Animated,
     StyleSheet,
     Text,
     TouchableOpacity,
@@ -47,32 +41,51 @@ interface AnimatedMoodOptionProps {
 }
 
 const AnimatedMoodOption = memo<AnimatedMoodOptionProps>(({ option, isSelected, colors, onPress }) => {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-  
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ scale: scale.value }],
-    opacity: opacity.value,
-  }));
+  const scale = useRef(new Animated.Value(1)).current;
+  const opacity = useRef(new Animated.Value(1)).current;
 
   const handlePress = () => {
-    // More sophisticated press animation
-    scale.value = withSequence(
-      withTiming(0.92, { duration: 100 }),
-      withSpring(1.05, { damping: 20, stiffness: 400 }),
-      withSpring(1, { damping: 25, stiffness: 300 })
-    );
+    Animated.sequence([
+      Animated.timing(scale, {
+        toValue: 0.92,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1.05,
+        tension: 400,
+        friction: 20,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scale, {
+        toValue: 1,
+        tension: 300,
+        friction: 25,
+        useNativeDriver: true,
+      }),
+    ]).start();
     
-    opacity.value = withSequence(
-      withTiming(0.7, { duration: 100 }),
-      withTiming(1, { duration: 200 })
-    );
+    Animated.sequence([
+      Animated.timing(opacity, {
+        toValue: 0.7,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+    ]).start();
     
     onPress(option.value);
   };
 
   return (
-    <Animated.View style={animatedStyle}>
+    <Animated.View style={{
+      transform: [{ scale }],
+      opacity,
+    }}>
       <TouchableOpacity
         style={[
           styles.moodOption,
@@ -97,42 +110,44 @@ AnimatedMoodOption.displayName = 'AnimatedMoodOption';
 
 const MoodCard = memo<MoodCardProps>(({ selectedMood, onMoodSelect, isDark }) => {
   const colors = Colors[isDark ? 'dark' : 'light'];
-  const liftAnim = useSharedValue(0);
-  const shadowOpacity = useSharedValue(0.12);
+  const liftAnim = useRef(new Animated.Value(0)).current;
 
   const handleMoodSelect = useCallback((mood: MoodValue) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     
-    // Lift animation when mood is selected
-    liftAnim.value = withSequence(
-      withTiming(-4, { duration: 150 }),
-      withSpring(-6, { damping: 15, stiffness: 200 }),
-      withSpring(-4, { damping: 20, stiffness: 300 })
-    );
-    
-    shadowOpacity.value = withSequence(
-      withTiming(0.20, { duration: 150 }),
-      withSpring(0.24, { damping: 15, stiffness: 200 }),
-      withSpring(0.20, { damping: 20, stiffness: 300 })
-    );
+    Animated.sequence([
+      Animated.timing(liftAnim, {
+        toValue: -4,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.spring(liftAnim, {
+        toValue: -6,
+        tension: 200,
+        friction: 15,
+        useNativeDriver: true,
+      }),
+      Animated.spring(liftAnim, {
+        toValue: -4,
+        tension: 300,
+        friction: 20,
+        useNativeDriver: true,
+      }),
+    ]).start();
     
     onMoodSelect(mood);
-  }, [onMoodSelect]);
-
-  const cardAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: liftAnim.value }],
-    shadowOpacity: shadowOpacity.value,
-    shadowOffset: { width: 0, height: Math.abs(liftAnim.value) + 4 },
-    shadowRadius: Math.abs(liftAnim.value) + 8,
-    elevation: Math.abs(liftAnim.value) + 4,
-  }));
+  }, [onMoodSelect, liftAnim]);
 
   return (
     <View style={styles.container}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>
         {UIText.home.today}
       </Text>
-      <Animated.View style={[styles.moodCard, { backgroundColor: colors.surface }, cardAnimatedStyle]}>
+      <Animated.View style={[
+        styles.moodCard, 
+        { backgroundColor: colors.surface },
+        { transform: [{ translateY: liftAnim }] }
+      ]}>
         <Text style={[styles.moodQuestion, { color: colors.text }]}>
           {UIText.home.moodQuestion}
         </Text>

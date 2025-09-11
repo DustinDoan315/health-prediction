@@ -1,15 +1,13 @@
-import { AppInitializer } from '@/src/core/AppInitializer';
 import { ErrorBoundary, ThemeProvider } from '@/components';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { initSentry } from '@/services';
-import { Provider } from 'react-redux';
+import { AppInitializer } from '@/src/core/AppInitializer';
+import { store } from '@/store/store';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { store } from '@/store/store';
 import { useEffect } from 'react';
-import { useFonts } from 'expo-font';
-import 'react-native-reanimated';
-
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Provider } from 'react-redux';
 
 
 initSentry();

@@ -1,32 +1,29 @@
-import * as Haptics from 'expo-haptics';
-
-import Animated, {
-  FadeIn,
-  FadeOut,
-  useAnimatedStyle,
-  useSharedValue,
-  withSequence,
-  withSpring,
-  withTiming,
-} from 'react-native-reanimated';
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
 } from '@/constants';
-import {
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { memo, useCallback, useEffect } from 'react';
-
-import { LinearGradient } from 'expo-linear-gradient';
 import { UIText } from '@/content';
+import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import {
+    memo,
+    useCallback,
+    useEffect,
+    useRef
+} from 'react';
+
+import {
+    Animated,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+} from 'react-native';
+
 
 export type MoodValue = 'great' | 'good' | 'okay' | 'bad';
 
@@ -44,61 +41,77 @@ interface ActionTileProps {
 }
 
 const ActionTile = memo<ActionTileProps>(({ action, colors, index }) => {
-  const tileLiftAnim = useSharedValue(0);
-  const tileShadowOpacity = useSharedValue(0.12);
+  const tileLiftAnim = useRef(new Animated.Value(0)).current;
+  const tileScaleAnim = useRef(new Animated.Value(1)).current;
   
-  const tileAnimatedStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: tileLiftAnim.value }],
-    shadowOpacity: tileShadowOpacity.value,
-    shadowOffset: { width: 0, height: Math.abs(tileLiftAnim.value) + 4 },
-    shadowRadius: Math.abs(tileLiftAnim.value) + 8,
-    elevation: Math.abs(tileLiftAnim.value) + 4,
-  }));
-
   const handlePress = () => {
-    tileLiftAnim.value = withSequence(
-      withTiming(-4, { duration: 100 }),
-      withSpring(-6, { damping: 15, stiffness: 200 }),
-      withSpring(-4, { damping: 20, stiffness: 300 })
-    );
+    Animated.sequence([
+      Animated.timing(tileLiftAnim, {
+        toValue: -4,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(tileLiftAnim, {
+        toValue: -6,
+        tension: 200,
+        friction: 15,
+        useNativeDriver: true,
+      }),
+      Animated.spring(tileLiftAnim, {
+        toValue: -4,
+        tension: 300,
+        friction: 20,
+        useNativeDriver: true,
+      }),
+    ]).start();
     
-    tileShadowOpacity.value = withSequence(
-      withTiming(0.20, { duration: 100 }),
-      withSpring(0.24, { damping: 15, stiffness: 200 }),
-      withSpring(0.20, { damping: 20, stiffness: 300 })
-    );
+    Animated.sequence([
+      Animated.timing(tileScaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(tileScaleAnim, {
+        toValue: 1,
+        tension: 300,
+        friction: 20,
+        useNativeDriver: true,
+      }),
+    ]).start();
     
     action.onPress();
   };
 
   return (
     <Animated.View
-      entering={FadeIn.delay(index * 80).duration(350).springify()}
-      exiting={FadeOut.duration(150)}
+      style={{
+        transform: [
+          { translateY: tileLiftAnim },
+          { scale: tileScaleAnim }
+        ],
+      }}
     >
-      <Animated.View style={tileAnimatedStyle}>
-        <TouchableOpacity 
-          style={[styles.actionTile, { backgroundColor: colors.surface }]}
-          onPress={handlePress}
+      <TouchableOpacity 
+        style={[styles.actionTile, { backgroundColor: colors.surface }]}
+        onPress={handlePress}
+      >
+        <LinearGradient
+          colors={[action.iconBg, action.iconBg + '80']}
+          style={styles.actionIcon}
         >
-          <LinearGradient
-            colors={[action.iconBg, action.iconBg + '80']}
-            style={styles.actionIcon}
-          >
-            <Text style={[styles.actionEmoji, { color: colors.surface }]}>
-              {action.icon}
-            </Text>
-          </LinearGradient>
-          <View style={styles.actionContent}>
-            <Text style={[styles.actionTitle, { color: colors.text }]}>
-              {action.title}
-            </Text>
-            <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
-              {action.subtitle}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </Animated.View>
+          <Text style={[styles.actionEmoji, { color: colors.surface }]}>
+            {action.icon}
+          </Text>
+        </LinearGradient>
+        <View style={styles.actionContent}>
+          <Text style={[styles.actionTitle, { color: colors.text }]}>
+            {action.title}
+          </Text>
+          <Text style={[styles.actionSubtitle, { color: colors.textSecondary }]}>
+            {action.subtitle}
+          </Text>
+        </View>
+      </TouchableOpacity>
     </Animated.View>
   );
 });
@@ -114,10 +127,8 @@ interface ActionTilesProps {
 const ActionTiles = memo<ActionTilesProps>(({ isDark, mood, isNewUser = false }) => {
   const colors = Colors[isDark ? 'dark' : 'light'];
   
-  const containerOpacity = useSharedValue(1);
-  const containerScale = useSharedValue(1);
-  const liftAnim = useSharedValue(0);
-  const shadowOpacity = useSharedValue(0.12);
+  const containerOpacity = useRef(new Animated.Value(0)).current;
+  const containerScale = useRef(new Animated.Value(0.8)).current;
 
   const handleViewHistory = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -437,43 +448,30 @@ const ActionTiles = memo<ActionTilesProps>(({ isDark, mood, isNewUser = false })
   const actions = getMoodBasedActions();
 
   useEffect(() => {
-    // Lift up animation sequence
-    liftAnim.value = withSequence(
-      withTiming(-6, { duration: 200 }), // Lift up
-      withSpring(-10, { damping: 15, stiffness: 200 }), // Bounce higher
-      withSpring(-6, { damping: 20, stiffness: 300 }) // Settle
-    );
-    
-    // Shadow animation - deeper shadow when lifted
-    shadowOpacity.value = withSequence(
-      withTiming(0.20, { duration: 200 }),
-      withSpring(0.28, { damping: 15, stiffness: 200 }),
-      withSpring(0.20, { damping: 20, stiffness: 300 })
-    );
-    
-    containerOpacity.value = withTiming(1, { duration: 300 });
-    containerScale.value = withSpring(1, { 
-      damping: 25, 
-      stiffness: 400,
-      mass: 0.6
-    });
-  }, [mood, isNewUser]);
-
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: containerOpacity.value,
-    transform: [
-      { scale: containerScale.value },
-      { translateY: liftAnim.value }
-    ],
-    shadowOpacity: shadowOpacity.value,
-    shadowOffset: { width: 0, height: Math.abs(liftAnim.value) + 8 },
-    shadowRadius: Math.abs(liftAnim.value) + 16,
-    elevation: Math.abs(liftAnim.value) + 8,
-  }));
+    Animated.parallel([
+      Animated.timing(containerOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }),
+      Animated.spring(containerScale, {
+        toValue: 1,
+        tension: 400,
+        friction: 25,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [mood, isNewUser, containerOpacity, containerScale]);
 
 
   return (
-    <Animated.View style={[styles.container, containerAnimatedStyle]}>
+    <Animated.View style={[
+      styles.container,
+      {
+        opacity: containerOpacity,
+        transform: [{ scale: containerScale }],
+      }
+    ]}>
       <Text style={[styles.sectionTitle, { color: colors.text }]}>
         {UIText.home.quickActions}
       </Text>
