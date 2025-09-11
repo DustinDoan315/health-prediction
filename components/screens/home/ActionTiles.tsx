@@ -1,27 +1,27 @@
 import {
-  BorderRadius,
-  Colors,
-  Elevation,
-  Spacing,
-  Typography
+    BorderRadius,
+    Colors,
+    Elevation,
+    Spacing,
+    Typography
 } from '@/constants';
 import { UIText } from '@/content';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import {
-  memo,
-  useCallback,
-  useEffect,
-  useRef
+    memo,
+    useCallback,
+    useEffect,
+    useRef
 } from 'react';
 
 import {
-  Animated,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Animated,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
 
 
@@ -147,17 +147,32 @@ const ActionTiles = memo<ActionTilesProps>(({ isDark, mood, isNewUser = false })
 
   const handleTrackExercise = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/profile');
+    router.push('/health-logbook');
   }, []);
 
   const handleSetGoals = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/profile');
+    router.push('/health-goals-onboarding');
   }, []);
 
   const handleHealthTips = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push('/(tabs)/chat');
+    router.push('/education');
+  }, []);
+
+  const handleDashboard = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push('/dashboard');
+  }, []);
+
+  const handleProgress = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push('/progress-milestones');
+  }, []);
+
+  const handleReminders = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push('/reminders');
   }, []);
 
   const handleEmergencyContacts = useCallback(() => {
@@ -309,64 +324,64 @@ const ActionTiles = memo<ActionTilesProps>(({ isDark, mood, isNewUser = false })
         case 'great':
           return [
             {
-              id: 'track-exercise',
-              title: 'Track Exercise',
-              subtitle: 'Log your workout',
-              icon: '🏃‍♂️',
+              id: 'dashboard',
+              title: 'Health Dashboard',
+              subtitle: 'View your metrics',
+              icon: '📊',
               iconBg: colors.success,
+              onPress: handleDashboard,
+            },
+            {
+              id: 'track-exercise',
+              title: 'Log Health Data',
+              subtitle: 'Track your progress',
+              icon: '📝',
+              iconBg: colors.primary,
               onPress: handleTrackExercise,
             },
             {
-              id: 'set-goals',
-              title: 'Set Health Goals',
-              subtitle: 'Create new targets',
-              icon: '🎯',
-              iconBg: colors.primary,
-              onPress: handleSetGoals,
-            },
-            {
-              id: 'ai-assistant',
-              title: UIText.actions.aiAssistant,
-              subtitle: UIText.actions.aiAssistantSubtitle,
-              icon: '💬',
-              iconBg: colors.secondary,
-              onPress: handleChat,
+              id: 'progress',
+              title: 'Progress & Milestones',
+              subtitle: 'See your achievements',
+              icon: '🏆',
+              iconBg: colors.warning,
+              onPress: handleProgress,
             },
           ];
       case 'good':
         return [
           {
-            id: 'medical-history',
-            title: UIText.actions.medicalHistory,
-            subtitle: UIText.actions.medicalHistorySubtitle,
-            icon: '📋',
+            id: 'health-tips',
+            title: 'Health Education',
+            subtitle: 'Learn wellness tips',
+            icon: '📚',
             iconBg: colors.primary,
-            onPress: handleViewHistory,
+            onPress: handleHealthTips,
           },
           {
-            id: 'ai-assistant',
-            title: UIText.actions.aiAssistant,
-            subtitle: UIText.actions.aiAssistantSubtitle,
-            icon: '💬',
+            id: 'reminders',
+            title: 'Health Reminders',
+            subtitle: 'Set up notifications',
+            icon: '🔔',
             iconBg: colors.secondary,
-            onPress: handleChat,
+            onPress: handleReminders,
           },
           {
-            id: 'new-prediction',
-            title: UIText.actions.newPrediction,
-            subtitle: UIText.actions.newPredictionSubtitle,
-            icon: '🔍',
+            id: 'set-goals',
+            title: 'Set Health Goals',
+            subtitle: 'Create new targets',
+            icon: '🎯',
             iconBg: colors.success,
-            onPress: handleCreatePrediction,
+            onPress: handleSetGoals,
           },
         ];
       case 'okay':
         return [
           {
             id: 'health-tips',
-            title: 'Health Tips',
-            subtitle: 'Wellness guidance',
-            icon: '💡',
+            title: 'Health Education',
+            subtitle: 'Gentle wellness guidance',
+            icon: '📚',
             iconBg: colors.warning,
             onPress: handleHealthTips,
           },
@@ -379,12 +394,12 @@ const ActionTiles = memo<ActionTilesProps>(({ isDark, mood, isNewUser = false })
             onPress: handleChat,
           },
           {
-            id: 'medical-history',
-            title: UIText.actions.medicalHistory,
-            subtitle: UIText.actions.medicalHistorySubtitle,
-            icon: '📋',
+            id: 'track-exercise',
+            title: 'Log Health Data',
+            subtitle: 'Track your progress',
+            icon: '📝',
             iconBg: colors.primary,
-            onPress: handleViewHistory,
+            onPress: handleTrackExercise,
           },
         ];
       case 'bad':
@@ -417,28 +432,28 @@ const ActionTiles = memo<ActionTilesProps>(({ isDark, mood, isNewUser = false })
       default:
         return [
           {
-            id: 'ai-assistant',
-            title: UIText.actions.aiAssistant,
-            subtitle: 'Start a conversation',
-            icon: '💬',
+            id: 'dashboard',
+            title: 'Health Dashboard',
+            subtitle: 'View your metrics',
+            icon: '📊',
             iconBg: colors.secondary,
-            onPress: handleChat,
+            onPress: handleDashboard,
           },
           {
-            id: 'medical-history',
-            title: UIText.actions.medicalHistory,
-            subtitle: UIText.actions.medicalHistorySubtitle,
-            icon: '📋',
+            id: 'health-tips',
+            title: 'Health Education',
+            subtitle: 'Learn wellness tips',
+            icon: '📚',
             iconBg: colors.primary,
-            onPress: handleViewHistory,
+            onPress: handleHealthTips,
           },
           {
-            id: 'new-prediction',
-            title: UIText.actions.newPrediction,
-            subtitle: UIText.actions.newPredictionSubtitle,
-            icon: '🔍',
+            id: 'track-exercise',
+            title: 'Log Health Data',
+            subtitle: 'Track your progress',
+            icon: '📝',
             iconBg: colors.success,
-            onPress: handleCreatePrediction,
+            onPress: handleTrackExercise,
           },
         ];
       }

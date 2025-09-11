@@ -8,14 +8,15 @@ import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 
 import {
-  Alert,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+    Alert,
+    SafeAreaView,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
 } from 'react-native';
+
 
 export default function SettingsScreen() {
   const dispatch = useAppDispatch();
@@ -62,11 +63,7 @@ export default function SettingsScreen() {
           title: 'Notification Preferences',
           subtitle: 'Manage your notification settings',
           icon: '🔔',
-          onPress: () =>
-            Alert.alert(
-              'Coming Soon',
-              'Notification settings will be available soon'
-            ),
+          onPress: () => router.push('/reminders' as any),
         },
       ],
     },
@@ -84,8 +81,25 @@ export default function SettingsScreen() {
           title: 'Health Goals',
           subtitle: 'Set and track your health goals',
           icon: '🎯',
-          onPress: () =>
-            Alert.alert('Coming Soon', 'Health goals will be available soon'),
+          onPress: () => router.push('/health-goals-onboarding' as any),
+        },
+        {
+          title: 'Health Dashboard',
+          subtitle: 'View your health metrics',
+          icon: '📊',
+          onPress: () => router.push('/dashboard' as any),
+        },
+        {
+          title: 'Health Education',
+          subtitle: 'Learn wellness tips and articles',
+          icon: '📚',
+          onPress: () => router.push('/education' as any),
+        },
+        {
+          title: 'Progress & Milestones',
+          subtitle: 'Track your achievements',
+          icon: '🏆',
+          onPress: () => router.push('/progress-milestones' as any),
         },
       ],
     },

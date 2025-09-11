@@ -11,6 +11,10 @@ const background = '#F7F8FA';
 const surfaceDark = '#1F2937';
 const backgroundDark = '#111827';
 
+// Border colors
+const border = '#E5E7EB';
+const borderDark = '#374151';
+
 // Text colors with proper contrast
 const textPrimary = '#111827';
 const textSecondary = '#6B7280';
@@ -52,6 +56,9 @@ export const Colors = {
     surface,
     background,
 
+    // Border colors
+    border,
+
     // Text colors
     text: textPrimary,
     textSecondary,
@@ -89,6 +96,9 @@ export const Colors = {
     // Surface colors
     surface: surfaceDark,
     background: backgroundDark,
+
+    // Border colors
+    border: borderDark,
 
     // Text colors
     text: textPrimaryDark,

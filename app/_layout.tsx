@@ -38,6 +38,13 @@ function AppContent() {
         <Stack.Screen name="profile" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
+        <Stack.Screen name="dashboard" options={{ headerShown: false }} />
+        <Stack.Screen name="education" options={{ headerShown: false }} />
+        <Stack.Screen name="health-goals-onboarding" options={{ headerShown: false }} />
+        <Stack.Screen name="health-logbook" options={{ headerShown: false }} />
+        <Stack.Screen name="progress-milestones" options={{ headerShown: false }} />
+        <Stack.Screen name="reminders" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
       </Stack>
       <StatusBar style="auto" />

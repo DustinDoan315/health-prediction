@@ -1,6 +1,9 @@
 export { ChatWithAIUseCase } from './ai';
 export { AppleLoginUseCase, GetCurrentUserUseCase, GoogleLoginUseCase, LoginUseCase, LogoutUseCase, RegisterUseCase } from './auth';
+export { CreateHealthGoalUseCase } from './CreateHealthGoalUseCase';
+export { CreateUserProfileUseCase } from './CreateUserProfileUseCase';
 export { CreateHealthPredictionUseCase, CreateSimpleHealthPredictionUseCase, GetHealthStatsUseCase, GetUserPredictionsUseCase } from './health';
+export { LogHealthDataUseCase } from './LogHealthDataUseCase';
 
 // Export interfaces
 export type { IChatWithAIUseCase } from './ai/interfaces';
